@@ -1,696 +1,1828 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SQL Chronicles — Biblioteca renacentista (MVP mejorado)</title>
-
-  <!-- Paleta y estilos base -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scriptum SQL: El Manuscrito Perdido</title>
   <style>
-    :root{
-      --bg:#f4f6fb;
-      --card:#fff;
-      --accent:#1f6feb;
-      --accent-2:#fb923c;
-      --success:#34d399;
-      --muted:#6b7280;
-      --text:#111827;
-      --glass: rgba(255,255,255,0.85);
-      --radius:12px;
-      --gap:14px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family:Inter,system-ui,Segoe UI,Roboto,Arial;
-      background: linear-gradient(180deg,#f4f6fb 0%, #eef2ff 100%);
-      color:var(--text);
-      -webkit-font-smoothing:antialiased;
-      padding-bottom:40px;
+    :root {
+      --bg: #f4f6fb;
+      --card: #fff;
+      --primary: #264653;
+      --secondary: #2a9d8f;
+      --accent: #e9c46a;
+      --warning: #f4a261;
+      --danger: #e76f51;
+      --text: #1a1a1a;
+      --muted: #6b7280;
+      --radius: 12px;
+      --shadow: 0 8px 24px rgba(38, 70, 83, 0.1);
     }
 
-    header{
-      background:linear-gradient(90deg,var(--accent),#5ec0ff 60%);
-      color:white;
-      padding:18px 20px;
-      display:flex;
-      gap:12px;
-      align-items:center;
-      justify-content:space-between;
-      box-shadow:0 6px 18px rgba(31,111,235,0.12);
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Georgia', 'Palatino', serif;
+      background: linear-gradient(135deg, #264653 0%, #2a9d8f 100%);
+      color: var(--text);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
     }
-    header .title{display:flex;gap:12px;align-items:center}
-    header h1{margin:0;font-size:18px}
-    header .sub{opacity:0.95;font-size:13px}
 
-    .container{max-width:1200px;margin:20px auto;padding:12px;display:flex;gap:var(--gap);align-items:flex-start}
-    .col{background:var(--card);padding:14px;border-radius:var(--radius);box-shadow:0 8px 24px rgba(12,20,30,0.06)}
-    .left{width:320px;flex-shrink:0}
-    .center{flex:1}
-    .right{width:320px;flex-shrink:0}
+    /* Partículas ambientales */
+    .particles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
 
-    /* Story card */
-    .prologue{background:linear-gradient(180deg,#fff 0%, #fbfbff 100%);border-radius:12px;padding:12px}
-    .prologue h2{margin:0 0 8px 0}
-    .npc{display:flex;gap:10px;align-items:center;margin-bottom:8px}
-    .npc svg{width:48px;height:48px;border-radius:8px;background:linear-gradient(90deg,#fff,#f1f5f9);padding:6px}
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: var(--accent);
+      border-radius: 50%;
+      opacity: 0.3;
+      animation: float 15s infinite ease-in-out;
+    }
 
-    /* Challenges list */
-    .challenges button{display:block;width:100%;text-align:left;padding:10px;margin-bottom:8px;border-radius:10px;border:1px solid #eef2ff;background:#fff;cursor:pointer;transition:all .12s}
-    .challenges button:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(31,111,235,0.06)}
-    .challenges button.active{background:var(--accent);color:#fff;border-color:transparent}
+    @keyframes float {
+      0%, 100% { transform: translateY(0) translateX(0); }
+      25% { transform: translateY(-30px) translateX(10px); }
+      50% { transform: translateY(-60px) translateX(-10px); }
+      75% { transform: translateY(-30px) translateX(5px); }
+    }
+
+    /* Onboarding */
+    .onboarding {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .onboarding-content {
+      background: linear-gradient(180deg, #fff 0%, #f9fafb 100%);
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      animation: slideIn 0.5s ease-out;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo-animation {
+      width: 200px;
+      height: 200px;
+      margin: 0 auto 30px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .typing-text {
+      overflow: hidden;
+      border-right: 2px solid var(--primary);
+      white-space: nowrap;
+      animation: typing 3s steps(40) forwards, blink 0.75s step-end infinite;
+      display: inline-block;
+    }
+
+    @keyframes typing {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+
+    @keyframes blink {
+      50% { border-color: transparent; }
+    }
+
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      border-radius: var(--radius);
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: inherit;
+      box-shadow: 0 4px 12px rgba(38, 70, 83, 0.3);
+    }
+
+    .btn:hover {
+      background: var(--secondary);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(42, 157, 143, 0.4);
+    }
+
+    .btn-secondary {
+      background: var(--warning);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+    }
+
+    /* Avatar Selection */
+    .avatar-selector {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      margin: 30px 0;
+    }
+
+    .avatar-card {
+      width: 120px;
+      height: 140px;
+      background: linear-gradient(180deg, #fff 0%, #f3f4f6 100%);
+      border-radius: 12px;
+      padding: 15px;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: 3px solid transparent;
+    }
+
+    .avatar-card.active {
+      border-color: var(--secondary);
+      box-shadow: 0 0 20px rgba(42, 157, 143, 0.5);
+      transform: scale(1.1);
+    }
+
+    .avatar-icon {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+
+    .input-name {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid var(--muted);
+      border-radius: var(--radius);
+      font-size: 16px;
+      font-family: inherit;
+      margin: 20px 0;
+    }
+
+    /* Main App */
+    .app-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .header {
+      background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white;
+      padding: 20px;
+      border-radius: var(--radius);
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .header-title {
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .stats-bar {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .stat-badge {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: bold;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 300px 1fr 300px;
+      gap: 20px;
+    }
+
+    .panel {
+      background: white;
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      max-height: calc(100vh - 180px);
+      overflow-y: auto;
+    }
+
+    .panel h3 {
+      color: var(--primary);
+      margin-bottom: 15px;
+      font-size: 18px;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 10px;
+    }
+
+    /* Challenge List */
+    .challenge-item {
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border: 2px solid #e5e7eb;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    .challenge-item:hover {
+      border-color: var(--secondary);
+      transform: translateX(5px);
+    }
+
+    .challenge-item.active {
+      background: var(--secondary);
+      color: white;
+      border-color: var(--secondary);
+    }
+
+    .challenge-item.completed::after {
+      content: '✓';
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--secondary);
+      font-weight: bold;
+      font-size: 20px;
+    }
+
+    .challenge-item.active.completed::after {
+      color: white;
+    }
 
     /* Editor */
-    .editor{margin-top:10px;display:flex;flex-direction:column;gap:10px}
-    textarea.sqlEditor{width:100%;min-height:180px;padding:12px;border-radius:10px;border:1px solid #e6eefc;font-family:var(--mono);font-size:13px;resize:vertical;background:linear-gradient(180deg,#fbfdff,#fff)}
-    .controls{display:flex;gap:8px;flex-wrap:wrap}
-    .btn{padding:8px 12px;border-radius:10px;border:none;background:var(--accent);color:#fff;cursor:pointer;box-shadow:0 6px 14px rgba(31,111,235,0.12)}
-    .btn.secondary{background:#6b7280}
-    .btn.ghost{background:transparent;border:1px solid #e6eefc;color:var(--text)}
-    .small{padding:6px 8px;font-size:13px;border-radius:8px}
-
-    .result{margin-top:12px}
-    table{width:100%;border-collapse:collapse}
-    th,td{border:1px solid #f1f5f9;padding:8px;text-align:left;font-size:13px}
-    .muted{color:var(--muted)}
-
-    /* Hints and progress */
-    .hint{background:#fff9f4;padding:10px;border-radius:8px;margin-bottom:8px;border:1px solid #fff0e6}
-    .progressCard{display:flex;flex-direction:column;gap:8px}
-
-    /* Modal */
-    .modalBack{position:fixed;inset:0;background:rgba(10,20,30,0.45);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
-    .modal{background:var(--card);border-radius:10px;padding:16px;max-width:820px;width:100%;max-height:80vh;overflow:auto;box-shadow:0 14px 40px rgba(12,20,30,0.2)}
-    .row{display:flex;gap:10px;align-items:center}
-    .badge{display:inline-block;background:var(--accent-2);color:white;padding:6px 8px;border-radius:8px;font-weight:600;font-size:13px}
-
-    /* XP badge */
-    .xpBox{display:flex;gap:10px;align-items:center}
-    .xpCounter{background:linear-gradient(90deg,#fff,#f7f9ff);padding:8px 10px;border-radius:10px;border:1px solid #eef2ff;font-weight:700}
-
-    /* Responsive */
-    @media (max-width:980px){
-      .container{flex-direction:column;padding:12px}
-      .left,.right{width:100%}
+    .editor-container {
+      margin: 20px 0;
     }
 
-    /* small helpers */
-    .label{font-weight:700;font-size:14px;margin-bottom:6px}
-    .tiny{font-size:12px;color:var(--muted)}
-    .centerText{text-align:center}
+    .sql-editor {
+      width: 100%;
+      min-height: 200px;
+      padding: 15px;
+      border: 2px solid var(--muted);
+      border-radius: var(--radius);
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      resize: vertical;
+      background: #1e1e1e;
+      color: #d4d4d4;
+    }
+
+    .editor-controls {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* Results */
+    .results {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f9fafb;
+      border-radius: var(--radius);
+      border: 2px solid var(--accent);
+    }
+
+    .results table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    .results th, .results td {
+      padding: 10px;
+      text-align: left;
+      border: 1px solid #e5e7eb;
+    }
+
+    .results th {
+      background: var(--primary);
+      color: white;
+    }
+
+    .results tr:nth-child(even) {
+      background: #f3f4f6;
+    }
+
+    /* Progress Bar */
+    .progress-world {
+      background: linear-gradient(180deg, #fff 0%, #f9fafb 100%);
+      border: 2px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+
+    .progress-bar-container {
+      background: #e5e7eb;
+      border-radius: 20px;
+      height: 24px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--secondary) 0%, var(--accent) 100%);
+      transition: width 0.5s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 12px;
+    }
+
+    .reputation-stars {
+      display: flex;
+      gap: 5px;
+      margin-top: 10px;
+    }
+
+    .star {
+      color: var(--accent);
+      font-size: 20px;
+    }
+
+    .star.empty {
+      color: #d1d5db;
+    }
+
+    /* Hints */
+    .hint-box {
+      background: #fffbeb;
+      border-left: 4px solid var(--warning);
+      padding: 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+
+    /* Modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: var(--radius);
+      padding: 30px;
+      max-width: 700px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: var(--danger);
+      color: white;
+      border: none;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    /* Badges */
+    .badge-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .badge-item {
+      text-align: center;
+      padding: 15px;
+      background: linear-gradient(180deg, #fff 0%, #f3f4f6 100%);
+      border-radius: 12px;
+      border: 2px solid #e5e7eb;
+      transition: all 0.3s;
+    }
+
+    .badge-item.unlocked {
+      border-color: var(--accent);
+      box-shadow: 0 0 20px rgba(233, 196, 106, 0.3);
+    }
+
+    .badge-item.locked {
+      opacity: 0.5;
+      filter: grayscale(100%);
+    }
+
+    .badge-icon {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .panel {
+        max-height: none;
+      }
+    }
+
+    /* Loading */
+    .loading-screen {
+      position: fixed;
+      inset: 0;
+      background: var(--primary);
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+
+    .loading-bar {
+      width: 300px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 20px;
+    }
+
+    .loading-fill {
+      height: 100%;
+      background: var(--accent);
+      animation: loadingProgress 3s ease-in-out forwards;
+    }
+
+    @keyframes loadingProgress {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
-  <header>
-    <div class="title">
-      <!-- Placeholder SVG banner: puedes reemplazar por tu imagen -->
-      <svg width="56" height="48" viewBox="0 0 100 80" aria-hidden>
-        <rect rx="12" width="100" height="80" fill="#fff" opacity="0.08"></rect>
-        <text x="10" y="48" fill="white" font-weight="700" font-size="34">⚔️</text>
-      </svg>
-      <div>
-        <h1>SQL Chronicles — Biblioteca renacentista</h1>
-        <div class="sub">Explora, consulta y domina SQL — lecciones inmersivas en español</div>
+  <!-- Particles -->
+  <div class="particles" id="particles"></div>
+
+  <!-- Loading Screen -->
+  <div class="loading-screen" id="loadingScreen">
+    <h1 style="font-size: 48px; margin-bottom: 20px;">📜 Scriptum SQL</h1>
+    <p id="loadingText" style="font-size: 18px;">Descifrando manuscritos antiguos...</p>
+    <div class="loading-bar">
+      <div class="loading-fill"></div>
+    </div>
+  </div>
+
+  <!-- Onboarding -->
+  <div class="onboarding hidden" id="onboarding">
+    <div class="onboarding-content" id="onboardingContent">
+      <!-- Dynamic content will be inserted here -->
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div class="app-container hidden" id="mainApp">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-title">
+        <span style="font-size: 36px;">📜</span>
+        <div>
+          <div>Scriptum SQL</div>
+          <div style="font-size: 14px; opacity: 0.9;">El Manuscrito Perdido</div>
+        </div>
+      </div>
+      <div class="stats-bar">
+        <div class="stat-badge">
+          👤 <span id="playerName">Aprendiz</span>
+        </div>
+        <div class="stat-badge">
+          ⭐ <span id="playerXP">0</span> XP
+        </div>
+        <div class="stat-badge">
+          🪙 <span id="playerCoins">0</span>
+        </div>
+        <div class="stat-badge">
+          🔥 <span id="playerStreak">0</span> días
+        </div>
       </div>
     </div>
 
-    <div class="xpBox">
-      <div class="tiny">Tu XP</div>
-      <div id="xpCounter" class="xpCounter">0 XP</div>
-    </div>
-  </header>
-
-  <main class="container">
-    <!-- LEFT: Historia + Retos -->
-    <aside class="col left">
-      <div class="prologue">
-        <h2>Prólogo — Año 1510</h2>
-        <div class="npc">
-          <!-- Placeholder avatar -->
-          <svg viewBox="0 0 48 48" width="48" height="48" aria-hidden>
-            <rect rx="8" width="48" height="48" fill="#fff" opacity="0.06"></rect>
-            <circle cx="24" cy="20" r="8" fill="#fb923c"></circle>
-            <rect x="8" y="30" width="32" height="10" rx="3" fill="#ffdca3"></rect>
-          </svg>
-          <div>
-            <strong>Archivero Lorenzo</strong>
-            <div class="tiny">"Aprende a leer los registros y encontrarás los manuscritos perdidos."</div>
+    <!-- Content Grid -->
+    <div class="content-grid">
+      <!-- Left Panel -->
+      <div class="panel">
+        <h3>🗺️ Mundo 1: Fundamentos</h3>
+        
+        <div class="progress-world">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <strong>Progreso</strong>
+            <span id="worldProgress">0/10</span>
+          </div>
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill" id="worldProgressBar" style="width: 0%">0%</div>
+          </div>
+          
+          <div style="margin-top: 15px;">
+            <strong>Reputación con Lorenzo</strong>
+            <div class="reputation-stars" id="lorenzoRep">
+              <span class="star empty">★</span>
+              <span class="star empty">★</span>
+              <span class="star empty">★</span>
+            </div>
           </div>
         </div>
 
-        <p>Eres aprendiz en la Gran Biblioteca de la Villa. El archivero te pide consultas para recuperar registros antiguos. Completa retos, gana XP y desbloquea nuevas historias.</p>
+        <div id="challengeList"></div>
 
-        <div style="margin-top:10px">
-          <div class="label">Retos (Mundo 1 — Fundamentos)</div>
-          <div id="challenges" class="challenges"></div>
+        <div style="margin-top: 20px;">
+          <button class="btn btn-ghost" style="width: 100%; margin-bottom: 10px;" onclick="showSchema()">📋 Ver Esquema</button>
+          <button class="btn btn-ghost" style="width: 100%; margin-bottom: 10px;" onclick="showBadges()">🏆 Mis Insignias</button>
+          <button class="btn btn-ghost" style="width: 100%; margin-bottom: 10px;" onclick="showShop()">🛍️ Tienda</button>
+          <button class="btn btn-ghost" style="width: 100%;" onclick="showDiary()">📖 Mi Diario</button>
         </div>
       </div>
 
-      <div style="margin-top:12px" class="progressCard">
-        <div class="label">Acciones rápidas</div>
-        <button id="showSchemaBtn" class="btn ghost small">¿Qué tablas hay?</button>
-        <button id="openTutorialBtn" class="btn ghost small">Tutorial Nivel 0 — ¿Qué es SELECT?</button>
-        <button id="resetProgressBtn" class="btn secondary small">Reiniciar progreso local</button>
-      </div>
-    </aside>
+      <!-- Center Panel -->
+      <div class="panel">
+        <h3 id="challengeTitle">Cargando...</h3>
+        <p id="challengeDesc" style="color: var(--muted); margin-top: 10px;"></p>
 
-    <!-- CENTER: Editor y resultados -->
-    <section class="col center">
-      <div id="challengeBox">
-        <h3 id="challengeTitle">Cargando reto...</h3>
-        <p id="challengeDesc" class="muted"></p>
+        <div id="conceptBox" class="hint-box" style="background: #f0f9ff; border-left-color: var(--secondary); margin-top: 20px;"></div>
 
-        <div style="margin-top:12px" class="editor">
-          <label class="label">Editor SQL</label>
-          <textarea id="editor" class="sqlEditor" spellcheck="false">-- Escribe aquí tu consulta. Empieza con: SELECT title, author FROM books;</textarea>
-
-          <div class="row controls">
-            <button id="runBtn" class="btn">Ejecutar</button>
-            <button id="loadBtn" class="btn secondary">Cargar solución</button>
-            <button id="templateBtn" class="btn ghost">Plantillas</button>
-            <button id="clearBtn" class="btn ghost">Limpiar</button>
-            <button id="hintBtn" class="btn ghost">Pista</button>
-            <div style="flex:1"></div>
-            <div class="tiny">Usuario: <strong>Aprendiz</strong></div>
+        <div class="editor-container">
+          <label style="font-weight: bold; display: block; margin-bottom: 10px;">💻 Editor SQL</label>
+          <textarea id="sqlEditor" class="sql-editor" spellcheck="false">-- Escribe tu consulta aquí
+SELECT * FROM books;</textarea>
+          
+          <div class="editor-controls">
+            <button class="btn" onclick="executeQuery()">▶️ Ejecutar</button>
+            <button class="btn btn-secondary" onclick="loadSolution()">💡 Ver Solución</button>
+            <button class="btn btn-ghost" onclick="showHints()">🔍 Pistas</button>
+            <button class="btn btn-ghost" onclick="clearEditor()">🗑️ Limpiar</button>
+            <button class="btn btn-ghost" id="previewBtn" style="display: none;" onclick="previewQuery()">👁️ Vista Previa</button>
           </div>
         </div>
 
-        <div class="result" id="resultArea">
-          <h4>Resultado</h4>
-          <div id="resultContent" class="muted">Ejecuta tu consulta para ver resultados.</div>
+        <div class="results" id="results">
+          <strong>📊 Resultados</strong>
+          <p style="color: var(--muted); margin-top: 10px;">Ejecuta tu consulta para ver resultados...</p>
         </div>
       </div>
-    </section>
 
-    <!-- RIGHT: Pistas y Progreso -->
-    <aside class="col right">
-      <div>
-        <h4>Pistas & Progreso</h4>
-        <div id="hintBox" class="hint">
-          <strong>Pista general:</strong>
-          <p class="tiny">SELECT columnas FROM tabla. Usa Cargar solución si necesitas ver la respuesta modelo.</p>
+      <!-- Right Panel -->
+      <div class="panel">
+        <h3>💡 Ayuda</h3>
+        
+        <div id="lorenzoTips" class="hint-box">
+          <strong>Consejo de Lorenzo:</strong>
+          <p style="margin-top: 8px; font-size: 14px;">Comienza escribiendo SELECT para elegir qué columnas mostrar.</p>
         </div>
 
-        <div style="margin-top:10px">
-          <h4>Progreso local</h4>
-          <ul id="progressList" class="tiny"></ul>
+        <div id="currentHints" style="margin-top: 20px;">
+          <strong>Pistas disponibles:</strong>
+          <p style="color: var(--muted); font-size: 14px; margin-top: 8px;">Usa el botón "Pistas" para desbloquear ayuda.</p>
         </div>
 
-        <div style="margin-top:10px">
-          <h4>Tabla mostrada</h4>
-          <div class="tiny">Pulsa "¿Qué tablas hay?" para ver esquema y ejemplos.</div>
-        </div>
-      </div>
-    </aside>
-  </main>
-
-  <footer style="max-width:1200px;margin:20px auto;text-align:center;color:var(--muted)">
-    Guardado local en tu navegador · Archivo único para GitHub Pages · Hecho con ❤️
-  </footer>
-
-  <!-- Modal: Esquema -->
-  <div id="modalSchema" class="modalBack" role="dialog" aria-modal="true">
-    <div class="modal">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <h3>Esquema de la base de datos</h3>
-        <div><button id="closeSchema" class="btn ghost small">Cerrar</button></div>
-      </div>
-      <p class="tiny">Tablas y columnas disponibles. Usa estos nombres en tus consultas.</p>
-      <div id="schemaContent" style="margin-top:12px"></div>
-    </div>
-  </div>
-
-  <!-- Modal: Tutorial Nivel 0 -->
-  <div id="modalTutorial" class="modalBack" role="dialog" aria-modal="true">
-    <div class="modal">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <h3>Tutorial — Nivel 0: ¿Qué hace SELECT?</h3>
-        <div><button id="closeTutorial" class="btn ghost small">Cerrar</button></div>
-      </div>
-
-      <div style="margin-top:10px">
-        <p><strong>SELECT</strong> se utiliza para pedir columnas de una tabla.</p>
-        <pre style="background:#f8fafc;padding:10px;border-radius:8px;border:1px solid #eef2ff">SELECT title, author FROM books;</pre>
-        <ol>
-          <li><strong>SELECT</strong> — define qué columnas quieres.</li>
-          <li><strong>FROM</strong> — indica la tabla de la que quieres leer.</li>
-          <li><strong>WHERE</strong> (opcional) — filtra filas por condiciones.</li>
-        </ol>
-
-        <p class="tiny"><strong>Ejemplo paso a paso:</strong></p>
-        <p class="tiny">SELECT <em>title</em>, <em>author</em> FROM <em>books</em>;</p>
-        <p class="tiny">- title y author son columnas. books es la tabla. Si no conoces columnas usa "¿Qué tablas hay?".</p>
-
-        <div style="margin-top:12px;display:flex;gap:8px">
-          <button id="loadTutorialQuery" class="btn">Cargar ejemplo en editor</button>
-          <button id="closeTutorial2" class="btn ghost">Cerrar</button>
+        <div style="margin-top: 20px;">
+          <strong>📝 Consultas Favoritas</strong>
+          <div id="favoritesList" style="margin-top: 10px; font-size: 14px; color: var(--muted);">
+            Ninguna guardada aún
+          </div>
+          <button class="btn btn-ghost" style="width: 100%; margin-top: 10px;" onclick="saveFavorite()">⭐ Guardar Consulta</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Plantillas modal -->
-  <div id="modalTemplates" class="modalBack">
-    <div class="modal">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <h3>Plantillas rápidas</h3>
-        <div><button id="closeTemplates" class="btn ghost small">Cerrar</button></div>
-      </div>
-
-      <p class="tiny">Copia y utiliza estas plantillas para practicar.</p>
-      <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
-        <button class="btn ghost small template" data-q="SELECT * FROM books LIMIT 10;">SELECT * LIMIT</button>
-        <button class="btn ghost small template" data-q="SELECT title, COUNT(*) AS veces FROM books GROUP BY title;">GROUP BY (count)</button>
-        <button class="btn ghost small template" data-q="SELECT author, COUNT(*) AS total FROM books GROUP BY author ORDER BY total DESC;">GROUP BY + ORDER BY</button>
-        <button class="btn ghost small template" data-q="SELECT b.title, p.name AS publisher FROM books b JOIN products p ON p.id = b.id;">JOIN (ejemplo)</button>
-      </div>
+  <!-- Modals -->
+  <div class="modal" id="modalGeneric">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal('modalGeneric')">×</button>
+      <div id="modalGenericContent"></div>
     </div>
   </div>
 
-  <!-- dependencias: sql.js + confetti -->
   <script type="module">
-    import initSqlJs from "https://cdn.jsdelivr.net/npm/sql.js@1.8.0/dist/sql-wasm.js";
-    import confetti from "https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.mjs";
+    import initSqlJs from 'https://cdn.jsdelivr.net/npm/sql.js@1.8.0/dist/sql-wasm.js';
+    import confetti from 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.mjs';
 
-    // --- Seed SQL (dataset) ---
-    const seedSql = `BEGIN TRANSACTION;
-CREATE TABLE books(
-  id INTEGER PRIMARY KEY,
-  title TEXT,
-  author TEXT,
-  year INTEGER,
-  pages INTEGER,
-  genre TEXT
-);
-INSERT INTO books (id,title,author,year,pages,genre) VALUES
-(1,'El saber de la villa','Marcos de Albor',1489,192,'Historia'),
-(2,'Tratado de navegación','Beatriz Lema',1512,144,'Técnica'),
-(3,'Cartas y mapas','Alonso Rivas',1501,208,'Geografía'),
-(4,'Manuscritos de la corte','Isabel Cornejo',1475,320,'Historia'),
-(5,'Poemas de la luz','Diego Salas',1520,88,'Poesía'),
-(6,'Crónicas del puerto','Juana Méndez',1495,256,'Historia'),
-(7,'Recetas del monasterio','Felipe Otero',1508,64,'Cocina'),
-(8,'Los astros y su orden','Ana Hidalgo',1516,176,'Ciencia'),
-(9,'Arte en tablas','Martín Serrano',1490,120,'Arte'),
-(10,'Diarios de viaje','Sofía Vargas',1522,224,'Relatos'),
-(11,'Tratado de aritmética','Lucas Peña',1480,104,'Matemáticas'),
-(12,'Cantos agrícolas','Pedro Galán',1500,96,'Agricultura'),
-(13,'Apuntes de botánica','Teresa Ruiz',1510,160,'Ciencia'),
-(14,'Historia marítima','Óscar Bello',1498,200,'Historia'),
-(15,'Crónicas de comercio','María del Río',1518,212,'Economía'),
-(16,'Epístolas reales','Fernando Luján',1470,180,'Historia'),
-(17,'Relatos del monarca','Adela Prado',1525,300,'Relatos'),
-(18,'Recopilación jurídica','Antonio Gil',1492,256,'Derecho'),
-(19,'Calendario agrícola','Lucía Ortega',1503,72,'Agricultura'),
-(20,'Tratado sobre telas','Marcos Vega',1514,128,'Artesanía');
-COMMIT;`;
+    // Global state
+    window.gameState = {
+      playerName: '',
+      avatar: 0,
+      xp: 0,
+      coins: 0,
+      streak: 0,
+      lastVisit: null,
+      currentChallenge: 1,
+      completedChallenges: [],
+      unlockedBadges: [],
+      reputation: { lorenzo: 0, sofia: 0, marco: 0, paracelso: 0, elara: 0 },
+      favorites: [],
+      diary: [],
+      usedContinuitySpell: false,
+      db: null
+    };
 
-    // --- Retos con contexto, pistas y solución esperada ---
+    // Challenge data
     const challenges = {
       1: {
-        title: "Mostrar títulos y autores",
-        description: "Muestra los títulos y autores de todos los libros.",
-        expected: "SELECT title, author FROM books;",
+        title: 'El Despertar del Aprendiz',
+        desc: 'Lorenzo te enseña los fundamentos: SELECT y FROM',
+        concept: `<strong>📜 SELECT y FROM</strong><br><br>
+SELECT elige QUÉ columnas mostrar<br>
+FROM indica de QUÉ tabla obtenerlas<br><br>
+<code>SELECT title, author FROM books;</code><br><br>
+Esto muestra títulos y autores de todos los libros.`,
+        expected: 'SELECT title, author FROM books',
         hints: [
-          "Usa SELECT para elegir columnas.",
-          "La tabla se llama books.",
-          "Si no funciona prueba SELECT title, author FROM books;"
+          'Usa SELECT para elegir las columnas title y author',
+          'La tabla se llama books',
+          'Termina con punto y coma ;',
+          'Estructura: SELECT title, author FROM books;',
+          'Copia: SELECT title, author FROM books;'
         ],
-        xp: 10
+        xp: 15,
+        coins: 10,
+        difficulty: 1,
+        npc: 'lorenzo'
       },
       2: {
-        title: "Todas las columnas",
-        description: "Muestra todos los datos de la tabla books.",
-        expected: "SELECT * FROM books;",
+        title: 'La Selección Precisa',
+        desc: 'Aprende a seleccionar columnas específicas',
+        concept: `<strong>📜 Columnas Específicas</strong><br><br>
+No siempre necesitas todas las columnas.<br>
+Puedes elegir solo las que necesitas:<br><br>
+<code>SELECT title, year FROM books;</code><br><br>
+Ventajas: más rápido, más claro, solo lo necesario.`,
+        expected: 'SELECT title, year FROM books',
         hints: [
-          "El asterisco (*) selecciona todas las columnas.",
-          "Prueba: SELECT * FROM books LIMIT 10;"
+          'Necesitas las columnas title y year de books',
+          'Separa columnas con coma: title, year',
+          'No olvides FROM books',
+          'Prueba: SELECT title, year FROM books;',
+          'Solución: SELECT title, year FROM books;'
         ],
-        xp: 12
+        xp: 15,
+        coins: 15,
+        difficulty: 2,
+        npc: 'lorenzo'
       },
       3: {
-        title: "Libros posteriores a 1500",
-        description: "Muestra título, autor y año de los libros publicados después de 1500.",
-        expected: "SELECT title, author, year FROM books WHERE year > 1500;",
+        title: 'El Filtro del Guardián',
+        desc: 'Domina WHERE para filtrar datos',
+        concept: `<strong>📜 Filtrar con WHERE</strong><br><br>
+WHERE filtra FILAS que cumplen una condición.<br><br>
+<code>SELECT title, author FROM books<br>WHERE author = 'Lorenzo de Médicis';</code><br><br>
+⚠️ Los textos van entre comillas simples 'así'`,
+        expected: "SELECT title, author FROM books WHERE author = 'Lorenzo de Médicis'",
         hints: [
-          "Usa WHERE para filtrar por año: year > 1500",
-          "Comprueba columnas: title, author, year"
+          "Usa WHERE author = 'nombre'",
+          'Recuerda las comillas simples en textos',
+          "Busca libros de 'Lorenzo de Médicis'",
+          "SELECT title, author FROM books WHERE author = '...';",
+          "SELECT title, author FROM books WHERE author = 'Lorenzo de Médicis';"
         ],
-        xp: 15
-      },
-      4: {
-        title: "Top 5 por páginas",
-        description: "Muestra los 5 libros con más páginas (title, author, pages) en orden descendente.",
-        expected: "SELECT title, author, pages FROM books ORDER BY pages DESC LIMIT 5;",
-        hints: [
-          "ORDER BY pages DESC y luego LIMIT 5.",
-          "Recuerda la sintaxis: ORDER BY columna DESC"
-        ],
-        xp: 18
-      },
-      5: {
-        title: "Géneros únicos",
-        description: "Lista los géneros únicos existentes.",
-        expected: "SELECT DISTINCT genre FROM books;",
-        hints: [
-          "Usa DISTINCT para valores únicos.",
-          "Ejemplo: SELECT DISTINCT genre FROM books"
-        ],
-        xp: 10
+        xp: 18,
+        coins: 20,
+        difficulty: 2,
+        badge: 'ordenador',
+        npc: 'sofia'
       },
       6: {
-        title: "Alias de año",
-        description: "Muestra título y year renombrado como 'Año'.",
-        expected: "SELECT title, year AS Año FROM books;",
+        title: 'El Límite Preciso',
+        desc: 'Aprende LIMIT para controlar resultados',
+        concept: `<strong>📜 Limitar con LIMIT</strong><br><br>
+LIMIT controla cuántas filas mostrar:<br><br>
+<code>SELECT title FROM books<br>LIMIT 5;</code><br><br>
+Muestra solo las primeras 5 filas.<br>
+Útil para grandes consultas.`,
+        expected: 'SELECT title, author FROM books LIMIT 5',
         hints: [
-          "AS renombra columnas.",
-          "Prueba: SELECT title, year AS Año FROM books;"
+          'Usa LIMIT al final de la consulta',
+          'LIMIT 5 muestra solo 5 resultados',
+          'SELECT title, author FROM books LIMIT 5;',
+          'Agrega LIMIT después de FROM',
+          'SELECT title, author FROM books LIMIT 5;'
         ],
-        xp: 12
+        xp: 20,
+        coins: 25,
+        difficulty: 3,
+        npc: 'sofia'
+      },
+      7: {
+        title: 'Los Valores Únicos',
+        desc: 'DISTINCT elimina duplicados',
+        concept: `<strong>📜 Valores únicos con DISTINCT</strong><br><br>
+DISTINCT elimina valores repetidos:<br><br>
+<code>SELECT DISTINCT genre FROM books;</code><br><br>
+Muestra cada género solo una vez.<br>
+Útil para ver qué valores existen.`,
+        expected: 'SELECT DISTINCT genre FROM books',
+        hints: [
+          'DISTINCT va después de SELECT',
+          'Usa SELECT DISTINCT genre',
+          'FROM books para obtener géneros',
+          'SELECT DISTINCT genre FROM books;',
+          'SELECT DISTINCT genre FROM books;'
+        ],
+        xp: 22,
+        coins: 30,
+        difficulty: 3,
+        badge: 'cazador',
+        npc: 'sofia'
+      },
+      8: {
+        title: 'Las Condiciones Múltiples',
+        desc: 'Combina filtros con AND y OR',
+        concept: `<strong>📜 Combinar condiciones</strong><br><br>
+AND = Ambas condiciones deben cumplirse<br>
+OR = Al menos una debe cumplirse<br><br>
+<code>WHERE year > 1500 AND pages < 200</code><br><br>
+Libros después de 1500 Y con menos de 200 páginas.`,
+        expected: "SELECT title, year, pages FROM books WHERE year > 1500 AND pages < 200",
+        hints: [
+          'Usa AND para combinar dos condiciones',
+          'year > 1500 AND pages < 200',
+          'Necesitas title, year, pages',
+          'SELECT title, year, pages FROM books WHERE year > 1500 AND pages < 200;',
+          'SELECT title, year, pages FROM books WHERE year > 1500 AND pages < 200;'
+        ],
+        xp: 25,
+        coins: 35,
+        difficulty: 3,
+        npc: 'lorenzo'
+      },
+      9: {
+        title: 'El Patrón Oculto',
+        desc: 'Busca patrones con LIKE',
+        concept: `<strong>📜 Búsqueda con LIKE</strong><br><br>
+LIKE busca patrones en textos:<br>
+% = cualquier cantidad de caracteres<br><br>
+<code>WHERE title LIKE '%guerra%'</code><br><br>
+Encuentra títulos que contengan "guerra".<br>
+Primera pista del misterio...`,
+        expected: "SELECT title, author FROM books WHERE title LIKE '%Crónicas%'",
+        hints: [
+          'Usa LIKE con % para buscar patrones',
+          "WHERE title LIKE '%texto%'",
+          "Busca títulos que contengan 'Crónicas'",
+          "SELECT title, author FROM books WHERE title LIKE '%Crónicas%';",
+          "SELECT title, author FROM books WHERE title LIKE '%Crónicas%';"
+        ],
+        xp: 30,
+        coins: 40,
+        difficulty: 4,
+        npc: 'lorenzo'
+      },
+      10: {
+        title: 'El Manuscrito Crítico',
+        desc: 'MINI-JEFE: Combina todo lo aprendido',
+        concept: `<strong>⚔️ DESAFÍO FINAL</strong><br><br>
+Combina SELECT, WHERE, AND, ORDER BY y LIMIT.<br><br>
+Encuentra libros de Historia escritos después<br>
+de 1490, ordénalos por año y muestra solo 3.<br><br>
+¡La clave para descubrir la maldición!`,
+        expected: "SELECT title, author, year FROM books WHERE genre = 'Historia' AND year > 1490 ORDER BY year ASC LIMIT 3",
+        hints: [
+          "WHERE genre = 'Historia' AND year > 1490",
+          'Ordena por year con ORDER BY',
+          'Limita a 3 resultados con LIMIT',
+          "SELECT title, author, year FROM books WHERE genre = 'Historia' AND year > 1490 ORDER BY year ASC LIMIT 3;",
+          "SELECT title, author, year FROM books WHERE genre = 'Historia' AND year > 1490 ORDER BY year ASC LIMIT 3;"
+        ],
+        xp: 50,
+        coins: 100,
+        difficulty: 4,
+        badge: 'conquistador',
+        npc: 'lorenzo'
       }
     };
 
-    // --- Almacenamiento local ---
-    const STORAGE_KEY = "sql_chronicles_progress_v2";
-    let progress = {};
-    let xpTotal = 0;
+    // Database seed
+    const dbSeed = `
+      CREATE TABLE books (
+        id INTEGER PRIMARY KEY,
+        title TEXT,
+        author TEXT,
+        year INTEGER,
+        pages INTEGER,
+        genre TEXT
+      );
 
-    // --- DOM referencias ---
-    const challengesDiv = document.getElementById("challenges");
-    const challengeTitle = document.getElementById("challengeTitle");
-    const challengeDesc = document.getElementById("challengeDesc");
-    const editor = document.getElementById("editor");
-    const runBtn = document.getElementById("runBtn");
-    const loadBtn = document.getElementById("loadBtn");
-    const clearBtn = document.getElementById("clearBtn");
-    const showSchemaBtn = document.getElementById("showSchemaBtn");
-    const modalSchema = document.getElementById("modalSchema");
-    const schemaContent = document.getElementById("schemaContent");
-    const closeSchema = document.getElementById("closeSchema");
-    const progressList = document.getElementById("progressList");
-    const hintBox = document.getElementById("hintBox");
-    const hintBtn = document.getElementById("hintBtn");
-    const xpCounter = document.getElementById("xpCounter");
-    const templateBtn = document.getElementById("templateBtn");
-    const modalTemplates = document.getElementById("modalTemplates");
-    const closeTemplates = document.getElementById("closeTemplates");
-    const openTutorialBtn = document.getElementById("openTutorialBtn");
-    const modalTutorial = document.getElementById("modalTutorial");
-    const closeTutorial = document.getElementById("closeTutorial");
-    const loadTutorialQuery = document.getElementById("loadTutorialQuery");
-    const resetProgressBtn = document.getElementById("resetProgressBtn");
+      CREATE TABLE manuscritos (
+        id INTEGER PRIMARY KEY,
+        titulo TEXT,
+        estado TEXT,
+        año INTEGER,
+        autor_id INTEGER
+      );
 
-    let selected = 1;
-    let db = null;
-    let sqlWasm = null;
+      CREATE TABLE autores (
+        id INTEGER PRIMARY KEY,
+        nombre TEXT,
+        ciudad_origen TEXT,
+        epoca TEXT
+      );
 
-    // --- Render retos y progreso ---
-    function renderChallenges(){
-      challengesDiv.innerHTML = "";
-      for(const id of Object.keys(challenges)){
-        const c = challenges[id];
-        const btn = document.createElement("button");
-        btn.innerHTML = `<strong>${id}. ${c.title}</strong><div class="tiny">${c.description}</div>`;
-        btn.className = (Number(id) === selected) ? "active" : "";
-        if(progress[id]) btn.innerHTML += ` <span style="float:right;color:var(--success)">✅</span>`;
-        btn.onclick = () => { selected = Number(id); renderSelected(); };
-        challengesDiv.appendChild(btn);
-      }
-      renderProgressList();
-    }
+      CREATE TABLE generos (
+        id INTEGER PRIMARY KEY,
+        nombre TEXT,
+        popularidad INTEGER
+      );
 
-    function renderSelected(){
-      const c = challenges[selected];
-      challengeTitle.textContent = `${selected}. ${c.title}`;
-      challengeDesc.textContent = c.description;
-    }
+      CREATE TABLE prestamos (
+        id INTEGER PRIMARY KEY,
+        manuscrito_id INTEGER,
+        lector TEXT,
+        fecha_prestamo TEXT,
+        fecha_devolucion TEXT
+      );
 
-    function renderProgressList(){
-      progressList.innerHTML = "";
-      for(const id of Object.keys(challenges)){
-        const li = document.createElement("li");
-        li.textContent = `${id}. ${challenges[id].title} — ${progress[id] ? "Completado ✅" : "Pendiente"}`;
-        progressList.appendChild(li);
-      }
-    }
+      CREATE TABLE secrets (
+        id INTEGER PRIMARY KEY,
+        type TEXT,
+        message TEXT
+      );
 
-    // --- Progreso local ---
-    function loadProgress(){
+      CREATE TABLE lorenzo_notes (
+        id INTEGER PRIMARY KEY,
+        joke TEXT
+      );
+
+      -- Books data (50 records)
+      INSERT INTO books VALUES
+      (1, 'El Arte de la Guerra', 'Sun Tzu (trad.)', 1512, 192, 'Historia'),
+      (2, 'Diálogos de Platón', 'Platón (trad.)', 1489, 320, 'Filosofía'),
+      (3, 'Atlas Marítimo del Nuevo Mundo', 'Marco Polo el Joven', 1518, 144, 'Mapas'),
+      (4, 'Secretos de la Alquimia', 'Paracelso di Firenze', 1520, 88, 'Alquimia'),
+      (5, 'Crónicas de Valoria', 'Sofía Castellana', 1505, 256, 'Historia'),
+      (6, 'El Príncipe', 'Nicolás Maquiavelo', 1513, 160, 'Filosofía'),
+      (7, 'Tratado de Arquitectura', 'Lorenzo de Médicis', 1495, 280, 'Arte'),
+      (8, 'Navegación Celestial', 'Marco Polo el Joven', 1515, 176, 'Ciencia'),
+      (9, 'Poemas del Alba', 'Isabella Cortés', 1522, 96, 'Poesía'),
+      (10, 'Historia de Florencia', 'Leonardo Bruni', 1492, 384, 'Historia'),
+      (11, 'Sobre la Naturaleza', 'Lucrecio (trad.)', 1498, 224, 'Filosofía'),
+      (12, 'Herbario Medicinal', 'Paracelso di Firenze', 1517, 120, 'Alquimia'),
+      (13, 'Crónicas de la Corte', 'Sofía Castellana', 1508, 312, 'Historia'),
+      (14, 'El Jardín Secreto', 'Teresa de Ávila', 1519, 168, 'Poesía'),
+      (15, 'Tratado de Navegación', 'Marco Polo el Joven', 1521, 200, 'Mapas'),
+      (16, 'La República', 'Platón (trad.)', 1487, 368, 'Filosofía'),
+      (17, 'Cartas a un Príncipe', 'Lorenzo de Médicis', 1493, 144, 'Historia'),
+      (18, 'Geometría Sagrada', 'Euclides (trad.)', 1502, 256, 'Ciencia'),
+      (19, 'Recetas del Monasterio', 'Fray Antonio', 1511, 104, 'Alquimia'),
+      (20, 'Crónicas del Puerto', 'Juana Méndez', 1514, 288, 'Historia'),
+      (21, 'Atlas de las Estrellas', 'Ptolomeo (trad.)', 1499, 192, 'Ciencia'),
+      (22, 'Tratado de Pintura', 'Leonardo da Vinci', 1518, 176, 'Arte'),
+      (23, 'Metafísica', 'Aristóteles (trad.)', 1491, 352, 'Filosofía'),
+      (24, 'Fórmulas Secretas', 'Paracelso di Firenze', 1523, 80, 'Alquimia'),
+      (25, 'Crónicas Prohibidas', 'Autor Desconocido', 1486, 240, 'Historia'),
+      (26, 'Cantos Gregorianos', 'Coro de Toledo', 1507, 128, 'Poesía'),
+      (27, 'Mapa del Mediterráneo', 'Marco Polo el Joven', 1516, 96, 'Mapas'),
+      (28, 'Ética Nicomáquea', 'Aristóteles (trad.)', 1494, 304, 'Filosofía'),
+      (29, 'Diario de un Alquimista', 'Paracelso di Firenze', 1519, 144, 'Alquimia'),
+      (30, 'Historia de Roma', 'Tito Livio (trad.)', 1497, 416, 'Historia'),
+      (31, 'De Natura Rerum', 'Plinio (trad.)', 1503, 272, 'Ciencia'),
+      (32, 'Frescos Renacentistas', 'Rafael Sanzio', 1520, 112, 'Arte'),
+      (33, 'Romances de Castilla', 'Fernando de Rojas', 1515, 184, 'Poesía'),
+      (34, 'Atlas Universal', 'Gerardus Mercator', 1521, 208, 'Mapas'),
+      (35, 'Confesiones', 'San Agustín (trad.)', 1488, 336, 'Filosofía'),
+      (36, 'Elixir de la Vida', 'Paracelso di Firenze', 1524, 72, 'Alquimia'),
+      (37, 'Anales de Valoria', 'Sofía Castellana', 1510, 296, 'Historia'),
+      (38, 'Astronomía Práctica', 'Nicolás Copérnico', 1522, 224, 'Ciencia'),
+      (39, 'Esculturas Clásicas', 'Miguel Ángel', 1517, 128, 'Arte'),
+      (40, 'Églogas', 'Virgilio (trad.)', 1496, 152, 'Poesía'),
+      (41, 'Rutas del Oriente', 'Marco Polo el Joven', 1519, 176, 'Mapas'),
+      (42, 'Teeteto', 'Platón (trad.)', 1490, 248, 'Filosofía'),
+      (43, 'Transmutación de Metales', 'Paracelso di Firenze', 1522, 96, 'Alquimia'),
+      (44, 'Guerra de las Galias', 'Julio César (trad.)', 1501, 264, 'Historia'),
+      (45, 'Física', 'Aristóteles (trad.)', 1495, 320, 'Ciencia'),
+      (46, 'La Última Cena', 'Leonardo da Vinci', 1516, 88, 'Arte'),
+      (47, 'Odas', 'Horacio (trad.)', 1509, 168, 'Poesía'),
+      (48, 'Cartas Náuticas', 'Marco Polo el Joven', 1523, 144, 'Mapas'),
+      (49, 'Timeo', 'Platón (trad.)', 1493, 280, 'Filosofía'),
+      (50, 'La Piedra Filosofal', 'Paracelso di Firenze', 1525, 64, 'Alquimia');
+
+      -- Easter eggs
+      INSERT INTO secrets VALUES (1, 'creator', 'Felicidades explorador Has descubierto que la curiosidad es la mejor maestra +100 monedas');
+      INSERT INTO lorenzo_notes VALUES (42, 'Por que los programadores prefieren SQL Porque no les gusta hacer JOINs en la vida real +50 monedas');
+      INSERT INTO manuscritos VALUES (1, 'El Manuscrito Prohibido', 'perdido', 1485, 1);
+    `;
+
+    // Initialize
+    async function init() {
+      const loadingTexts = [
+        'Descifrando manuscritos antiguos...',
+        'Restaurando el Gran Archivo...',
+        'Invocando el poder del SQL...',
+        'Preparando tu aventura...'
+      ];
+      
+      let textIndex = 0;
+      const textInterval = setInterval(() => {
+        document.getElementById('loadingText').textContent = loadingTexts[textIndex];
+        textIndex = (textIndex + 1) % loadingTexts.length;
+      }, 800);
+
       try {
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY)) || { progress: {}, xp: 0 };
-        progress = saved.progress || {};
-        xpTotal = saved.xp || 0;
-      } catch(e){
-        progress = {};
-        xpTotal = 0;
-      }
-      xpCounter.textContent = `${xpTotal} XP`;
-    }
-    function saveProgress(){
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ progress, xp: xpTotal }));
-      renderChallenges();
-      xpCounter.textContent = `${xpTotal} XP`;
-    }
-    resetProgressBtn.addEventListener("click", () => {
-      if(!confirm("¿Reiniciar todo el progreso local?")) return;
-      progress = {}; xpTotal = 0; saveProgress();
-      alert("Progreso reiniciado.");
-    });
-
-    // --- Inicializar DB ---
-    async function initDb(){
-      try {
-        sqlWasm = await initSqlJs({ locateFile: file => `https://cdn.jsdelivr.net/npm/sql.js@1.8.0/dist/${file}` });
-        db = new sqlWasm.Database();
-        db.run(seedSql);
-        document.getElementById("resultContent").textContent = "Base de datos lista. Escribe una consulta y presiona Ejecutar.";
-      } catch(e){
-        document.getElementById("resultContent").innerHTML = `<span style="color:#c53030">Error cargando SQL: ${e.message}</span>`;
+        const SQL = await initSqlJs({
+          locateFile: file => `https://cdn.jsdelivr.net/npm/sql.js@1.8.0/dist/${file}`
+        });
+        
+        window.gameState.db = new SQL.Database();
+        window.gameState.db.run(dbSeed);
+        
+        clearInterval(textInterval);
+        
+        setTimeout(() => {
+          document.getElementById('loadingScreen').classList.add('hidden');
+          loadGameState();
+          
+          if (!window.gameState.playerName) {
+            startOnboarding();
+          } else {
+            checkStreak();
+            document.getElementById('mainApp').classList.remove('hidden');
+            renderGame();
+          }
+        }, 3000);
+      } catch (e) {
+        clearInterval(textInterval);
+        alert('Error cargando SQL: ' + e.message);
       }
     }
 
-    // --- Ejecutar consulta ---
-    function execQuery(query){
-      try {
-        const res = db.exec(query); // array de resultsets
-        return { ok:true, res };
-      } catch(e){
-        return { ok:false, error: e.message };
+    // Onboarding
+    function startOnboarding() {
+      document.getElementById('onboarding').classList.remove('hidden');
+      showOnboardingStep(1);
+    }
+
+    function showOnboardingStep(step) {
+      const content = document.getElementById('onboardingContent');
+      
+      if (step === 1) {
+        content.innerHTML = `
+          <div class="logo-animation">
+            <svg viewBox="0 0 200 200" style="width: 100%; height: 100%;">
+              <rect x="20" y="40" width="160" height="120" rx="10" fill="#e9c46a" opacity="0.3"/>
+              <rect x="30" y="50" width="140" height="100" rx="8" fill="#fff"/>
+              <text x="100" y="100" text-anchor="middle" font-size="48" fill="#264653">📜</text>
+              <text x="100" y="140" text-anchor="middle" font-size="14" fill="#264653" font-weight="bold">SCRIPTUM SQL</text>
+            </svg>
+          </div>
+          <h1 style="font-size: 32px; color: var(--primary); margin-bottom: 20px;">
+            El Manuscrito Perdido
+          </h1>
+          <p style="font-size: 18px; color: var(--muted); margin-bottom: 30px;">
+            Una aventura épica para dominar SQL
+          </p>
+          <button class="btn" onclick="showOnboardingStep(2)" style="font-size: 18px; padding: 16px 32px;">
+            ⚔️ Comenzar Aventura
+          </button>
+        `;
+      } else if (step === 2) {
+        content.innerHTML = `
+          <h2 style="color: var(--primary); margin-bottom: 20px;">¿Cómo te llaman?</h2>
+          <p style="color: var(--muted); margin-bottom: 20px;">
+            En Scriptorium de Valoria, todos los aprendices tienen un nombre
+          </p>
+          <input type="text" id="nameInput" class="input-name" placeholder="Tu nombre (3-15 caracteres)" maxlength="15">
+          <button class="btn" onclick="saveName()" style="width: 100%; margin-top: 20px;">
+            Continuar
+          </button>
+        `;
+        setTimeout(() => document.getElementById('nameInput').focus(), 100);
+      } else if (step === 3) {
+        content.innerHTML = `
+          <h2 style="color: var(--primary); margin-bottom: 20px;">Elige tu avatar</h2>
+          <p style="color: var(--muted); margin-bottom: 20px;">
+            ¿Quién serás en esta aventura?
+          </p>
+          <div class="avatar-selector">
+            <div class="avatar-card ${window.gameState.avatar === 0 ? 'active' : ''}" onclick="selectAvatar(0)">
+              <div class="avatar-icon">📚</div>
+              <div style="font-size: 14px; font-weight: bold;">El Aprendiz</div>
+            </div>
+            <div class="avatar-card ${window.gameState.avatar === 1 ? 'active' : ''}" onclick="selectAvatar(1)">
+              <div class="avatar-icon">🧙‍♂️</div>
+              <div style="font-size: 14px; font-weight: bold;">El Erudito</div>
+            </div>
+            <div class="avatar-card ${window.gameState.avatar === 2 ? 'active' : ''}" onclick="selectAvatar(2)">
+              <div class="avatar-icon">🔥</div>
+              <div style="font-size: 14px; font-weight: bold;">Portador de Fuego</div>
+            </div>
+          </div>
+          <button class="btn" onclick="showOnboardingStep(4)" style="width: 100%; margin-top: 20px;">
+            Continuar
+          </button>
+        `;
+      } else if (step === 4) {
+        content.innerHTML = `
+          <h2 style="color: var(--primary); margin-bottom: 20px;">Tutorial Rápido</h2>
+          <div style="text-align: left; padding: 20px; background: #f9fafb; border-radius: 12px; margin-bottom: 20px;">
+            <p style="margin-bottom: 15px;">✍️ <strong>Aquí escribes tus consultas SQL</strong></p>
+            <p style="margin-bottom: 15px;">▶️ <strong>Aquí ejecutas y ves resultados</strong></p>
+            <p>📋 <strong>Pulsa "Ver Esquema" si te pierdes</strong></p>
+          </div>
+          <button class="btn" onclick="showOnboardingStep(5)" style="width: 100%;">
+            Continuar
+          </button>
+        `;
+      } else if (step === 5) {
+        content.innerHTML = `
+          <div style="text-align: left;">
+            <h2 style="color: var(--primary); margin-bottom: 20px;">🏛️ Scriptorium de Valoria</h2>
+            <div style="background: #f0f9ff; border-left: 4px solid var(--secondary); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+              <p style="margin-bottom: 15px; font-size: 16px;">
+                <strong style="color: var(--primary);">Lorenzo de Médicis:</strong>
+              </p>
+              <p class="typing-text" style="font-size: 15px; line-height: 1.6; border-right: none;">
+                "Saludos aprendiz Soy Lorenzo de Medicis guardián de este gran archivo Hace días una extraña maldición cayó sobre Valoria los manuscritos se mezclan los registros desaparecen Solo el antiguo lenguaje SQL puede salvarnos Te atreves a aprenderlo"
+              </p>
+            </div>
+            <button class="btn" onclick="startAdventure()" style="width: 100%; font-size: 18px;">
+              ⚔️ ¡Acepto el desafío!
+            </button>
+          </div>
+        `;
       }
     }
 
-    // --- Mostrar resultado ---
-    function showResult(exec){
-      const resultContent = document.getElementById("resultContent");
-      if(!exec) return;
-      if(!exec.ok){
-        resultContent.innerHTML = `<pre style="color:#c53030">${exec.error}</pre>`;
+    window.saveName = function() {
+      const name = document.getElementById('nameInput').value.trim();
+      if (name.length < 3 || name.length > 15) {
+        alert('El nombre debe tener entre 3 y 15 caracteres');
         return;
       }
-      const res = exec.res;
-      if(!res || res.length === 0){
-        resultContent.innerHTML = `<div class="muted">Consulta ejecutada. No hay filas a mostrar.</div>`;
-        return;
-      }
-      const r = res[0];
-      const table = document.createElement("table");
-      const thead = document.createElement("thead");
-      const trh = document.createElement("tr");
-      for(const col of r.columns){
-        const th = document.createElement("th");
-        th.textContent = col;
-        trh.appendChild(th);
-      }
-      thead.appendChild(trh);
-      table.appendChild(thead);
-      const tbody = document.createElement("tbody");
-      for(const row of r.values){
-        const tr = document.createElement("tr");
-        for(const cell of row){
-          const td = document.createElement("td");
-          td.textContent = cell === null ? "NULL" : String(cell);
-          tr.appendChild(td);
-        }
-        tbody.appendChild(tr);
-      }
-      table.appendChild(tbody);
-      resultContent.innerHTML = "";
-      resultContent.appendChild(table);
-    }
+      window.gameState.playerName = name;
+      showOnboardingStep(3);
+    };
 
-    // --- Comparar resultados (sin orden) ---
-    function compareResults(resA, resB){
-      const rowsA = (resA && resA[0] && resA[0].values) || [];
-      const rowsB = (resB && resB[0] && resB[0].values) || [];
-      const colsA = (resA && resA[0] && resA[0].columns) || [];
-      const colsB = (resB && resB[0] && resB[0].columns) || [];
-      if(colsA.length !== colsB.length) return false;
-      const setA = new Set(rowsA.map(r => JSON.stringify(r)));
-      const setB = new Set(rowsB.map(r => JSON.stringify(r)));
-      if(setA.size !== setB.size) return false;
-      for(const v of setA) if(!setB.has(v)) return false;
-      return true;
-    }
-
-    // --- Manejo de botones ---
-    runBtn.addEventListener("click", () => {
-      const userQ = editor.value.trim();
-      if(!userQ){
-        document.getElementById("resultContent").innerHTML = `<div class="muted">Escribe una consulta primero.</div>`;
-        return;
-      }
-      const userExec = execQuery(userQ);
-      showResult(userExec);
-
-      // feedback extra
-      if(!userExec.ok){
-        // error de sintaxis u otro
-        const msg = document.createElement("div");
-        msg.style.marginTop="8px";
-        msg.style.padding="8px";
-        msg.style.borderRadius="8px";
-        msg.style.background="#fff7ed";
-        msg.style.border="1px solid #ffedd5";
-        msg.innerHTML = "<strong>Consejo:</strong> Revisa la sintaxis; usa `¿Qué tablas hay?` si dudas del esquema.";
-        document.getElementById("resultContent").appendChild(msg);
-        return;
-      }
-
-      // verificar con expected
-      const expectedExec = execQuery(challenges[selected].expected);
-      const ok = userExec.ok && expectedExec && compareResults(userExec.res, expectedExec.res);
-      if(ok){
-        if(!progress[selected]){
-          progress[selected] = true;
-          xpTotal += challenges[selected].xp || 10;
-          saveProgress();
-          // confetti y mensaje
-          confetti({ particleCount: 80, spread: 60, origin: { y: 0.2 } });
-          const msg = document.createElement("div");
-          msg.style.marginTop="8px";
-          msg.style.padding="10px";
-          msg.style.borderRadius="8px";
-          msg.style.background="#ecfdf5";
-          msg.style.border="1px solid #bbf7d0";
-          msg.innerHTML = `<strong>¡Correcto!</strong> Has ganado <strong>${challenges[selected].xp} XP</strong>. Reto completado ✅`;
-          document.getElementById("resultContent").appendChild(msg);
-        } else {
-          const msg = document.createElement("div");
-          msg.style.marginTop="8px";
-          msg.style.padding="8px";
-          msg.style.borderRadius="8px";
-          msg.style.background="#eff6ff";
-          msg.innerHTML = `<strong>¡Bien!</strong> Ya tenías este reto completado.`;
-          document.getElementById("resultContent").appendChild(msg);
-        }
-        renderChallenges();
-      } else {
-        const hint = document.createElement("div");
-        hint.style.marginTop="8px";
-        hint.style.padding="8px";
-        hint.style.borderRadius="8px";
-        hint.style.background="#fff7ed";
-        hint.style.border="1px solid #ffedd5";
-        hint.innerHTML = `<strong>Pista:</strong> ${challenges[selected].hints[0] || 'Revisa SELECT y FROM.'}`;
-        document.getElementById("resultContent").appendChild(hint);
-      }
-    });
-
-    loadBtn.addEventListener("click", () => {
-      editor.value = challenges[selected].expected;
-      editor.focus();
-    });
-
-    clearBtn.addEventListener("click", () => {
-      editor.value = "";
-      document.getElementById("resultContent").innerHTML = `<div class="muted">Editor limpio. Escribe una consulta y presiona Ejecutar.</div>`;
-    });
-
-    // mostrar esquema (modal)
-    showSchemaBtn.addEventListener("click", async () => {
-      if(!db) return alert("La base de datos aún no está lista.");
-      // obtener tablas
-      const res = db.exec("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';");
-      const tables = (res && res[0] && res[0].values.map(r => r[0])) || [];
-      schemaContent.innerHTML = "";
-      for(const t of tables){
-        const h = document.createElement("div");
-        h.style.marginBottom = "8px";
-        const title = document.createElement("div");
-        title.innerHTML = `<strong>${t}</strong> <span class="tiny" style="margin-left:8px">(ejemplos: usa <code>${t}</code> en FROM)</span>`;
-        h.appendChild(title);
-        // obtener columnas
-        const info = db.exec(`PRAGMA table_info(${t});`);
-        const cols = (info && info[0] && info[0].values) || [];
-        const ul = document.createElement("ul");
-        ul.className = "tiny";
-        for(const c of cols){
-          // PRAGMA returns rows: cid,name,type,notnull,dflt_value,pk
-          ul.innerHTML += `<li><code>${c[1]}</code> — ${c[2] || 'TEXT'}</li>`;
-        }
-        h.appendChild(ul);
-        schemaContent.appendChild(h);
-      }
-      modalSchema.style.display = "flex";
-    });
-    closeSchema.addEventListener("click", () => modalSchema.style.display = "none");
-
-    // hints
-    hintBtn.addEventListener("click", () => {
-      const c = challenges[selected];
-      const nextHint = c.hints && c.hints[0] ? c.hints[0] : "No hay más pistas.";
-      alert("Pista: " + nextHint + "\n\n(Próxima: " + (c.hints[1] || "—") + ")");
-    });
-
-    // templates modal
-    templateBtn.addEventListener("click", () => {
-      modalTemplates.style.display = "flex";
-    });
-    closeTemplates.addEventListener("click", () => modalTemplates.style.display = "none");
-    document.querySelectorAll(".template").forEach(btn => {
-      btn.addEventListener("click", e => {
-        editor.value = btn.dataset.q;
-        modalTemplates.style.display = "none";
+    window.selectAvatar = function(index) {
+      window.gameState.avatar = index;
+      document.querySelectorAll('.avatar-card').forEach((card, i) => {
+        card.classList.toggle('active', i === index);
       });
-    });
+    };
 
-    // tutorial modal
-    openTutorialBtn.addEventListener("click", () => modalTutorial.style.display = "flex");
-    closeTutorial.addEventListener("click", () => modalTutorial.style.display = "none");
-    document.getElementById("closeTutorial2").addEventListener("click", () => modalTutorial.style.display = "none");
-    loadTutorialQuery.addEventListener("click", () => {
-      editor.value = "SELECT title, author FROM books;";
-      modalTutorial.style.display = "none";
-    });
+    window.startAdventure = function() {
+      window.gameState.lastVisit = new Date().toISOString();
+      window.gameState.diary.push({
+        day: 1,
+        entry: `Conocí a Lorenzo de Médicis. El gran archivo está en peligro. Debo aprender SQL para salvarlo.`
+      });
+      saveGameState();
+      document.getElementById('onboarding').classList.add('hidden');
+      document.getElementById('mainApp').classList.remove('hidden');
+      renderGame();
+      createParticles();
+    };
 
-    // --- Inicialización ---
-    (async function(){
-      loadProgress();
+    // Particles
+    function createParticles() {
+      const container = document.getElementById('particles');
+      for (let i = 0; i < 20; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 15 + 's';
+        particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+        container.appendChild(particle);
+      }
+    }
+
+    // Game rendering
+    function renderGame() {
+      updateStats();
       renderChallenges();
-      renderSelected();
-      await initDb();
-      // actualiza esquema (por si quieres verla en HTML)
-      // dejamos la base lista
-    })();
+      loadChallenge(window.gameState.currentChallenge);
+      updateProgressBar();
+      updateLorenzoTips();
+    }
 
-    // cerrar modales si se hace click afuera
-    window.addEventListener("click", (e) => {
-      if(e.target === modalSchema) modalSchema.style.display = "none";
-      if(e.target === modalTemplates) modalTemplates.style.display = "none";
-      if(e.target === modalTutorial) modalTutorial.style.display = "none";
-    });
+    function updateStats() {
+      document.getElementById('playerName').textContent = window.gameState.playerName || 'Aprendiz';
+      document.getElementById('playerXP').textContent = window.gameState.xp;
+      document.getElementById('playerCoins').textContent = window.gameState.coins;
+      document.getElementById('playerStreak').textContent = window.gameState.streak;
+    }
 
-    // Guardar progreso automático al salir
-    window.addEventListener("beforeunload", () => { saveProgress(); });
+    function renderChallenges() {
+      const list = document.getElementById('challengeList');
+      list.innerHTML = '';
+      
+      for (let i = 1; i <= 10; i++) {
+        const challenge = challenges[i];
+        const isCompleted = window.gameState.completedChallenges.includes(i);
+        const isCurrent = window.gameState.currentChallenge === i;
+        
+        const div = document.createElement('div');
+        div.className = `challenge-item ${isCurrent ? 'active' : ''} ${isCompleted ? 'completed' : ''}`;
+        div.innerHTML = `
+          <div style="font-weight: bold;">${i}. ${challenge.title}</div>
+          <div style="font-size: 12px; margin-top: 4px; opacity: 0.8;">
+            ${'⭐'.repeat(challenge.difficulty)}
+          </div>
+        `;
+        div.onclick = () => {
+          window.gameState.currentChallenge = i;
+          renderChallenges();
+          loadChallenge(i);
+        };
+        list.appendChild(div);
+      }
+    }
 
-    // Pequeña mejora: navegar entre retos con teclas (opcional)
-    window.addEventListener("keydown", (e) => {
-      if(e.key === "ArrowRight"){ selected = Math.min(Object.keys(challenges).length, selected+1); renderSelected(); }
-      if(e.key === "ArrowLeft"){ selected = Math.max(1, selected-1); renderSelected(); }
-    });
+    function loadChallenge(id) {
+      const challenge = challenges[id];
+      document.getElementById('challengeTitle').textContent = `${id}. ${challenge.title}`;
+      document.getElementById('challengeDesc').textContent = challenge.desc;
+      document.getElementById('conceptBox').innerHTML = challenge.concept;
+      document.getElementById('sqlEditor').value = '-- Escribe tu consulta aquí\n';
+      document.getElementById('results').innerHTML = '<strong>📊 Resultados</strong><p style="color: var(--muted); margin-top: 10px;">Ejecuta tu consulta para ver resultados...</p>';
+      
+      // Show preview button for difficulty 4
+      const previewBtn = document.getElementById('previewBtn');
+      if (challenge.difficulty === 4) {
+        previewBtn.style.display = 'inline-block';
+      } else {
+        previewBtn.style.display = 'none';
+      }
+      
+      updateLorenzoTips();
+    }
 
+    function updateProgressBar() {
+      const completed = window.gameState.completedChallenges.length;
+      const total = Object.keys(challenges).length;
+      const percentage = Math.round((completed / total) * 100);
+      
+      document.getElementById('worldProgress').textContent = `${completed}/${total}`;
+      document.getElementById('worldProgressBar').style.width = percentage + '%';
+      document.getElementById('worldProgressBar').textContent = percentage + '%';
+      
+      // Lorenzo reputation
+      const lorenzoRep = window.gameState.reputation.lorenzo;
+      const stars = document.getElementById('lorenzoRep');
+      stars.innerHTML = '';
+      for (let i = 0; i < 3; i++) {
+        stars.innerHTML += `<span class="star ${i < lorenzoRep ? '' : 'empty'}">★</span>`;
+      }
+    }
+
+    function updateLorenzoTips() {
+      const id = window.gameState.currentChallenge;
+      const tips = {
+        1: 'SELECT elige columnas FROM indica la tabla',
+        2: 'Puedes elegir solo las columnas que necesitas',
+        3: 'WHERE filtra filas con condiciones específicas',
+        4: 'Usa operadores como > < >= <= para comparar números',
+        5: 'ORDER BY organiza los resultados ASC o DESC',
+        6: 'LIMIT controla cuántas filas mostrar',
+        7: 'DISTINCT elimina valores duplicados',
+        8: 'AND combina condiciones que deben cumplirse ambas',
+        9: 'LIKE busca patrones usa % como comodín',
+        10: 'Combina todo SELECT WHERE AND ORDER BY LIMIT'
+      };
+      
+      document.getElementById('lorenzoTips').innerHTML = `
+        <strong>Consejo de Lorenzo:</strong>
+        <p style="margin-top: 8px; font-size: 14px;">${tips[id] || 'Sigue practicando'}</p>
+      `;
+    }
+
+    // Query execution
+    window.executeQuery = function() {
+      const query = document.getElementById('sqlEditor').value.trim();
+      if (!query || query === '-- Escribe tu consulta aquí') {
+        alert('Escribe una consulta primero');
+        return;
+      }
+      
+      try {
+        const results = window.gameState.db.exec(query);
+        displayResults(results);
+        checkSolution(query);
+      } catch (e) {
+        displayError(e.message);
+      }
+    };
+
+    function displayResults(results) {
+      const container = document.getElementById('results');
+      container.innerHTML = '<strong>📊 Resultados</strong>';
+      
+      if (!results || results.length === 0) {
+        container.innerHTML += '<p style="color: var(--muted); margin-top: 10px;">Consulta ejecutada. Sin resultados para mostrar.</p>';
+        return;
+      }
+      
+      const result = results[0];
+      const table = document.createElement('table');
+      const thead = document.createElement('thead');
+      const trHead = document.createElement('tr');
+      
+      result.columns.forEach(col => {
+        const th = document.createElement('th');
+        th.textContent = col;
+        trHead.appendChild(th);
+      });
+      thead.appendChild(trHead);
+      table.appendChild(thead);
+      
+      const tbody = document.createElement('tbody');
+      result.values.forEach(row => {
+        const tr = document.createElement('tr');
+        row.forEach(cell => {
+          const td = document.createElement('td');
+          td.textContent = cell === null ? 'NULL' : cell;
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+      container.appendChild(table);
+    }
+
+    function displayError(message) {
+      const container = document.getElementById('results');
+      container.innerHTML = `
+        <strong style="color: var(--danger);">❌ Error</strong>
+        <pre style="color: var(--danger); margin-top: 10px; font-size: 14px;">${message}</pre>
+        <div class="hint-box" style="margin-top: 15px;">
+          <strong>Consejo:</strong> Revisa la sintaxis. Usa "Ver Esquema" si dudas de las columnas o tablas.
+        </div>
+      `;
+    }
+
+    function checkSolution(userQuery) {
+      const challenge = challenges[window.gameState.currentChallenge];
+      const normalize = q => q.toLowerCase().replace(/\s+/g, ' ').replace(/;/g, '').trim();
+      
+      const userNorm = normalize(userQuery);
+      const expectedNorm = normalize(challenge.expected);
+      
+      if (userNorm === expectedNorm || userNorm.includes(expectedNorm)) {
+        if (!window.gameState.completedChallenges.includes(window.gameState.currentChallenge)) {
+          completeChallenge();
+        } else {
+          showAlreadyCompleted();
+        }
+      }
+    }
+
+    function completeChallenge() {
+      const id = window.gameState.currentChallenge;
+      const challenge = challenges[id];
+      
+      window.gameState.completedChallenges.push(id);
+      window.gameState.xp += challenge.xp;
+      window.gameState.coins += challenge.coins;
+      
+      // Update reputation
+      if (challenge.npc === 'lorenzo') {
+        window.gameState.reputation.lorenzo = Math.min(3, window.gameState.reputation.lorenzo + 1);
+      } else if (challenge.npc === 'sofia') {
+        window.gameState.reputation.sofia = Math.min(3, window.gameState.reputation.sofia + 1);
+      }
+      
+      // Unlock badges
+      if (challenge.badge === 'domador') {
+        window.gameState.unlockedBadges.push('domador');
+      } else if (challenge.badge === 'ordenador') {
+        window.gameState.unlockedBadges.push('ordenador');
+      } else if (challenge.badge === 'cazador') {
+        window.gameState.unlockedBadges.push('cazador');
+      } else if (challenge.badge === 'conquistador') {
+        window.gameState.unlockedBadges.push('conquistador');
+      }
+      
+      // Diary entry
+      const entries = {
+        1: 'Día 1: Lorenzo me enseñó SELECT y FROM. El viaje ha comenzado.',
+        2: 'Día 2: Aprendí a seleccionar columnas específicas. Cada vez más preciso.',
+        3: 'Día 3: Dominé WHERE. Lorenzo confía en mí. ¡Desbloqueé mi primera insignia!',
+        4: 'Día 4: Descubrí comparaciones numéricas. Los manuscritos antiguos revelan secretos.',
+        5: 'Día 5: Conocí a Sofía Castellana. Me enseñó ORDER BY. El orden es poder.',
+        6: 'Día 6: LIMIT me permite controlar mis consultas. Cada vez más eficiente.',
+        7: 'Día 7: DISTINCT elimina duplicados. Sofía está impresionada. ¡Otra insignia!',
+        8: 'Día 8: Combiné condiciones con AND. Lorenzo regresó con nuevos retos.',
+        9: 'Día 9: LIKE revela patrones ocultos. Encontré la primera pista del misterio.',
+        10: 'Día 10: ¡Vencí el MINI-JEFE! Combiné todo. El Mundo 1 está completo.'
+      };
+      
+      if (entries[id]) {
+        window.gameState.diary.push({ day: id, entry: entries[id] });
+      }
+      
+      saveGameState();
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+      
+      const resultsDiv = document.getElementById('results');
+      const successMsg = document.createElement('div');
+      successMsg.style.cssText = 'margin-top: 20px; padding: 20px; background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-radius: 12px; border: 2px solid #34d399;';
+      successMsg.innerHTML = `
+        <div style="text-align: center;">
+          <div style="font-size: 48px; margin-bottom: 10px;">🎉</div>
+          <h3 style="color: var(--secondary); margin-bottom: 10px;">¡Reto Completado!</h3>
+          <p style="margin-bottom: 15px;">Has ganado <strong>${challenge.xp} XP</strong> y <strong>${challenge.coins} monedas</strong></p>
+          ${challenge.badge ? '<p style="color: var(--warning);">🏆 ¡Nueva insignia desbloqueada!</p>' : ''}
+        </div>
+      `;
+      resultsDiv.appendChild(successMsg);
+      
+      renderGame();
+      
+      // Auto-advance to next challenge
+      if (id < 10) {
+        setTimeout(() => {
+          window.gameState.currentChallenge = id + 1;
+          renderGame();
+        }, 3000);
+      } else {
+        // World completed
+        setTimeout(() => {
+          showWorldCompleted();
+        }, 2000);
+      }
+    }
+
+    function showAlreadyCompleted() {
+      const resultsDiv = document.getElementById('results');
+      const msg = document.createElement('div');
+      msg.style.cssText = 'margin-top: 20px; padding: 15px; background: #eff6ff; border-radius: 12px; border: 2px solid #3b82f6;';
+      msg.innerHTML = '<strong>✅ ¡Correcto!</strong> Ya habías completado este reto anteriormente.';
+      resultsDiv.appendChild(msg);
+    }
+
+    function showWorldCompleted() {
+      window.gameState.coins += 200;
+      window.gameState.unlockedBadges.push('mundo1');
+      saveGameState();
+      
+      confetti({ particleCount: 200, spread: 120, origin: { y: 0.5 } });
+      
+      const modal = document.getElementById('modalGeneric');
+      const content = document.getElementById('modalGenericContent');
+      content.innerHTML = `
+        <div style="text-align: center;">
+          <div style="font-size: 72px; margin-bottom: 20px;">🏆</div>
+          <h2 style="color: var(--primary); margin-bottom: 20px;">¡MUNDO 1 COMPLETADO!</h2>
+          <p style="font-size: 18px; margin-bottom: 20px;">
+            Has dominado los fundamentos de SQL.<br>
+            Lorenzo está orgulloso de ti.
+          </p>
+          <div style="background: var(--accent); padding: 20px; border-radius: 12px; margin: 20px 0;">
+            <strong style="font-size: 20px;">Recompensas:</strong><br>
+            <div style="margin-top: 10px;">
+              ⭐ +50 XP adicionales<br>
+              🪙 +200 monedas<br>
+              🏆 Insignia "Conquistador del Mundo 1"
+            </div>
+          </div>
+          <p style="color: var(--muted); margin-bottom: 20px;">
+            El Mundo 2 se desbloqueará pronto...<br>
+            Por ahora, explora el Modo Libre.
+          </p>
+          <button class="btn" onclick="closeModal('modalGeneric')" style="font-size: 18px;">
+            ¡Continuar mi aventura!
+          </button>
+        </div>
+      `;
+      modal.classList.add('active');
+    }
+
+    // Other functions
+    window.loadSolution = function() {
+      const challenge = challenges[window.gameState.currentChallenge];
+      document.getElementById('sqlEditor').value = challenge.expected + ';';
+    };
+
+    window.showHints = function() {
+      const challenge = challenges[window.gameState.currentChallenge];
+      const content = document.getElementById('modalGenericContent');
+      
+      content.innerHTML = `
+        <h2 style="color: var(--primary); margin-bottom: 20px;">💡 Pistas</h2>
+        <div style="margin-bottom: 20px;">
+          <strong>Reto:</strong> ${challenge.title}
+        </div>
+      `;
+      
+      challenge.hints.forEach((hint, i) => {
+        const isFree = i < 3;
+        const cost = i === 3 ? 30 : 50;
+        
+        const div = document.createElement('div');
+        div.style.cssText = 'padding: 15px; margin-bottom: 10px; background: #f9fafb; border-radius: 8px; border: 2px solid #e5e7eb;';
+        
+        if (isFree) {
+          div.innerHTML = `<strong>Pista ${i + 1} (Gratis):</strong><br><div style="margin-top: 8px;">${hint}</div>`;
+        } else {
+          div.innerHTML = `
+            <strong>Pista ${i + 1}:</strong> <span style="color: var(--warning);">🪙 ${cost} monedas</span><br>
+            <button class="btn btn-secondary" style="margin-top: 10px;" onclick="unlockHint(${i}, ${cost})">
+              Desbloquear
+            </button>
+          `;
+        }
+        
+        content.appendChild(div);
+      });
+      
+      document.getElementById('modalGeneric').classList.add('active');
+    };
+
+    window.unlockHint = function(index, cost) {
+      if (window.gameState.coins < cost) {
+        alert('No tienes suficientes monedas');
+        return;
+      }
+      
+      window.gameState.coins -= cost;
+      saveGameState();
+      updateStats();
+      
+      const challenge = challenges[window.gameState.currentChallenge];
+      alert('Pista desbloqueada:\n\n' + challenge.hints[index]);
+      closeModal('modalGeneric');
+    };
+
+    window.clearEditor = function() {
+      document.getElementById('sqlEditor').value = '-- Escribe tu consulta aquí\n';
+    };
+
+    window.previewQuery = function() {
+      const query = document.getElementById('sqlEditor').value.trim() + ' LIMIT 3';
+      try {
+        const results = window.gameState.db.exec(query);
+        displayResults(results);
+        
+        const resultsDiv = document.getElementById('results');
+        const hint = document.createElement('div');
+        hint.style.cssText = 'margin-top: 10px; padding: 10px; background: #fffbeb; border-radius: 8px;';
+        hint.innerHTML = '<strong>Vista Previa:</strong> Mostrando solo las primeras 3 filas para verificar.';
+        resultsDiv.appendChild(hint);
+      } catch (e) {
+        displayError(e.message);
+      }
+    };
+
+    window.showSchema = function() {
+      const content = document.getElementById('modalGenericContent');
+      content.innerHTML = `
+        <h2 style="color: var(--primary); margin-bottom: 20px;">📋 Esquema de Base de Datos</h2>
+        
+        <div style="margin-bottom: 20px;">
+          <h3 style="color: var(--secondary);">Tabla: books</h3>
+          <ul style="margin-left: 20px; margin-top: 10px;">
+            <li><code>id</code> - INTEGER</li>
+            <li><code>title</code> - TEXT (título del libro)</li>
+            <li><code>author</code> - TEXT (autor)</li>
+            <li><code>year</code> - INTEGER (año de publicación)</li>
+            <li><code>pages</code> - INTEGER (número de páginas)</li>
+            <li><code>genre</code> - TEXT (género: Historia, Filosofía, etc.)</li>
+          </ul>
+        </div>
+        
+        <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin-top: 20px;">
+          <strong>Ejemplo de uso:</strong><br>
+          <code style="display: block; margin-top: 10px;">SELECT title, author FROM books WHERE year > 1500;</code>
+        </div>
+        
+        <button class="btn" onclick="closeModal('modalGeneric')" style="margin-top: 20px; width: 100%;">
+          Cerrar
+        </button>
+      `;
+      document.getElementById('modalGeneric').classList.add('active');
+    };
+
+    window.showBadges = function() {
+      const content = document.getElementById('modalGenericContent');
+      const badges = [
+        { id: 'primera', name: 'Primera Consulta', icon: '🛡️', desc: 'Completar reto 1' },
+        { id: 'domador', name: 'Domador de WHERE', icon: '⚔️', desc: 'Completar reto 3' },
+        { id: 'ordenador', name: 'Ordenador Maestro', icon: '📖', desc: 'Completar reto 5' },
+        { id: 'cazador', name: 'Cazador de Datos', icon: '🔍', desc: 'Completar reto 7' },
+        { id: 'conquistador', name: 'Conquistador del Mundo 1', icon: '👑', desc: 'Completar todos los retos' },
+        { id: 'racha', name: 'Racha de Fuego', icon: '🔥', desc: '7 días consecutivos' },
+        { id: 'perfecto', name: 'Perfeccionista', icon: '💎', desc: '5 retos sin pistas' }
+      ];
+      
+      content.innerHTML = '<h2 style="color: var(--primary); margin-bottom: 20px;">🏆 Mis Insignias</h2>';
+      
+      const grid = document.createElement('div');
+      grid.className = 'badge-grid';
+      
+      badges.forEach(badge => {
+        const unlocked = window.gameState.unlockedBadges.includes(badge.id) || 
+                        (badge.id === 'primera' && window.gameState.completedChallenges.length > 0);
+        
+        const div = document.createElement('div');
+        div.className = `badge-item ${unlocked ? 'unlocked' : 'locked'}`;
+        div.innerHTML = `
+          <div class="badge-icon">${badge.icon}</div>
+          <div style="font-weight: bold; font-size: 14px; margin-bottom: 5px;">${badge.name}</div>
+          <div style="font-size: 12px; color: var(--muted);">${badge.desc}</div>
+        `;
+        grid.appendChild(div);
+      });
+      
+      content.appendChild(grid);
+      
+      const btn = document.createElement('button');
+      btn.className = 'btn';
+      btn.textContent = 'Cerrar';
+      btn.style.cssText = 'margin-top: 20px; width: 100%;';
+      btn.onclick = () => closeModal('modalGeneric');
+      content.appendChild(btn);
+      
+      document.getElementById('modalGeneric').classList.add('active');
+    };
+
+    window.showShop = function() {
+      const content = document.getElementById('modalGenericContent');
+      content.innerHTML = `
+        <h2 style="color: var(--primary); margin-bottom: 20px;">🛍️ Tienda de Skins</h2>
+        <p style="color: var(--muted); margin-bottom: 20px;">
+          Próximamente: Desbloquea skins épicas para tu avatar
+        </p>
+        
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px;">
+          <div style="padding: 20px; background: #f9fafb; border-radius: 12px; text-align: center; opacity: 0.5;">
+            <div style="font-size: 48px;">🟢</div>
+            <strong>Túnica del Erudito</strong><br>
+            <span style="color: var(--warning);">300 🪙</span><br>
+            <small>Disponible en Mundo 2</small>
+          </div>
+          
+          <div style="padding: 20px; background: #f9fafb; border-radius: 12px; text-align: center; opacity: 0.5;">
+            <div style="font-size: 48px;">🟤</div>
+            <strong>Capa del Cartógrafo</strong><br>
+            <span style="color: var(--warning);">300 🪙</span><br>
+            <small>Disponible en Mundo 3</small>
+          </div>
+        </div>
+        
+        <button class="btn" onclick="closeModal('modalGeneric')" style="width: 100%;">
+          Cerrar
+        </button>
+      `;
+      document.getElementById('modalGeneric').classList.add('active');
+    };
+
+    window.showDiary = function() {
+      const content = document.getElementById('modalGenericContent');
+      content.innerHTML = '<h2 style="color: var(--primary); margin-bottom: 20px;">📖 Mi Diario del Aprendiz</h2>';
+      
+      if (window.gameState.diary.length === 0) {
+        content.innerHTML += '<p style="color: var(--muted);">Tu aventura acaba de comenzar. Completa retos para llenar tu diario.</p>';
+      } else {
+        window.gameState.diary.forEach(entry => {
+          const div = document.createElement('div');
+          div.style.cssText = 'padding: 15px; margin-bottom: 15px; background: #fffbeb; border-left: 4px solid var(--accent); border-radius: 8px;';
+          div.innerHTML = `
+            <strong>Día ${entry.day}:</strong><br>
+            <div style="margin-top: 8px; font-size: 14px;">${entry.entry}</div>
+          `;
+          content.appendChild(div);
+        });
+      }
+      
+      const btn = document.createElement('button');
+      btn.className = 'btn';
+      btn.textContent = 'Cerrar';
+      btn.style.cssText = 'margin-top: 20px; width: 100%;';
+      btn.onclick = () => closeModal('modalGeneric');
+      content.appendChild(btn);
+      
+      document.getElementById('modalGeneric').classList.add('active');
+    };
+
+    window.saveFavorite = function() {
+      const query = document.getElementById('sqlEditor').value.trim();
+      if (!query || query === '-- Escribe tu consulta aquí') {
+        alert('Escribe una consulta primero');
+        return;
+      }
+      
+      if (window.gameState.favorites.length >= 10) {
+        alert('Ya tienes 10 consultas guardadas. Elimina alguna primero.');
+        return;
+      }
+      
+      window.gameState.favorites.push(query);
+      saveGameState();
+      alert('¡Consulta guardada en favoritos!');
+      updateFavorites();
+    };
+
+    function updateFavorites() {
+      const list = document.getElementById('favoritesList');
+      if (window.gameState.favorites.length === 0) {
+        list.innerHTML = '<div style="color: var(--muted); font-size: 14px;">Ninguna guardada aún</div>';
+        return;
+      }
+      
+      list.innerHTML = '';
+      window.gameState.favorites.forEach((fav, i) => {
+        const div = document.createElement('div');
+        div.style.cssText = 'padding: 8px; margin-bottom: 8px; background: #f3f4f6; border-radius: 6px; font-size: 12px; cursor: pointer;';
+        div.innerHTML = `<code>${fav.substring(0, 30)}...</code>`;
+        div.onclick = () => {
+          document.getElementById('sqlEditor').value = fav;
+        };
+        list.appendChild(div);
+      });
+    }
+
+    window.closeModal = function(id) {
+      document.getElementById(id).classList.remove('active');
+    };
+
+    // Streak system
+    function checkStreak() {
+      const lastVisit = window.gameState.lastVisit ? new Date(window.gameState.lastVisit) : null;
+      const now = new Date();
+      
+      if (!lastVisit) {
+        window.gameState.streak = 1;
+        window.gameState.lastVisit = now.toISOString();
+        saveGameState();
+        return;
+      }
+      
+      const daysDiff = Math.floor((now - lastVisit) / (1000 * 60 * 60 * 24));
+      
+      if (daysDiff === 0) {
+        // Same day - no change
+        return;
+      } else if (daysDiff === 1) {
+        // Next day - continue streak
+        window.gameState.streak += 1;
+        window.gameState.coins += 10;
+        alert(`🔥 ¡${window.gameState.streak} días seguidos! +10 monedas de bono`);
+        
+        // Check for streak milestones
+        if (window.gameState.streak === 7) {
+          window.gameState.coins += 150;
+          window.gameState.xp += 100;
+          window.gameState.unlockedBadges.push('racha');
+          confetti({ particleCount: 150, spread: 100 });
+          alert('🔥🏆 ¡7 DÍAS SEGUIDOS! +150 monedas, +100 XP e insignia "Racha de Fuego"');
+        }
+      } else if (daysDiff > 1) {
+        // Streak broken - check for continuity spell
+        if (!window.gameState.usedContinuitySpell && window.gameState.streak >= 5) {
+          alert('🔮 ¡El Hechizo de Continuidad protegió tu racha! Tu progreso está a salvo.');
+          window.gameState.usedContinuitySpell = true;
+          window.gameState.streak += 1;
+        } else {
+          alert(`😔 Tu racha de ${window.gameState.streak} días se ha perdido. ¡Vuelve a empezar!`);
+          window.gameState.streak = 1;
+        }
+      }
+      
+      window.gameState.lastVisit = now.toISOString();
+      saveGameState();
+      updateStats();
+    }
+
+    // Storage
+    function saveGameState() {
+      localStorage.setItem('scriptumSQL_v1', JSON.stringify({
+        playerName: window.gameState.playerName,
+        avatar: window.gameState.avatar,
+        xp: window.gameState.xp,
+        coins: window.gameState.coins,
+        streak: window.gameState.streak,
+        lastVisit: window.gameState.lastVisit,
+        currentChallenge: window.gameState.currentChallenge,
+        completedChallenges: window.gameState.completedChallenges,
+        unlockedBadges: window.gameState.unlockedBadges,
+        reputation: window.gameState.reputation,
+        favorites: window.gameState.favorites,
+        diary: window.gameState.diary,
+        usedContinuitySpell: window.gameState.usedContinuitySpell
+      }));
+    }
+
+    function loadGameState() {
+      const saved = localStorage.getItem('scriptumSQL_v1');
+      if (saved) {
+        try {
+          const data = JSON.parse(saved);
+          Object.assign(window.gameState, data);
+        } catch (e) {
+          console.error('Error loading save:', e);
+        }
+      }
+    }
+
+    // Initialize on load
+    init();
   </script>
 </body>
-</html>
+</html>domador',
+        npc: 'lorenzo'
+      },
+      4: {
+        title: 'Los Manuscritos Antiguos',
+        desc: 'Usa comparaciones numéricas (>, <, >=, <=)',
+        concept: `<strong>📜 Comparaciones Numéricas</strong><br><br>
+WHERE puede usar operadores:<br>
+> Mayor que<br>
+< Menor que<br>
+>= Mayor o igual<br>
+<= Menor o igual<br><br>
+<code>WHERE year < 1500</code><br><br>
+⚠️ No uses comillas en números`,
+        expected: 'SELECT title, author, year FROM books WHERE year < 1500',
+        hints: [
+          'Filtra por year (año) menor a 1500',
+          'Operador menor que es <',
+          'No pongas comillas en números',
+          'SELECT ... FROM books WHERE year < 1500;',
+          'SELECT title, author, year FROM books WHERE year < 1500;'
+        ],
+        xp: 20,
+        coins: 20,
+        difficulty: 3,
+        npc: 'lorenzo'
+      },
+      5: {
+        title: 'La Orden de la Bibliotecaria',
+        desc: 'Sofía te enseña ORDER BY',
+        concept: `<strong>📜 Ordenar con ORDER BY</strong><br><br>
+ORDER BY ordena los resultados:<br>
+ASC = Ascendente (menor a mayor)<br>
+DESC = Descendente (mayor a menor)<br><br>
+<code>SELECT title, year FROM books<br>ORDER BY year ASC;</code><br><br>
+💡 ASC es por defecto`,
+        expected: 'SELECT title, year FROM books ORDER BY year ASC',
+        hints: [
+          'Usa ORDER BY year para ordenar por año',
+          'ASC = ascendente (menor a mayor)',
+          'Agrega ORDER BY al final',
+          'SELECT ... FROM books ORDER BY year ASC;',
+          'SELECT title, year FROM books ORDER BY year ASC;'
+        ],
+        xp: 20,
+        coins: 25,
+        difficulty: 3,
+        badge: '
