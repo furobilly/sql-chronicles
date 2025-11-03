@@ -30,7 +30,6 @@
       overflow-x: hidden;
     }
 
-    /* Partículas ambientales */
     .particles {
       position: fixed;
       inset: 0;
@@ -55,7 +54,6 @@
       75% { transform: translateY(-30px) translateX(5px); }
     }
 
-    /* Onboarding */
     .onboarding {
       position: fixed;
       inset: 0;
@@ -95,23 +93,6 @@
       50% { transform: scale(1.05); }
     }
 
-    .typing-text {
-      overflow: hidden;
-      border-right: 2px solid var(--primary);
-      white-space: nowrap;
-      animation: typing 3s steps(40) forwards, blink 0.75s step-end infinite;
-      display: inline-block;
-    }
-
-    @keyframes typing {
-      from { width: 0; }
-      to { width: 100%; }
-    }
-
-    @keyframes blink {
-      50% { border-color: transparent; }
-    }
-
     .btn {
       background: var(--primary);
       color: white;
@@ -141,7 +122,6 @@
       color: var(--primary);
     }
 
-    /* Avatar Selection */
     .avatar-selector {
       display: flex;
       align-items: center;
@@ -182,7 +162,6 @@
       margin: 20px 0;
     }
 
-    /* Main App */
     .app-container {
       max-width: 1400px;
       margin: 0 auto;
@@ -247,7 +226,6 @@
       padding-bottom: 10px;
     }
 
-    /* Challenge List */
     .challenge-item {
       padding: 12px;
       margin: 8px 0;
@@ -284,7 +262,6 @@
       color: white;
     }
 
-    /* Editor */
     .editor-container {
       margin: 20px 0;
     }
@@ -309,7 +286,6 @@
       flex-wrap: wrap;
     }
 
-    /* Results */
     .results {
       margin-top: 20px;
       padding: 15px;
@@ -339,7 +315,6 @@
       background: #f3f4f6;
     }
 
-    /* Progress Bar */
     .progress-world {
       background: linear-gradient(180deg, #fff 0%, #f9fafb 100%);
       border: 2px solid var(--accent);
@@ -383,7 +358,6 @@
       color: #d1d5db;
     }
 
-    /* Hints */
     .hint-box {
       background: #fffbeb;
       border-left: 4px solid var(--warning);
@@ -392,7 +366,6 @@
       margin: 10px 0;
     }
 
-    /* Modal */
     .modal {
       position: fixed;
       inset: 0;
@@ -434,7 +407,6 @@
       font-size: 18px;
     }
 
-    /* Badges */
     .badge-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -466,7 +438,6 @@
       margin-bottom: 10px;
     }
 
-    /* Responsive */
     @media (max-width: 1024px) {
       .content-grid {
         grid-template-columns: 1fr;
@@ -477,7 +448,6 @@
       }
     }
 
-    /* Loading */
     .loading-screen {
       position: fixed;
       inset: 0;
@@ -514,10 +484,8 @@
   </style>
 </head>
 <body>
-  <!-- Particles -->
   <div class="particles" id="particles"></div>
 
-  <!-- Loading Screen -->
   <div class="loading-screen" id="loadingScreen">
     <h1 style="font-size: 48px; margin-bottom: 20px;">📜 Scriptum SQL</h1>
     <p id="loadingText" style="font-size: 18px;">Descifrando manuscritos antiguos...</p>
@@ -526,16 +494,11 @@
     </div>
   </div>
 
-  <!-- Onboarding -->
   <div class="onboarding hidden" id="onboarding">
-    <div class="onboarding-content" id="onboardingContent">
-      <!-- Dynamic content will be inserted here -->
-    </div>
+    <div class="onboarding-content" id="onboardingContent"></div>
   </div>
 
-  <!-- Main App -->
   <div class="app-container hidden" id="mainApp">
-    <!-- Header -->
     <div class="header">
       <div class="header-title">
         <span style="font-size: 36px;">📜</span>
@@ -560,9 +523,7 @@
       </div>
     </div>
 
-    <!-- Content Grid -->
     <div class="content-grid">
-      <!-- Left Panel -->
       <div class="panel">
         <h3>🗺️ Mundo 1: Fundamentos</h3>
         
@@ -595,7 +556,6 @@
         </div>
       </div>
 
-      <!-- Center Panel -->
       <div class="panel">
         <h3 id="challengeTitle">Cargando...</h3>
         <p id="challengeDesc" style="color: var(--muted); margin-top: 10px;"></p>
@@ -622,7 +582,6 @@ SELECT * FROM books;</textarea>
         </div>
       </div>
 
-      <!-- Right Panel -->
       <div class="panel">
         <h3>💡 Ayuda</h3>
         
@@ -647,7 +606,6 @@ SELECT * FROM books;</textarea>
     </div>
   </div>
 
-  <!-- Modals -->
   <div class="modal" id="modalGeneric">
     <div class="modal-content">
       <button class="modal-close" onclick="closeModal('modalGeneric')">×</button>
@@ -655,11 +613,9 @@ SELECT * FROM books;</textarea>
     </div>
   </div>
 
-  <script type="module">
-    import initSqlJs from 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js';
-    import confetti from 'https://cdn.skypack.dev/canvas-confetti@1.6.0';
-
-    // Global state
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/confetti.browser.min.js"></script>
+  <script>
     window.gameState = {
       playerName: '',
       avatar: 0,
@@ -670,23 +626,18 @@ SELECT * FROM books;</textarea>
       currentChallenge: 1,
       completedChallenges: [],
       unlockedBadges: [],
-      reputation: { lorenzo: 0, sofia: 0, marco: 0, paracelso: 0, elara: 0 },
+      reputation: { lorenzo: 0, sofia: 0 },
       favorites: [],
       diary: [],
       usedContinuitySpell: false,
       db: null
     };
 
-    // Challenge data
     const challenges = {
       1: {
         title: 'El Despertar del Aprendiz',
         desc: 'Lorenzo te enseña los fundamentos: SELECT y FROM',
-        concept: `<strong>📜 SELECT y FROM</strong><br><br>
-SELECT elige QUÉ columnas mostrar<br>
-FROM indica de QUÉ tabla obtenerlas<br><br>
-<code>SELECT title, author FROM books;</code><br><br>
-Esto muestra títulos y autores de todos los libros.`,
+        concept: `<strong>📜 SELECT y FROM</strong><br><br>SELECT elige QUÉ columnas mostrar<br>FROM indica de QUÉ tabla obtenerlas<br><br><code>SELECT title, author FROM books;</code><br><br>Esto muestra títulos y autores de todos los libros.`,
         expected: 'SELECT title, author FROM books',
         hints: [
           'Usa SELECT para elegir las columnas title y author',
@@ -695,19 +646,12 @@ Esto muestra títulos y autores de todos los libros.`,
           'Estructura: SELECT title, author FROM books;',
           'Copia: SELECT title, author FROM books;'
         ],
-        xp: 15,
-        coins: 10,
-        difficulty: 1,
-        npc: 'lorenzo'
+        xp: 15, coins: 10, difficulty: 1, npc: 'lorenzo'
       },
       2: {
         title: 'La Selección Precisa',
         desc: 'Aprende a seleccionar columnas específicas',
-        concept: `<strong>📜 Columnas Específicas</strong><br><br>
-No siempre necesitas todas las columnas.<br>
-Puedes elegir solo las que necesitas:<br><br>
-<code>SELECT title, year FROM books;</code><br><br>
-Ventajas: más rápido, más claro, solo lo necesario.`,
+        concept: `<strong>📜 Columnas Específicas</strong><br><br>No siempre necesitas todas las columnas.<br>Puedes elegir solo las que necesitas:<br><br><code>SELECT title, year FROM books;</code><br><br>Ventajas: más rápido, más claro, solo lo necesario.`,
         expected: 'SELECT title, year FROM books',
         hints: [
           'Necesitas las columnas title y year de books',
@@ -716,18 +660,12 @@ Ventajas: más rápido, más claro, solo lo necesario.`,
           'Prueba: SELECT title, year FROM books;',
           'Solución: SELECT title, year FROM books;'
         ],
-        xp: 15,
-        coins: 15,
-        difficulty: 2,
-        npc: 'lorenzo'
+        xp: 15, coins: 15, difficulty: 2, npc: 'lorenzo'
       },
       3: {
         title: 'El Filtro del Guardián',
         desc: 'Domina WHERE para filtrar datos',
-        concept: `<strong>📜 Filtrar con WHERE</strong><br><br>
-WHERE filtra FILAS que cumplen una condición.<br><br>
-<code>SELECT title, author FROM books<br>WHERE author = 'Lorenzo de Médicis';</code><br><br>
-⚠️ Los textos van entre comillas simples 'así'`,
+        concept: `<strong>📜 Filtrar con WHERE</strong><br><br>WHERE filtra FILAS que cumplen una condición.<br><br><code>SELECT title, author FROM books<br>WHERE author = 'Lorenzo de Médicis';</code><br><br>⚠️ Los textos van entre comillas simples 'así'`,
         expected: "SELECT title, author FROM books WHERE author = 'Lorenzo de Médicis'",
         hints: [
           "Usa WHERE author = 'nombre'",
@@ -736,20 +674,40 @@ WHERE filtra FILAS que cumplen una condición.<br><br>
           "SELECT title, author FROM books WHERE author = '...';",
           "SELECT title, author FROM books WHERE author = 'Lorenzo de Médicis';"
         ],
-        xp: 18,
-        coins: 20,
-        difficulty: 2,
-        badge: 'ordenador',
-        npc: 'sofia'
+        xp: 18, coins: 20, difficulty: 2, badge: 'domador', npc: 'lorenzo'
+      },
+      4: {
+        title: 'Los Manuscritos Antiguos',
+        desc: 'Usa comparaciones numéricas (>, <, >=, <=)',
+        concept: `<strong>📜 Comparaciones Numéricas</strong><br><br>WHERE puede usar operadores:<br>> Mayor que<br>< Menor que<br>>= Mayor o igual<br><= Menor o igual<br><br><code>WHERE year < 1500</code><br><br>⚠️ No uses comillas en números`,
+        expected: 'SELECT title, author, year FROM books WHERE year < 1500',
+        hints: [
+          'Filtra por year (año) menor a 1500',
+          'Operador menor que es <',
+          'No pongas comillas en números',
+          'SELECT ... FROM books WHERE year < 1500;',
+          'SELECT title, author, year FROM books WHERE year < 1500;'
+        ],
+        xp: 20, coins: 20, difficulty: 3, npc: 'lorenzo'
+      },
+      5: {
+        title: 'La Orden de la Bibliotecaria',
+        desc: 'Sofía te enseña ORDER BY',
+        concept: `<strong>📜 Ordenar con ORDER BY</strong><br><br>ORDER BY ordena los resultados:<br>ASC = Ascendente (menor a mayor)<br>DESC = Descendente (mayor a menor)<br><br><code>SELECT title, year FROM books<br>ORDER BY year ASC;</code><br><br>💡 ASC es por defecto`,
+        expected: 'SELECT title, year FROM books ORDER BY year ASC',
+        hints: [
+          'Usa ORDER BY year para ordenar por año',
+          'ASC = ascendente (menor a mayor)',
+          'Agrega ORDER BY al final',
+          'SELECT ... FROM books ORDER BY year ASC;',
+          'SELECT title, year FROM books ORDER BY year ASC;'
+        ],
+        xp: 20, coins: 25, difficulty: 3, badge: 'ordenador', npc: 'sofia'
       },
       6: {
         title: 'El Límite Preciso',
         desc: 'Aprende LIMIT para controlar resultados',
-        concept: `<strong>📜 Limitar con LIMIT</strong><br><br>
-LIMIT controla cuántas filas mostrar:<br><br>
-<code>SELECT title FROM books<br>LIMIT 5;</code><br><br>
-Muestra solo las primeras 5 filas.<br>
-Útil para grandes consultas.`,
+        concept: `<strong>📜 Limitar con LIMIT</strong><br><br>LIMIT controla cuántas filas mostrar:<br><br><code>SELECT title FROM books<br>LIMIT 5;</code><br><br>Muestra solo las primeras 5 filas.<br>Útil para grandes consultas.`,
         expected: 'SELECT title, author FROM books LIMIT 5',
         hints: [
           'Usa LIMIT al final de la consulta',
@@ -758,19 +716,12 @@ Muestra solo las primeras 5 filas.<br>
           'Agrega LIMIT después de FROM',
           'SELECT title, author FROM books LIMIT 5;'
         ],
-        xp: 20,
-        coins: 25,
-        difficulty: 3,
-        npc: 'sofia'
+        xp: 20, coins: 25, difficulty: 3, npc: 'sofia'
       },
       7: {
         title: 'Los Valores Únicos',
         desc: 'DISTINCT elimina duplicados',
-        concept: `<strong>📜 Valores únicos con DISTINCT</strong><br><br>
-DISTINCT elimina valores repetidos:<br><br>
-<code>SELECT DISTINCT genre FROM books;</code><br><br>
-Muestra cada género solo una vez.<br>
-Útil para ver qué valores existen.`,
+        concept: `<strong>📜 Valores únicos con DISTINCT</strong><br><br>DISTINCT elimina valores repetidos:<br><br><code>SELECT DISTINCT genre FROM books;</code><br><br>Muestra cada género solo una vez.<br>Útil para ver qué valores existen.`,
         expected: 'SELECT DISTINCT genre FROM books',
         hints: [
           'DISTINCT va después de SELECT',
@@ -779,20 +730,12 @@ Muestra cada género solo una vez.<br>
           'SELECT DISTINCT genre FROM books;',
           'SELECT DISTINCT genre FROM books;'
         ],
-        xp: 22,
-        coins: 30,
-        difficulty: 3,
-        badge: 'cazador',
-        npc: 'sofia'
+        xp: 22, coins: 30, difficulty: 3, badge: 'cazador', npc: 'sofia'
       },
       8: {
         title: 'Las Condiciones Múltiples',
         desc: 'Combina filtros con AND y OR',
-        concept: `<strong>📜 Combinar condiciones</strong><br><br>
-AND = Ambas condiciones deben cumplirse<br>
-OR = Al menos una debe cumplirse<br><br>
-<code>WHERE year > 1500 AND pages < 200</code><br><br>
-Libros después de 1500 Y con menos de 200 páginas.`,
+        concept: `<strong>📜 Combinar condiciones</strong><br><br>AND = Ambas condiciones deben cumplirse<br>OR = Al menos una debe cumplirse<br><br><code>WHERE year > 1500 AND pages < 200</code><br><br>Libros después de 1500 Y con menos de 200 páginas.`,
         expected: "SELECT title, year, pages FROM books WHERE year > 1500 AND pages < 200",
         hints: [
           'Usa AND para combinar dos condiciones',
@@ -801,20 +744,12 @@ Libros después de 1500 Y con menos de 200 páginas.`,
           'SELECT title, year, pages FROM books WHERE year > 1500 AND pages < 200;',
           'SELECT title, year, pages FROM books WHERE year > 1500 AND pages < 200;'
         ],
-        xp: 25,
-        coins: 35,
-        difficulty: 3,
-        npc: 'lorenzo'
+        xp: 25, coins: 35, difficulty: 3, npc: 'lorenzo'
       },
       9: {
         title: 'El Patrón Oculto',
         desc: 'Busca patrones con LIKE',
-        concept: `<strong>📜 Búsqueda con LIKE</strong><br><br>
-LIKE busca patrones en textos:<br>
-% = cualquier cantidad de caracteres<br><br>
-<code>WHERE title LIKE '%guerra%'</code><br><br>
-Encuentra títulos que contengan "guerra".<br>
-Primera pista del misterio...`,
+        concept: `<strong>📜 Búsqueda con LIKE</strong><br><br>LIKE busca patrones en textos:<br>% = cualquier cantidad de caracteres<br><br><code>WHERE title LIKE '%Crónicas%'</code><br><br>Encuentra títulos que contengan "Crónicas".<br>Primera pista del misterio...`,
         expected: "SELECT title, author FROM books WHERE title LIKE '%Crónicas%'",
         hints: [
           'Usa LIKE con % para buscar patrones',
@@ -823,19 +758,12 @@ Primera pista del misterio...`,
           "SELECT title, author FROM books WHERE title LIKE '%Crónicas%';",
           "SELECT title, author FROM books WHERE title LIKE '%Crónicas%';"
         ],
-        xp: 30,
-        coins: 40,
-        difficulty: 4,
-        npc: 'lorenzo'
+        xp: 30, coins: 40, difficulty: 4, npc: 'lorenzo'
       },
       10: {
         title: 'El Manuscrito Crítico',
         desc: 'MINI-JEFE: Combina todo lo aprendido',
-        concept: `<strong>⚔️ DESAFÍO FINAL</strong><br><br>
-Combina SELECT, WHERE, AND, ORDER BY y LIMIT.<br><br>
-Encuentra libros de Historia escritos después<br>
-de 1490, ordénalos por año y muestra solo 3.<br><br>
-¡La clave para descubrir la maldición!`,
+        concept: `<strong>⚔️ DESAFÍO FINAL</strong><br><br>Combina SELECT, WHERE, AND, ORDER BY y LIMIT.<br><br>Encuentra libros de Historia escritos después<br>de 1490, ordénalos por año y muestra solo 3.<br><br>¡La clave para descubrir la maldición!`,
         expected: "SELECT title, author, year FROM books WHERE genre = 'Historia' AND year > 1490 ORDER BY year ASC LIMIT 3",
         hints: [
           "WHERE genre = 'Historia' AND year > 1490",
@@ -844,15 +772,10 @@ de 1490, ordénalos por año y muestra solo 3.<br><br>
           "SELECT title, author, year FROM books WHERE genre = 'Historia' AND year > 1490 ORDER BY year ASC LIMIT 3;",
           "SELECT title, author, year FROM books WHERE genre = 'Historia' AND year > 1490 ORDER BY year ASC LIMIT 3;"
         ],
-        xp: 50,
-        coins: 100,
-        difficulty: 4,
-        badge: 'conquistador',
-        npc: 'lorenzo'
+        xp: 50, coins: 100, difficulty: 4, badge: 'conquistador', npc: 'lorenzo'
       }
     };
 
-    // Database seed
     const dbSeed = `
       CREATE TABLE books (
         id INTEGER PRIMARY KEY,
@@ -863,47 +786,6 @@ de 1490, ordénalos por año y muestra solo 3.<br><br>
         genre TEXT
       );
 
-      CREATE TABLE manuscritos (
-        id INTEGER PRIMARY KEY,
-        titulo TEXT,
-        estado TEXT,
-        año INTEGER,
-        autor_id INTEGER
-      );
-
-      CREATE TABLE autores (
-        id INTEGER PRIMARY KEY,
-        nombre TEXT,
-        ciudad_origen TEXT,
-        epoca TEXT
-      );
-
-      CREATE TABLE generos (
-        id INTEGER PRIMARY KEY,
-        nombre TEXT,
-        popularidad INTEGER
-      );
-
-      CREATE TABLE prestamos (
-        id INTEGER PRIMARY KEY,
-        manuscrito_id INTEGER,
-        lector TEXT,
-        fecha_prestamo TEXT,
-        fecha_devolucion TEXT
-      );
-
-      CREATE TABLE secrets (
-        id INTEGER PRIMARY KEY,
-        type TEXT,
-        message TEXT
-      );
-
-      CREATE TABLE lorenzo_notes (
-        id INTEGER PRIMARY KEY,
-        joke TEXT
-      );
-
-      -- Books data (50 records)
       INSERT INTO books VALUES
       (1, 'El Arte de la Guerra', 'Sun Tzu (trad.)', 1512, 192, 'Historia'),
       (2, 'Diálogos de Platón', 'Platón (trad.)', 1489, 320, 'Filosofía'),
@@ -955,14 +837,8 @@ de 1490, ordénalos por año y muestra solo 3.<br><br>
       (48, 'Cartas Náuticas', 'Marco Polo el Joven', 1523, 144, 'Mapas'),
       (49, 'Timeo', 'Platón (trad.)', 1493, 280, 'Filosofía'),
       (50, 'La Piedra Filosofal', 'Paracelso di Firenze', 1525, 64, 'Alquimia');
-
-      -- Easter eggs
-      INSERT INTO secrets VALUES (1, 'creator', 'Felicidades explorador Has descubierto que la curiosidad es la mejor maestra +100 monedas');
-      INSERT INTO lorenzo_notes VALUES (42, 'Por que los programadores prefieren SQL Porque no les gusta hacer JOINs en la vida real +50 monedas');
-      INSERT INTO manuscritos VALUES (1, 'El Manuscrito Prohibido', 'perdido', 1485, 1);
     `;
 
-    // Initialize
     async function init() {
       const loadingTexts = [
         'Descifrando manuscritos antiguos...',
@@ -978,34 +854,34 @@ de 1490, ordénalos por año y muestra solo 3.<br><br>
       }, 800);
 
       try {
-        const SQL = await initSqlJs({
-          locateFile: file => `https://sql.js.org/dist/${file}`
-        });
-        
-        window.gameState.db = new SQL.Database();
-        window.gameState.db.run(dbSeed);
-        
-        clearInterval(textInterval);
-        
-        setTimeout(() => {
-          document.getElementById('loadingScreen').classList.add('hidden');
-          loadGameState();
+        await initSqlJs({
+          locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+        }).then(SQL => {
+          window.gameState.db = new SQL.Database();
+          window.gameState.db.run(dbSeed);
           
-          if (!window.gameState.playerName) {
-            startOnboarding();
-          } else {
-            checkStreak();
-            document.getElementById('mainApp').classList.remove('hidden');
-            renderGame();
-          }
-        }, 3000);
+          clearInterval(textInterval);
+          
+          setTimeout(() => {
+            document.getElementById('loadingScreen').classList.add('hidden');
+            loadGameState();
+            
+            if (!window.gameState.playerName) {
+              startOnboarding();
+            } else {
+              checkStreak();
+              document.getElementById('mainApp').classList.remove('hidden');
+              renderGame();
+              createParticles();
+            }
+          }, 3000);
+        });
       } catch (e) {
         clearInterval(textInterval);
         alert('Error cargando SQL: ' + e.message);
       }
     }
 
-    // Onboarding
     function startOnboarding() {
       document.getElementById('onboarding').classList.remove('hidden');
       showOnboardingStep(1);
@@ -1090,8 +966,8 @@ de 1490, ordénalos por año y muestra solo 3.<br><br>
               <p style="margin-bottom: 15px; font-size: 16px;">
                 <strong style="color: var(--primary);">Lorenzo de Médicis:</strong>
               </p>
-              <p class="typing-text" style="font-size: 15px; line-height: 1.6; border-right: none;">
-                "Saludos aprendiz Soy Lorenzo de Medicis guardián de este gran archivo Hace días una extraña maldición cayó sobre Valoria los manuscritos se mezclan los registros desaparecen Solo el antiguo lenguaje SQL puede salvarnos Te atreves a aprenderlo"
+              <p style="font-size: 15px; line-height: 1.6;">
+                "Saludos, aprendiz. Soy Lorenzo de Médicis, guardián de este gran archivo. Hace días, una extraña maldición cayó sobre Valoria: los manuscritos se mezclan, los registros desaparecen. Solo el antiguo lenguaje SQL puede salvarnos. ¿Te atreves a aprenderlo?"
               </p>
             </div>
             <button class="btn" onclick="startAdventure()" style="width: 100%; font-size: 18px;">
@@ -1132,7 +1008,6 @@ de 1490, ordénalos por año y muestra solo 3.<br><br>
       createParticles();
     };
 
-    // Particles
     function createParticles() {
       const container = document.getElementById('particles');
       for (let i = 0; i < 20; i++) {
@@ -1146,7 +1021,6 @@ de 1490, ordénalos por año y muestra solo 3.<br><br>
       }
     }
 
-    // Game rendering
     function renderGame() {
       updateStats();
       renderChallenges();
@@ -1196,7 +1070,6 @@ de 1490, ordénalos por año y muestra solo 3.<br><br>
       document.getElementById('sqlEditor').value = '-- Escribe tu consulta aquí\n';
       document.getElementById('results').innerHTML = '<strong>📊 Resultados</strong><p style="color: var(--muted); margin-top: 10px;">Ejecuta tu consulta para ver resultados...</p>';
       
-      // Show preview button for difficulty 4
       const previewBtn = document.getElementById('previewBtn');
       if (challenge.difficulty === 4) {
         previewBtn.style.display = 'inline-block';
@@ -1216,7 +1089,6 @@ de 1490, ordénalos por año y muestra solo 3.<br><br>
       document.getElementById('worldProgressBar').style.width = percentage + '%';
       document.getElementById('worldProgressBar').textContent = percentage + '%';
       
-      // Lorenzo reputation
       const lorenzoRep = window.gameState.reputation.lorenzo;
       const stars = document.getElementById('lorenzoRep');
       stars.innerHTML = '';
@@ -1228,7 +1100,7 @@ de 1490, ordénalos por año y muestra solo 3.<br><br>
     function updateLorenzoTips() {
       const id = window.gameState.currentChallenge;
       const tips = {
-        1: 'SELECT elige columnas FROM indica la tabla',
+        1: 'SELECT elige columnas, FROM indica la tabla',
         2: 'Puedes elegir solo las columnas que necesitas',
         3: 'WHERE filtra filas con condiciones específicas',
         4: 'Usa operadores como > < >= <= para comparar números',
@@ -1236,8 +1108,8 @@ de 1490, ordénalos por año y muestra solo 3.<br><br>
         6: 'LIMIT controla cuántas filas mostrar',
         7: 'DISTINCT elimina valores duplicados',
         8: 'AND combina condiciones que deben cumplirse ambas',
-        9: 'LIKE busca patrones usa % como comodín',
-        10: 'Combina todo SELECT WHERE AND ORDER BY LIMIT'
+        9: 'LIKE busca patrones, usa % como comodín',
+        10: 'Combina todo: SELECT, WHERE, AND, ORDER BY, LIMIT'
       };
       
       document.getElementById('lorenzoTips').innerHTML = `
@@ -1246,7 +1118,6 @@ de 1490, ordénalos por año y muestra solo 3.<br><br>
       `;
     }
 
-    // Query execution
     window.executeQuery = function() {
       const query = document.getElementById('sqlEditor').value.trim();
       if (!query || query === '-- Escribe tu consulta aquí') {
@@ -1334,14 +1205,12 @@ de 1490, ordénalos por año y muestra solo 3.<br><br>
       window.gameState.xp += challenge.xp;
       window.gameState.coins += challenge.coins;
       
-      // Update reputation
       if (challenge.npc === 'lorenzo') {
         window.gameState.reputation.lorenzo = Math.min(3, window.gameState.reputation.lorenzo + 1);
       } else if (challenge.npc === 'sofia') {
         window.gameState.reputation.sofia = Math.min(3, window.gameState.reputation.sofia + 1);
       }
       
-      // Unlock badges
       if (challenge.badge === 'domador') {
         window.gameState.unlockedBadges.push('domador');
       } else if (challenge.badge === 'ordenador') {
@@ -1352,7 +1221,6 @@ de 1490, ordénalos por año y muestra solo 3.<br><br>
         window.gameState.unlockedBadges.push('conquistador');
       }
       
-      // Diary entry
       const entries = {
         1: 'Día 1: Lorenzo me enseñó SELECT y FROM. El viaje ha comenzado.',
         2: 'Día 2: Aprendí a seleccionar columnas específicas. Cada vez más preciso.',
@@ -1371,7 +1239,10 @@ de 1490, ordénalos por año y muestra solo 3.<br><br>
       }
       
       saveGameState();
-      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+      
+      if (typeof confetti !== 'undefined') {
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+      }
       
       const resultsDiv = document.getElementById('results');
       const successMsg = document.createElement('div');
@@ -1388,14 +1259,12 @@ de 1490, ordénalos por año y muestra solo 3.<br><br>
       
       renderGame();
       
-      // Auto-advance to next challenge
       if (id < 10) {
         setTimeout(() => {
           window.gameState.currentChallenge = id + 1;
           renderGame();
         }, 3000);
       } else {
-        // World completed
         setTimeout(() => {
           showWorldCompleted();
         }, 2000);
@@ -1415,7 +1284,9 @@ de 1490, ordénalos por año y muestra solo 3.<br><br>
       window.gameState.unlockedBadges.push('mundo1');
       saveGameState();
       
-      confetti({ particleCount: 200, spread: 120, origin: { y: 0.5 } });
+      if (typeof confetti !== 'undefined') {
+        confetti({ particleCount: 200, spread: 120, origin: { y: 0.5 } });
+      }
       
       const modal = document.getElementById('modalGeneric');
       const content = document.getElementById('modalGenericContent');
@@ -1437,7 +1308,7 @@ de 1490, ordénalos por año y muestra solo 3.<br><br>
           </div>
           <p style="color: var(--muted); margin-bottom: 20px;">
             El Mundo 2 se desbloqueará pronto...<br>
-            Por ahora, explora el Modo Libre.
+            Por ahora, explora y practica lo aprendido.
           </p>
           <button class="btn" onclick="closeModal('modalGeneric')" style="font-size: 18px;">
             ¡Continuar mi aventura!
@@ -1447,7 +1318,6 @@ de 1490, ordénalos por año y muestra solo 3.<br><br>
       modal.classList.add('active');
     }
 
-    // Other functions
     window.loadSolution = function() {
       const challenge = challenges[window.gameState.currentChallenge];
       document.getElementById('sqlEditor').value = challenge.expected + ';';
@@ -1662,7 +1532,7 @@ de 1490, ordénalos por año y muestra solo 3.<br><br>
       }
       
       if (window.gameState.favorites.length >= 10) {
-        alert('Ya tienes 10 consultas guardadas. Elimina alguna primero.');
+        alert('Ya tienes 10 consultas guardadas.');
         return;
       }
       
@@ -1695,7 +1565,6 @@ de 1490, ordénalos por año y muestra solo 3.<br><br>
       document.getElementById(id).classList.remove('active');
     };
 
-    // Streak system
     function checkStreak() {
       const lastVisit = window.gameState.lastVisit ? new Date(window.gameState.lastVisit) : null;
       const now = new Date();
@@ -1710,24 +1579,22 @@ de 1490, ordénalos por año y muestra solo 3.<br><br>
       const daysDiff = Math.floor((now - lastVisit) / (1000 * 60 * 60 * 24));
       
       if (daysDiff === 0) {
-        // Same day - no change
         return;
       } else if (daysDiff === 1) {
-        // Next day - continue streak
         window.gameState.streak += 1;
         window.gameState.coins += 10;
         alert(`🔥 ¡${window.gameState.streak} días seguidos! +10 monedas de bono`);
         
-        // Check for streak milestones
         if (window.gameState.streak === 7) {
           window.gameState.coins += 150;
           window.gameState.xp += 100;
           window.gameState.unlockedBadges.push('racha');
-          confetti({ particleCount: 150, spread: 100 });
+          if (typeof confetti !== 'undefined') {
+            confetti({ particleCount: 150, spread: 100 });
+          }
           alert('🔥🏆 ¡7 DÍAS SEGUIDOS! +150 monedas, +100 XP e insignia "Racha de Fuego"');
         }
       } else if (daysDiff > 1) {
-        // Streak broken - check for continuity spell
         if (!window.gameState.usedContinuitySpell && window.gameState.streak >= 5) {
           alert('🔮 ¡El Hechizo de Continuidad protegió tu racha! Tu progreso está a salvo.');
           window.gameState.usedContinuitySpell = true;
@@ -1743,7 +1610,6 @@ de 1490, ordénalos por año y muestra solo 3.<br><br>
       updateStats();
     }
 
-    // Storage
     function saveGameState() {
       localStorage.setItem('scriptumSQL_v1', JSON.stringify({
         playerName: window.gameState.playerName,
@@ -1774,55 +1640,7 @@ de 1490, ordénalos por año y muestra solo 3.<br><br>
       }
     }
 
-    // Initialize on load
     init();
   </script>
 </body>
-</html>domador',
-        npc: 'lorenzo'
-      },
-      4: {
-        title: 'Los Manuscritos Antiguos',
-        desc: 'Usa comparaciones numéricas (>, <, >=, <=)',
-        concept: `<strong>📜 Comparaciones Numéricas</strong><br><br>
-WHERE puede usar operadores:<br>
-> Mayor que<br>
-< Menor que<br>
->= Mayor o igual<br>
-<= Menor o igual<br><br>
-<code>WHERE year < 1500</code><br><br>
-⚠️ No uses comillas en números`,
-        expected: 'SELECT title, author, year FROM books WHERE year < 1500',
-        hints: [
-          'Filtra por year (año) menor a 1500',
-          'Operador menor que es <',
-          'No pongas comillas en números',
-          'SELECT ... FROM books WHERE year < 1500;',
-          'SELECT title, author, year FROM books WHERE year < 1500;'
-        ],
-        xp: 20,
-        coins: 20,
-        difficulty: 3,
-        npc: 'lorenzo'
-      },
-      5: {
-        title: 'La Orden de la Bibliotecaria',
-        desc: 'Sofía te enseña ORDER BY',
-        concept: `<strong>📜 Ordenar con ORDER BY</strong><br><br>
-ORDER BY ordena los resultados:<br>
-ASC = Ascendente (menor a mayor)<br>
-DESC = Descendente (mayor a menor)<br><br>
-<code>SELECT title, year FROM books<br>ORDER BY year ASC;</code><br><br>
-💡 ASC es por defecto`,
-        expected: 'SELECT title, year FROM books ORDER BY year ASC',
-        hints: [
-          'Usa ORDER BY year para ordenar por año',
-          'ASC = ascendente (menor a mayor)',
-          'Agrega ORDER BY al final',
-          'SELECT ... FROM books ORDER BY year ASC;',
-          'SELECT title, year FROM books ORDER BY year ASC;'
-        ],
-        xp: 20,
-        coins: 25,
-        difficulty: 3,
-        badge: '
+</html>
