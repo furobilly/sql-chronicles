@@ -656,7 +656,7 @@ SELECT * FROM books;</textarea>
   </div>
 
   <script type="module">
-    import initSqlJs from 'https://cdn.jsdelivr.net/npm/sql.js@1.8.0/dist/sql-wasm.js';
+    import initSqlJs from 'https://sql.js.org/dist/sql-wasm.js';
     import confetti from 'https://cdn.skypack.dev/canvas-confetti@1.6.0';
 
     // Global state
@@ -979,7 +979,7 @@ de 1490, ordénalos por año y muestra solo 3.<br><br>
 
       try {
         const SQL = await initSqlJs({
-          locateFile: file => `https://cdn.jsdelivr.net/npm/sql.js@1.8.0/dist/${file}`
+          locateFile: file => `https://sql.js.org/dist/${file}`
         });
         
         window.gameState.db = new SQL.Database();
