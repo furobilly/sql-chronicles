@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SQL Chronicles — Biblioteca renacentista (MVP)</title>
+  <style>
+    :root{
+      --bg:#f4f6fb;
+      --card:#fff;
+      --accent:#1f6feb;
+      --muted:#666;
+      --gap:12px;
+      --radius:10px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:#111;-webkit-font-smoothing:antialiased}
+    header{background:var(--accent);color:#fff;padding:14px 16px}
+    header h1{margin:0;font-size:18px}
+    .wrap{display:flex;gap:var(--gap);padding:16px;align-items:flex-start;max-width:1200px;margin:0 auto}
+    .col{background:var(--card);padding:12px;border-radius:var(--radius);box-shadow:0 6px 18px rgba(12,20,30,0.06)}
+    .left{width:290px;flex-shrink:0}
+    .right{width:260px;flex-shrink:0}
+    .center{flex:1}
+    .story p{margin:8px 0;color:#222;line-height:1.4}
+    .challenges button{display:block;width:100%;text-align:left;padding:8px;margin-bottom:8px;border-radius:8px;border:1px solid #eee;background:#fafafa;cursor:pointer}
+    .challenges button.active{background:var(--accent);color:#fff}
+    .editor {margin-top:10px;display:flex;flex-direction:column;gap:8px}
+    textarea.sqlEditor{width:100%;min-height:160px;padding:10px;border-radius:8px;border:1px solid #ddd;font-family:ui-monospace, SFMono-Regular,Menlo,monospace;font-size:14px;resize:vertical}
+    .editorButtons{display:flex;gap:8px;flex-wrap:wrap}
+    .btn{padding:8px 12px;border-radius:8px;border:none;background:var(--accent);color:#fff;cursor:pointer}
+    .btn.secondary{background:#6b7280}
+    .result{margin-top:12px}
+    table{width:100%;border-collapse:collapse}
+    th,td{border:1px solid #eee;padding:8px;text-align:left;font-size:14px}
+    .muted{color:var(--muted)}
+    .hint{background:#f8fafc;padding:8px;border-radius:8px;margin-bottom:8px;border:1px solid #eef2ff}
+    footer{padding:12px;text-align:center;color:#666}
+    .progressList{list-style:none;padding:0;margin:0}
+    .progressList li{padding:6px 0;border-bottom:1px dashed #f1f5f9;font-size:14px}
+    .topRow{display:flex;gap:8px;align-items:center;justify-content:space-between}
+    .collapseMobile{display:none}
+
+    /* Responsive */
+    @media (max-width: 900px){
+      .wrap{flex-direction:column;padding:12px}
+      .left,.right{width:100%}
+      .collapseMobile{display:block}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>SQL Chronicles — Biblioteca renacentista (MVP)</h1>
+  </header>
+
+  <main class="wrap">
+    <aside class="col left">
+      <div class="topRow">
+        <h3>Historia</h3>
+        <button id="toggleHints" class="btn secondary collapseMobile">Mostrar/ocultar</button>
+      </div>
+      <div class="story">
+        <p><strong>Año 1510.</strong> Eres aprendiz en la biblioteca de la villa. Para avanzar, el archivero te pide consultas SQL que extraigan información de los registros.</p>
+      </div>
+
+      <div style="margin-top:12px">
+        <h4>Retos</h4>
+        <div class="challenges" id="challenges"></div>
+      </div>
+    </aside>
+
+    <section class="col center">
+      <div id="challengeBox">
+        <h3 id="challengeTitle">Cargando...</h3>
+        <p id="challengeDesc" class="muted"></p>
+
+        <div class="editor">
+          <label style="font-weight:600">Editor SQL</label>
+          <textarea id="editor" class="sqlEditor" spellcheck="false">SELECT title, author FROM books;</textarea>
+
+          <div class="editorButtons">
+            <button id="runBtn" class="btn">Ejecutar</button>
+            <button id="loadBtn" class="btn secondary">Cargar solución esperada</button>
+            <button id="clearBtn" class="btn secondary">Limpiar</button>
+            <button id="showSolutionBtn" class="btn secondary">Ver solución</button>
+          </div>
+        </div>
+
+        <div class="result" id="resultArea">
+          <h4>Resultado</h4>
+          <div id="resultContent" class="muted">Ejecuta tu consulta para ver resultados.</div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="col right">
+      <h4>Pistas & Progreso</h4>
+      <div class="hint" id="hintBox">
+        <strong>Pista general:</strong>
+        <p>Empieza con consultas simples: SELECT columnas FROM tabla. Usa "Cargar solución esperada" si necesitas ver la respuesta modelo.</p>
+      </div>
+
+      <div style="margin-top:10px">
+        <h4>Progreso local</h4>
+        <ul id="progressList" class="progressList"></ul>
+      </div>
+    </aside>
+  </main>
+
+  <footer>
+    Guardado local en tu navegador. Puedes probar en móvil y escritorio.
+  </footer>
+
+  <!-- js: sql.js desde CDN -->
+  <script type="module">
+    import initSqlJs from "https://cdn.jsdelivr.net/npm/sql.js@1.8.0/dist/sql-wasm.js";
+
+    // --- Dataset SQL (seed) ---
+    const seedSql = `BEGIN TRANSACTION;
+CREATE TABLE books(
+  id INTEGER PRIMARY KEY,
+  title TEXT,
+  author TEXT,
+  year INTEGER,
+  pages INTEGER,
+  genre TEXT
+);
+INSERT INTO books (id,title,author,year,pages,genre) VALUES
+(1,'El saber de la villa','Marcos de Albor',1489,192,'Historia'),
+(2,'Tratado de navegación','Beatriz Lema',1512,144,'Tecnica'),
+(3,'Cartas y mapas','Alonso Rivas',1501,208,'Geografía'),
+(4,'Manuscritos de la corte','Isabel Cornejo',1475,320,'Historia'),
+(5,'Poemas de la luz','Diego Salas',1520,88,'Poesía'),
+(6,'Crónicas del puerto','Juana Méndez',1495,256,'Historia'),
+(7,'Recetas del monasterio','Felipe Otero',1508,64,'Cocina'),
+(8,'Los astros y su orden','Ana Hidalgo',1516,176,'Ciencia'),
+(9,'Arte en tablas','Martín Serrano',1490,120,'Arte'),
+(10,'Diarios de viaje','Sofía Vargas',1522,224,'Relatos'),
+(11,'Tratado de aritmética','Lucas Peña',1480,104,'Matemáticas'),
+(12,'Cantos agrícolas','Pedro Galán',1500,96,'Agricultura'),
+(13,'Apuntes de botánica','Teresa Ruiz',1510,160,'Ciencia'),
+(14,'Historia marítima','Óscar Bello',1498,200,'Historia'),
+(15,'Crónicas de comercio','María del Río',1518,212,'Economía'),
+(16,'Epístolas reales','Fernando Luján',1470,180,'Historia'),
+(17,'Relatos del monarca','Adela Prado',1525,300,'Relatos'),
+(18,'Recopilación jurídica','Antonio Gil',1492,256,'Derecho'),
+(19,'Calendario agrícola','Lucía Ortega',1503,72,'Agricultura'),
+(20,'Tratado sobre telas','Marcos Vega',1514,128,'Artesanía'),
+(21,'Mapas del orbe','Ignacio Prado',1485,196,'Geografía'),
+(22,'Los oficios','Silvia Narváez',1506,136,'Sociología'),
+(23,'Manual del carpintero','Ramón Cuevas',1493,80,'Artesanía'),
+(24,'Estudios de música','Cecilia Torres',1511,112,'Arte'),
+(25,'Anales de la ciudad','Martina Álvarez',1488,260,'Historia'),
+(26,'Poemas del camino','Emilio Cruz',1509,92,'Poesía'),
+(27,'Tratado de herbolaria','Clara Molina',1499,152,'Ciencia'),
+(28,'Refranes y dichos','Luis Mateo',1505,68,'Cultura'),
+(29,'Recuento de impuestos','Diego Paredes',1513,140,'Economía'),
+(30,'Cartografía avanzada','Beatriz Lema',1521,184,'Geografía');
+COMMIT;`;
+
+    // --- Retos y soluciones esperadas ---
+    const challenges = {
+      1: { title: "Mostrar títulos y autores", description: "Muestra los títulos y autores de todos los libros.", expected: "SELECT title, author FROM books;" },
+      2: { title: "Todas las columnas", description: "Muestra todos los datos de la tabla books.", expected: "SELECT * FROM books;" },
+      3: { title: "Libros posteriores a 1500", description: "Muestra título, autor y año de los libros publicados después de 1500.", expected: "SELECT title, author, year FROM books WHERE year > 1500;" },
+      4: { title: "Top 5 por páginas", description: "Muestra los 5 libros con más páginas (title, author, pages) en orden descendente.", expected: "SELECT title, author, pages FROM books ORDER BY pages DESC LIMIT 5;" },
+      5: { title: "Géneros únicos", description: "Lista los géneros únicos existentes.", expected: "SELECT DISTINCT genre FROM books;" },
+      6: { title: "Alias de año", description: "Muestra título y year renombrado como 'Año'.", expected: "SELECT title, year AS Año FROM books;" }
+    };
+
+    // --- claves de almacenamiento ---
+    const STORAGE_KEY = "sql_chronicles_progress_v1";
+
+    // --- DOM referencias ---
+    const challengesDiv = document.getElementById("challenges");
+    const challengeTitle = document.getElementById("challengeTitle");
+    const challengeDesc = document.getElementById("challengeDesc");
+    const editor = document.getElementById("editor");
+    const runBtn = document.getElementById("runBtn");
+    const loadBtn = document.getElementById("loadBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const showSolutionBtn = document.getElementById("showSolutionBtn");
+    const resultContent = document.getElementById("resultContent");
+    const progressList = document.getElementById("progressList");
+    const hintBox = document.getElementById("hintBox");
+    const toggleHints = document.getElementById("toggleHints");
+
+    let selected = 1;
+    let db = null;
+    let sqlWasm = null;
+    let progress = {};
+
+    // Inicializar la interfaz (botones de retos)
+    function renderChallenges(){
+      challengesDiv.innerHTML = "";
+      for(const id of Object.keys(challenges)){
+        const btn = document.createElement("button");
+        btn.textContent = id + ". " + challenges[id].title + (progress[id] ? " ✅" : "");
+        btn.className = (Number(id) === selected) ? "active" : "";
+        btn.onclick = () => { selected = Number(id); renderSelected(); };
+        challengesDiv.appendChild(btn);
+      }
+      renderProgressList();
+    }
+
+    function renderSelected(){
+      const c = challenges[selected];
+      challengeTitle.textContent = `${selected}. ${c.title}`;
+      challengeDesc.textContent = c.description;
+      // no sobrescribir editor automáticamente para que el usuario mantenga lo que escribió
+    }
+
+    function renderProgressList(){
+      progressList.innerHTML = "";
+      for(const id of Object.keys(challenges)){
+        const li = document.createElement("li");
+        li.textContent = `${id}. ${challenges[id].title} — ${progress[id] ? "Completado ✅" : "Pendiente"}`;
+        progressList.appendChild(li);
+      }
+    }
+
+    // Cargar progreso desde localStorage
+    function loadProgress(){
+      try {
+        progress = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+      } catch(e){
+        progress = {};
+      }
+    }
+    function saveProgress(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+      renderChallenges();
+    }
+
+    // Inicializar sql.js y DB
+    async function initDb(){
+      resultContent.textContent = "Cargando motor SQL...";
+      try {
+        sqlWasm = await initSqlJs({ locateFile: file => `https://cdn.jsdelivr.net/npm/sql.js@1.8.0/dist/${file}` });
+        db = new sqlWasm.Database();
+        // Ejecutar seed SQL
+        db.run(seedSql);
+        resultContent.textContent = "Base de datos lista. Escribe una consulta y presiona Ejecutar.";
+      } catch(e){
+        resultContent.innerHTML = "<span style='color:#c53030'>Error cargando SQL: " + e.message + "</span>";
+      }
+    }
+
+    // Ejecutar consulta y devolver resultado
+    function execQuery(query){
+      try {
+        const res = db.exec(query); // array de resultsets
+        return { ok:true, res };
+      } catch(e){
+        return { ok:false, error: e.message };
+      }
+    }
+
+    // Mostrar resultado (tabla o error)
+    function showResult(exec){
+      if(!exec) return;
+      if(!exec.ok){
+        resultContent.innerHTML = `<pre style="color:#c53030">${exec.error}</pre>`;
+        return;
+      }
+      const res = exec.res;
+      if(!res || res.length === 0){
+        resultContent.innerHTML = `<div class="muted">Consulta ejecutada. No hay filas a mostrar.</div>`;
+        return;
+      }
+      // mostrar solo primer resultset para simplicidad
+      const r = res[0];
+      const table = document.createElement("table");
+      const thead = document.createElement("thead");
+      const trh = document.createElement("tr");
+      for(const col of r.columns){
+        const th = document.createElement("th");
+        th.textContent = col;
+        trh.appendChild(th);
+      }
+      thead.appendChild(trh);
+      table.appendChild(thead);
+      const tbody = document.createElement("tbody");
+      for(const row of r.values){
+        const tr = document.createElement("tr");
+        for(const cell of row){
+          const td = document.createElement("td");
+          td.textContent = cell === null ? "NULL" : String(cell);
+          tr.appendChild(td);
+        }
+        tbody.appendChild(tr);
+      }
+      table.appendChild(tbody);
+      resultContent.innerHTML = "";
+      resultContent.appendChild(table);
+    }
+
+    // Comparador simple: compara primer resultset de ambas respuestas como conjuntos (ignora orden)
+    function compareResults(resA, resB, orderSensitive=false){
+      const rowsA = (resA && resA[0] && resA[0].values) || [];
+      const rowsB = (resB && resB[0] && resB[0].values) || [];
+      const colsA = (resA && resA[0] && resA[0].columns) || [];
+      const colsB = (resB && resB[0] && resB[0].columns) || [];
+      // Si número de columnas difiere -> no igual
+      if(colsA.length !== colsB.length) return false;
+      if(orderSensitive){
+        // comparar orden exacto
+        if(rowsA.length !== rowsB.length) return false;
+        for(let i=0;i<rowsA.length;i++){
+          if(JSON.stringify(rowsA[i]) !== JSON.stringify(rowsB[i])) return false;
+        }
+        return true;
+      } else {
+        const setA = new Set(rowsA.map(r => JSON.stringify(r)));
+        const setB = new Set(rowsB.map(r => JSON.stringify(r)));
+        if(setA.size !== setB.size) return false;
+        for(const v of setA) if(!setB.has(v)) return false;
+        return true;
+      }
+    }
+
+    // Handler de ejecución
+    runBtn.addEventListener("click", () => {
+      const userQ = editor.value.trim();
+      if(!userQ){
+        resultContent.innerHTML = `<div class="muted">Escribe una consulta primero.</div>`;
+        return;
+      }
+      const userExec = execQuery(userQ);
+      showResult(userExec);
+
+      // Verificar con expected
+      const expectedExec = execQuery(challenges[selected].expected);
+      const ok = userExec.ok && expectedExec && compareResults(userExec.res, expectedExec.res, false);
+      if(ok){
+        progress[selected] = true;
+        saveProgress();
+        // mensaje de éxito
+        const msg = document.createElement("div");
+        msg.style.marginTop = "8px";
+        msg.style.padding = "8px";
+        msg.style.borderRadius = "8px";
+        msg.style.background = "#ecfdf5";
+        msg.style.border = "1px solid #bbf7d0";
+        msg.innerHTML = "<strong>¡Correcto!</strong> Reto completado ✅";
+        resultContent.appendChild(msg);
+      } else {
+        // no correcto: dar pista ligera
+        const hint = document.createElement("div");
+        hint.style.marginTop = "8px";
+        hint.style.padding = "8px";
+        hint.style.borderRadius = "8px";
+        hint.style.background = "#fff7ed";
+        hint.style.border = "1px solid #ffedd5";
+        hint.innerHTML = "<strong>Pista:</strong> Revisa SELECT y FROM, y si aplicaste WHERE/ORDER BY según el reto.";
+        resultContent.appendChild(hint);
+      }
+    });
+
+    // Cargar solucion esperada en editor
+    loadBtn.addEventListener("click", () => {
+      editor.value = challenges[selected].expected;
+      editor.focus();
+    });
+
+    clearBtn.addEventListener("click", () => {
+      editor.value = "";
+      resultContent.innerHTML = `<div class="muted">Editor limpio. Escribe una consulta y presiona Ejecutar.</div>`;
+    });
+
+    showSolutionBtn.addEventListener("click", () => {
+      // Mostrar solución en un modal simple (alert) para mantenerlo simple
+      alert("Solución esperada:\n\n" + challenges[selected].expected);
+    });
+
+    toggleHints.addEventListener("click", () => {
+      hintBox.style.display = (hintBox.style.display === "none") ? "block" : "none";
+    });
+
+    // Inicialización
+    (async function(){
+      loadProgress();
+      renderChallenges();
+      renderSelected();
+      await initDb();
+    })();
+
+  </script>
+</body>
+</html>
