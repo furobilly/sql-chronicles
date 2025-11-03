@@ -3,87 +3,177 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SQL Chronicles — Biblioteca renacentista (MVP)</title>
+  <title>SQL Chronicles — Biblioteca renacentista (MVP mejorado)</title>
+
+  <!-- Paleta y estilos base -->
   <style>
     :root{
       --bg:#f4f6fb;
       --card:#fff;
       --accent:#1f6feb;
-      --muted:#666;
-      --gap:12px;
-      --radius:10px;
+      --accent-2:#fb923c;
+      --success:#34d399;
+      --muted:#6b7280;
+      --text:#111827;
+      --glass: rgba(255,255,255,0.85);
+      --radius:12px;
+      --gap:14px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;
     }
     *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:#111;-webkit-font-smoothing:antialiased}
-    header{background:var(--accent);color:#fff;padding:14px 16px}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,Segoe UI,Roboto,Arial;
+      background: linear-gradient(180deg,#f4f6fb 0%, #eef2ff 100%);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      padding-bottom:40px;
+    }
+
+    header{
+      background:linear-gradient(90deg,var(--accent),#5ec0ff 60%);
+      color:white;
+      padding:18px 20px;
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+      box-shadow:0 6px 18px rgba(31,111,235,0.12);
+    }
+    header .title{display:flex;gap:12px;align-items:center}
     header h1{margin:0;font-size:18px}
-    .wrap{display:flex;gap:var(--gap);padding:16px;align-items:flex-start;max-width:1200px;margin:0 auto}
-    .col{background:var(--card);padding:12px;border-radius:var(--radius);box-shadow:0 6px 18px rgba(12,20,30,0.06)}
-    .left{width:290px;flex-shrink:0}
-    .right{width:260px;flex-shrink:0}
+    header .sub{opacity:0.95;font-size:13px}
+
+    .container{max-width:1200px;margin:20px auto;padding:12px;display:flex;gap:var(--gap);align-items:flex-start}
+    .col{background:var(--card);padding:14px;border-radius:var(--radius);box-shadow:0 8px 24px rgba(12,20,30,0.06)}
+    .left{width:320px;flex-shrink:0}
     .center{flex:1}
-    .story p{margin:8px 0;color:#222;line-height:1.4}
-    .challenges button{display:block;width:100%;text-align:left;padding:8px;margin-bottom:8px;border-radius:8px;border:1px solid #eee;background:#fafafa;cursor:pointer}
-    .challenges button.active{background:var(--accent);color:#fff}
-    .editor {margin-top:10px;display:flex;flex-direction:column;gap:8px}
-    textarea.sqlEditor{width:100%;min-height:160px;padding:10px;border-radius:8px;border:1px solid #ddd;font-family:ui-monospace, SFMono-Regular,Menlo,monospace;font-size:14px;resize:vertical}
-    .editorButtons{display:flex;gap:8px;flex-wrap:wrap}
-    .btn{padding:8px 12px;border-radius:8px;border:none;background:var(--accent);color:#fff;cursor:pointer}
+    .right{width:320px;flex-shrink:0}
+
+    /* Story card */
+    .prologue{background:linear-gradient(180deg,#fff 0%, #fbfbff 100%);border-radius:12px;padding:12px}
+    .prologue h2{margin:0 0 8px 0}
+    .npc{display:flex;gap:10px;align-items:center;margin-bottom:8px}
+    .npc svg{width:48px;height:48px;border-radius:8px;background:linear-gradient(90deg,#fff,#f1f5f9);padding:6px}
+
+    /* Challenges list */
+    .challenges button{display:block;width:100%;text-align:left;padding:10px;margin-bottom:8px;border-radius:10px;border:1px solid #eef2ff;background:#fff;cursor:pointer;transition:all .12s}
+    .challenges button:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(31,111,235,0.06)}
+    .challenges button.active{background:var(--accent);color:#fff;border-color:transparent}
+
+    /* Editor */
+    .editor{margin-top:10px;display:flex;flex-direction:column;gap:10px}
+    textarea.sqlEditor{width:100%;min-height:180px;padding:12px;border-radius:10px;border:1px solid #e6eefc;font-family:var(--mono);font-size:13px;resize:vertical;background:linear-gradient(180deg,#fbfdff,#fff)}
+    .controls{display:flex;gap:8px;flex-wrap:wrap}
+    .btn{padding:8px 12px;border-radius:10px;border:none;background:var(--accent);color:#fff;cursor:pointer;box-shadow:0 6px 14px rgba(31,111,235,0.12)}
     .btn.secondary{background:#6b7280}
+    .btn.ghost{background:transparent;border:1px solid #e6eefc;color:var(--text)}
+    .small{padding:6px 8px;font-size:13px;border-radius:8px}
+
     .result{margin-top:12px}
     table{width:100%;border-collapse:collapse}
-    th,td{border:1px solid #eee;padding:8px;text-align:left;font-size:14px}
+    th,td{border:1px solid #f1f5f9;padding:8px;text-align:left;font-size:13px}
     .muted{color:var(--muted)}
-    .hint{background:#f8fafc;padding:8px;border-radius:8px;margin-bottom:8px;border:1px solid #eef2ff}
-    footer{padding:12px;text-align:center;color:#666}
-    .progressList{list-style:none;padding:0;margin:0}
-    .progressList li{padding:6px 0;border-bottom:1px dashed #f1f5f9;font-size:14px}
-    .topRow{display:flex;gap:8px;align-items:center;justify-content:space-between}
-    .collapseMobile{display:none}
+
+    /* Hints and progress */
+    .hint{background:#fff9f4;padding:10px;border-radius:8px;margin-bottom:8px;border:1px solid #fff0e6}
+    .progressCard{display:flex;flex-direction:column;gap:8px}
+
+    /* Modal */
+    .modalBack{position:fixed;inset:0;background:rgba(10,20,30,0.45);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
+    .modal{background:var(--card);border-radius:10px;padding:16px;max-width:820px;width:100%;max-height:80vh;overflow:auto;box-shadow:0 14px 40px rgba(12,20,30,0.2)}
+    .row{display:flex;gap:10px;align-items:center}
+    .badge{display:inline-block;background:var(--accent-2);color:white;padding:6px 8px;border-radius:8px;font-weight:600;font-size:13px}
+
+    /* XP badge */
+    .xpBox{display:flex;gap:10px;align-items:center}
+    .xpCounter{background:linear-gradient(90deg,#fff,#f7f9ff);padding:8px 10px;border-radius:10px;border:1px solid #eef2ff;font-weight:700}
 
     /* Responsive */
-    @media (max-width: 900px){
-      .wrap{flex-direction:column;padding:12px}
+    @media (max-width:980px){
+      .container{flex-direction:column;padding:12px}
       .left,.right{width:100%}
-      .collapseMobile{display:block}
     }
+
+    /* small helpers */
+    .label{font-weight:700;font-size:14px;margin-bottom:6px}
+    .tiny{font-size:12px;color:var(--muted)}
+    .centerText{text-align:center}
   </style>
 </head>
 <body>
   <header>
-    <h1>SQL Chronicles — Biblioteca renacentista (MVP)</h1>
+    <div class="title">
+      <!-- Placeholder SVG banner: puedes reemplazar por tu imagen -->
+      <svg width="56" height="48" viewBox="0 0 100 80" aria-hidden>
+        <rect rx="12" width="100" height="80" fill="#fff" opacity="0.08"></rect>
+        <text x="10" y="48" fill="white" font-weight="700" font-size="34">⚔️</text>
+      </svg>
+      <div>
+        <h1>SQL Chronicles — Biblioteca renacentista</h1>
+        <div class="sub">Explora, consulta y domina SQL — lecciones inmersivas en español</div>
+      </div>
+    </div>
+
+    <div class="xpBox">
+      <div class="tiny">Tu XP</div>
+      <div id="xpCounter" class="xpCounter">0 XP</div>
+    </div>
   </header>
 
-  <main class="wrap">
+  <main class="container">
+    <!-- LEFT: Historia + Retos -->
     <aside class="col left">
-      <div class="topRow">
-        <h3>Historia</h3>
-        <button id="toggleHints" class="btn secondary collapseMobile">Mostrar/ocultar</button>
-      </div>
-      <div class="story">
-        <p><strong>Año 1510.</strong> Eres aprendiz en la biblioteca de la villa. Para avanzar, el archivero te pide consultas SQL que extraigan información de los registros.</p>
+      <div class="prologue">
+        <h2>Prólogo — Año 1510</h2>
+        <div class="npc">
+          <!-- Placeholder avatar -->
+          <svg viewBox="0 0 48 48" width="48" height="48" aria-hidden>
+            <rect rx="8" width="48" height="48" fill="#fff" opacity="0.06"></rect>
+            <circle cx="24" cy="20" r="8" fill="#fb923c"></circle>
+            <rect x="8" y="30" width="32" height="10" rx="3" fill="#ffdca3"></rect>
+          </svg>
+          <div>
+            <strong>Archivero Lorenzo</strong>
+            <div class="tiny">"Aprende a leer los registros y encontrarás los manuscritos perdidos."</div>
+          </div>
+        </div>
+
+        <p>Eres aprendiz en la Gran Biblioteca de la Villa. El archivero te pide consultas para recuperar registros antiguos. Completa retos, gana XP y desbloquea nuevas historias.</p>
+
+        <div style="margin-top:10px">
+          <div class="label">Retos (Mundo 1 — Fundamentos)</div>
+          <div id="challenges" class="challenges"></div>
+        </div>
       </div>
 
-      <div style="margin-top:12px">
-        <h4>Retos</h4>
-        <div class="challenges" id="challenges"></div>
+      <div style="margin-top:12px" class="progressCard">
+        <div class="label">Acciones rápidas</div>
+        <button id="showSchemaBtn" class="btn ghost small">¿Qué tablas hay?</button>
+        <button id="openTutorialBtn" class="btn ghost small">Tutorial Nivel 0 — ¿Qué es SELECT?</button>
+        <button id="resetProgressBtn" class="btn secondary small">Reiniciar progreso local</button>
       </div>
     </aside>
 
+    <!-- CENTER: Editor y resultados -->
     <section class="col center">
       <div id="challengeBox">
-        <h3 id="challengeTitle">Cargando...</h3>
+        <h3 id="challengeTitle">Cargando reto...</h3>
         <p id="challengeDesc" class="muted"></p>
 
-        <div class="editor">
-          <label style="font-weight:600">Editor SQL</label>
-          <textarea id="editor" class="sqlEditor" spellcheck="false">SELECT title, author FROM books;</textarea>
+        <div style="margin-top:12px" class="editor">
+          <label class="label">Editor SQL</label>
+          <textarea id="editor" class="sqlEditor" spellcheck="false">-- Escribe aquí tu consulta. Empieza con: SELECT title, author FROM books;</textarea>
 
-          <div class="editorButtons">
+          <div class="row controls">
             <button id="runBtn" class="btn">Ejecutar</button>
-            <button id="loadBtn" class="btn secondary">Cargar solución esperada</button>
-            <button id="clearBtn" class="btn secondary">Limpiar</button>
-            <button id="showSolutionBtn" class="btn secondary">Ver solución</button>
+            <button id="loadBtn" class="btn secondary">Cargar solución</button>
+            <button id="templateBtn" class="btn ghost">Plantillas</button>
+            <button id="clearBtn" class="btn ghost">Limpiar</button>
+            <button id="hintBtn" class="btn ghost">Pista</button>
+            <div style="flex:1"></div>
+            <div class="tiny">Usuario: <strong>Aprendiz</strong></div>
           </div>
         </div>
 
@@ -94,29 +184,97 @@
       </div>
     </section>
 
+    <!-- RIGHT: Pistas y Progreso -->
     <aside class="col right">
-      <h4>Pistas & Progreso</h4>
-      <div class="hint" id="hintBox">
-        <strong>Pista general:</strong>
-        <p>Empieza con consultas simples: SELECT columnas FROM tabla. Usa "Cargar solución esperada" si necesitas ver la respuesta modelo.</p>
-      </div>
+      <div>
+        <h4>Pistas & Progreso</h4>
+        <div id="hintBox" class="hint">
+          <strong>Pista general:</strong>
+          <p class="tiny">SELECT columnas FROM tabla. Usa Cargar solución si necesitas ver la respuesta modelo.</p>
+        </div>
 
-      <div style="margin-top:10px">
-        <h4>Progreso local</h4>
-        <ul id="progressList" class="progressList"></ul>
+        <div style="margin-top:10px">
+          <h4>Progreso local</h4>
+          <ul id="progressList" class="tiny"></ul>
+        </div>
+
+        <div style="margin-top:10px">
+          <h4>Tabla mostrada</h4>
+          <div class="tiny">Pulsa "¿Qué tablas hay?" para ver esquema y ejemplos.</div>
+        </div>
       </div>
     </aside>
   </main>
 
-  <footer>
-    Guardado local en tu navegador. Puedes probar en móvil y escritorio.
+  <footer style="max-width:1200px;margin:20px auto;text-align:center;color:var(--muted)">
+    Guardado local en tu navegador · Archivo único para GitHub Pages · Hecho con ❤️
   </footer>
 
-  <!-- js: sql.js desde CDN -->
+  <!-- Modal: Esquema -->
+  <div id="modalSchema" class="modalBack" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h3>Esquema de la base de datos</h3>
+        <div><button id="closeSchema" class="btn ghost small">Cerrar</button></div>
+      </div>
+      <p class="tiny">Tablas y columnas disponibles. Usa estos nombres en tus consultas.</p>
+      <div id="schemaContent" style="margin-top:12px"></div>
+    </div>
+  </div>
+
+  <!-- Modal: Tutorial Nivel 0 -->
+  <div id="modalTutorial" class="modalBack" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h3>Tutorial — Nivel 0: ¿Qué hace SELECT?</h3>
+        <div><button id="closeTutorial" class="btn ghost small">Cerrar</button></div>
+      </div>
+
+      <div style="margin-top:10px">
+        <p><strong>SELECT</strong> se utiliza para pedir columnas de una tabla.</p>
+        <pre style="background:#f8fafc;padding:10px;border-radius:8px;border:1px solid #eef2ff">SELECT title, author FROM books;</pre>
+        <ol>
+          <li><strong>SELECT</strong> — define qué columnas quieres.</li>
+          <li><strong>FROM</strong> — indica la tabla de la que quieres leer.</li>
+          <li><strong>WHERE</strong> (opcional) — filtra filas por condiciones.</li>
+        </ol>
+
+        <p class="tiny"><strong>Ejemplo paso a paso:</strong></p>
+        <p class="tiny">SELECT <em>title</em>, <em>author</em> FROM <em>books</em>;</p>
+        <p class="tiny">- title y author son columnas. books es la tabla. Si no conoces columnas usa "¿Qué tablas hay?".</p>
+
+        <div style="margin-top:12px;display:flex;gap:8px">
+          <button id="loadTutorialQuery" class="btn">Cargar ejemplo en editor</button>
+          <button id="closeTutorial2" class="btn ghost">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Plantillas modal -->
+  <div id="modalTemplates" class="modalBack">
+    <div class="modal">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h3>Plantillas rápidas</h3>
+        <div><button id="closeTemplates" class="btn ghost small">Cerrar</button></div>
+      </div>
+
+      <p class="tiny">Copia y utiliza estas plantillas para practicar.</p>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+        <button class="btn ghost small template" data-q="SELECT * FROM books LIMIT 10;">SELECT * LIMIT</button>
+        <button class="btn ghost small template" data-q="SELECT title, COUNT(*) AS veces FROM books GROUP BY title;">GROUP BY (count)</button>
+        <button class="btn ghost small template" data-q="SELECT author, COUNT(*) AS total FROM books GROUP BY author ORDER BY total DESC;">GROUP BY + ORDER BY</button>
+        <button class="btn ghost small template" data-q="SELECT b.title, p.name AS publisher FROM books b JOIN products p ON p.id = b.id;">JOIN (ejemplo)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- dependencias: sql.js + confetti -->
   <script type="module">
     import initSqlJs from "https://cdn.jsdelivr.net/npm/sql.js@1.8.0/dist/sql-wasm.js";
+    import confetti from "https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.mjs";
 
-    // --- Dataset SQL (seed) ---
+    // --- Seed SQL (dataset) ---
     const seedSql = `BEGIN TRANSACTION;
 CREATE TABLE books(
   id INTEGER PRIMARY KEY,
@@ -128,7 +286,7 @@ CREATE TABLE books(
 );
 INSERT INTO books (id,title,author,year,pages,genre) VALUES
 (1,'El saber de la villa','Marcos de Albor',1489,192,'Historia'),
-(2,'Tratado de navegación','Beatriz Lema',1512,144,'Tecnica'),
+(2,'Tratado de navegación','Beatriz Lema',1512,144,'Técnica'),
 (3,'Cartas y mapas','Alonso Rivas',1501,208,'Geografía'),
 (4,'Manuscritos de la corte','Isabel Cornejo',1475,320,'Historia'),
 (5,'Poemas de la luz','Diego Salas',1520,88,'Poesía'),
@@ -146,31 +304,78 @@ INSERT INTO books (id,title,author,year,pages,genre) VALUES
 (17,'Relatos del monarca','Adela Prado',1525,300,'Relatos'),
 (18,'Recopilación jurídica','Antonio Gil',1492,256,'Derecho'),
 (19,'Calendario agrícola','Lucía Ortega',1503,72,'Agricultura'),
-(20,'Tratado sobre telas','Marcos Vega',1514,128,'Artesanía'),
-(21,'Mapas del orbe','Ignacio Prado',1485,196,'Geografía'),
-(22,'Los oficios','Silvia Narváez',1506,136,'Sociología'),
-(23,'Manual del carpintero','Ramón Cuevas',1493,80,'Artesanía'),
-(24,'Estudios de música','Cecilia Torres',1511,112,'Arte'),
-(25,'Anales de la ciudad','Martina Álvarez',1488,260,'Historia'),
-(26,'Poemas del camino','Emilio Cruz',1509,92,'Poesía'),
-(27,'Tratado de herbolaria','Clara Molina',1499,152,'Ciencia'),
-(28,'Refranes y dichos','Luis Mateo',1505,68,'Cultura'),
-(29,'Recuento de impuestos','Diego Paredes',1513,140,'Economía'),
-(30,'Cartografía avanzada','Beatriz Lema',1521,184,'Geografía');
+(20,'Tratado sobre telas','Marcos Vega',1514,128,'Artesanía');
 COMMIT;`;
 
-    // --- Retos y soluciones esperadas ---
+    // --- Retos con contexto, pistas y solución esperada ---
     const challenges = {
-      1: { title: "Mostrar títulos y autores", description: "Muestra los títulos y autores de todos los libros.", expected: "SELECT title, author FROM books;" },
-      2: { title: "Todas las columnas", description: "Muestra todos los datos de la tabla books.", expected: "SELECT * FROM books;" },
-      3: { title: "Libros posteriores a 1500", description: "Muestra título, autor y año de los libros publicados después de 1500.", expected: "SELECT title, author, year FROM books WHERE year > 1500;" },
-      4: { title: "Top 5 por páginas", description: "Muestra los 5 libros con más páginas (title, author, pages) en orden descendente.", expected: "SELECT title, author, pages FROM books ORDER BY pages DESC LIMIT 5;" },
-      5: { title: "Géneros únicos", description: "Lista los géneros únicos existentes.", expected: "SELECT DISTINCT genre FROM books;" },
-      6: { title: "Alias de año", description: "Muestra título y year renombrado como 'Año'.", expected: "SELECT title, year AS Año FROM books;" }
+      1: {
+        title: "Mostrar títulos y autores",
+        description: "Muestra los títulos y autores de todos los libros.",
+        expected: "SELECT title, author FROM books;",
+        hints: [
+          "Usa SELECT para elegir columnas.",
+          "La tabla se llama books.",
+          "Si no funciona prueba SELECT title, author FROM books;"
+        ],
+        xp: 10
+      },
+      2: {
+        title: "Todas las columnas",
+        description: "Muestra todos los datos de la tabla books.",
+        expected: "SELECT * FROM books;",
+        hints: [
+          "El asterisco (*) selecciona todas las columnas.",
+          "Prueba: SELECT * FROM books LIMIT 10;"
+        ],
+        xp: 12
+      },
+      3: {
+        title: "Libros posteriores a 1500",
+        description: "Muestra título, autor y año de los libros publicados después de 1500.",
+        expected: "SELECT title, author, year FROM books WHERE year > 1500;",
+        hints: [
+          "Usa WHERE para filtrar por año: year > 1500",
+          "Comprueba columnas: title, author, year"
+        ],
+        xp: 15
+      },
+      4: {
+        title: "Top 5 por páginas",
+        description: "Muestra los 5 libros con más páginas (title, author, pages) en orden descendente.",
+        expected: "SELECT title, author, pages FROM books ORDER BY pages DESC LIMIT 5;",
+        hints: [
+          "ORDER BY pages DESC y luego LIMIT 5.",
+          "Recuerda la sintaxis: ORDER BY columna DESC"
+        ],
+        xp: 18
+      },
+      5: {
+        title: "Géneros únicos",
+        description: "Lista los géneros únicos existentes.",
+        expected: "SELECT DISTINCT genre FROM books;",
+        hints: [
+          "Usa DISTINCT para valores únicos.",
+          "Ejemplo: SELECT DISTINCT genre FROM books"
+        ],
+        xp: 10
+      },
+      6: {
+        title: "Alias de año",
+        description: "Muestra título y year renombrado como 'Año'.",
+        expected: "SELECT title, year AS Año FROM books;",
+        hints: [
+          "AS renombra columnas.",
+          "Prueba: SELECT title, year AS Año FROM books;"
+        ],
+        xp: 12
+      }
     };
 
-    // --- claves de almacenamiento ---
-    const STORAGE_KEY = "sql_chronicles_progress_v1";
+    // --- Almacenamiento local ---
+    const STORAGE_KEY = "sql_chronicles_progress_v2";
+    let progress = {};
+    let xpTotal = 0;
 
     // --- DOM referencias ---
     const challengesDiv = document.getElementById("challenges");
@@ -180,24 +385,36 @@ COMMIT;`;
     const runBtn = document.getElementById("runBtn");
     const loadBtn = document.getElementById("loadBtn");
     const clearBtn = document.getElementById("clearBtn");
-    const showSolutionBtn = document.getElementById("showSolutionBtn");
-    const resultContent = document.getElementById("resultContent");
+    const showSchemaBtn = document.getElementById("showSchemaBtn");
+    const modalSchema = document.getElementById("modalSchema");
+    const schemaContent = document.getElementById("schemaContent");
+    const closeSchema = document.getElementById("closeSchema");
     const progressList = document.getElementById("progressList");
     const hintBox = document.getElementById("hintBox");
-    const toggleHints = document.getElementById("toggleHints");
+    const hintBtn = document.getElementById("hintBtn");
+    const xpCounter = document.getElementById("xpCounter");
+    const templateBtn = document.getElementById("templateBtn");
+    const modalTemplates = document.getElementById("modalTemplates");
+    const closeTemplates = document.getElementById("closeTemplates");
+    const openTutorialBtn = document.getElementById("openTutorialBtn");
+    const modalTutorial = document.getElementById("modalTutorial");
+    const closeTutorial = document.getElementById("closeTutorial");
+    const loadTutorialQuery = document.getElementById("loadTutorialQuery");
+    const resetProgressBtn = document.getElementById("resetProgressBtn");
 
     let selected = 1;
     let db = null;
     let sqlWasm = null;
-    let progress = {};
 
-    // Inicializar la interfaz (botones de retos)
+    // --- Render retos y progreso ---
     function renderChallenges(){
       challengesDiv.innerHTML = "";
       for(const id of Object.keys(challenges)){
+        const c = challenges[id];
         const btn = document.createElement("button");
-        btn.textContent = id + ". " + challenges[id].title + (progress[id] ? " ✅" : "");
+        btn.innerHTML = `<strong>${id}. ${c.title}</strong><div class="tiny">${c.description}</div>`;
         btn.className = (Number(id) === selected) ? "active" : "";
+        if(progress[id]) btn.innerHTML += ` <span style="float:right;color:var(--success)">✅</span>`;
         btn.onclick = () => { selected = Number(id); renderSelected(); };
         challengesDiv.appendChild(btn);
       }
@@ -208,7 +425,6 @@ COMMIT;`;
       const c = challenges[selected];
       challengeTitle.textContent = `${selected}. ${c.title}`;
       challengeDesc.textContent = c.description;
-      // no sobrescribir editor automáticamente para que el usuario mantenga lo que escribió
     }
 
     function renderProgressList(){
@@ -220,34 +436,42 @@ COMMIT;`;
       }
     }
 
-    // Cargar progreso desde localStorage
+    // --- Progreso local ---
     function loadProgress(){
       try {
-        progress = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY)) || { progress: {}, xp: 0 };
+        progress = saved.progress || {};
+        xpTotal = saved.xp || 0;
       } catch(e){
         progress = {};
+        xpTotal = 0;
       }
+      xpCounter.textContent = `${xpTotal} XP`;
     }
     function saveProgress(){
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ progress, xp: xpTotal }));
       renderChallenges();
+      xpCounter.textContent = `${xpTotal} XP`;
     }
+    resetProgressBtn.addEventListener("click", () => {
+      if(!confirm("¿Reiniciar todo el progreso local?")) return;
+      progress = {}; xpTotal = 0; saveProgress();
+      alert("Progreso reiniciado.");
+    });
 
-    // Inicializar sql.js y DB
+    // --- Inicializar DB ---
     async function initDb(){
-      resultContent.textContent = "Cargando motor SQL...";
       try {
         sqlWasm = await initSqlJs({ locateFile: file => `https://cdn.jsdelivr.net/npm/sql.js@1.8.0/dist/${file}` });
         db = new sqlWasm.Database();
-        // Ejecutar seed SQL
         db.run(seedSql);
-        resultContent.textContent = "Base de datos lista. Escribe una consulta y presiona Ejecutar.";
+        document.getElementById("resultContent").textContent = "Base de datos lista. Escribe una consulta y presiona Ejecutar.";
       } catch(e){
-        resultContent.innerHTML = "<span style='color:#c53030'>Error cargando SQL: " + e.message + "</span>";
+        document.getElementById("resultContent").innerHTML = `<span style="color:#c53030">Error cargando SQL: ${e.message}</span>`;
       }
     }
 
-    // Ejecutar consulta y devolver resultado
+    // --- Ejecutar consulta ---
     function execQuery(query){
       try {
         const res = db.exec(query); // array de resultsets
@@ -257,8 +481,9 @@ COMMIT;`;
       }
     }
 
-    // Mostrar resultado (tabla o error)
+    // --- Mostrar resultado ---
     function showResult(exec){
+      const resultContent = document.getElementById("resultContent");
       if(!exec) return;
       if(!exec.ok){
         resultContent.innerHTML = `<pre style="color:#c53030">${exec.error}</pre>`;
@@ -269,7 +494,6 @@ COMMIT;`;
         resultContent.innerHTML = `<div class="muted">Consulta ejecutada. No hay filas a mostrar.</div>`;
         return;
       }
-      // mostrar solo primer resultset para simplicidad
       const r = res[0];
       const table = document.createElement("table");
       const thead = document.createElement("thead");
@@ -296,69 +520,84 @@ COMMIT;`;
       resultContent.appendChild(table);
     }
 
-    // Comparador simple: compara primer resultset de ambas respuestas como conjuntos (ignora orden)
-    function compareResults(resA, resB, orderSensitive=false){
+    // --- Comparar resultados (sin orden) ---
+    function compareResults(resA, resB){
       const rowsA = (resA && resA[0] && resA[0].values) || [];
       const rowsB = (resB && resB[0] && resB[0].values) || [];
       const colsA = (resA && resA[0] && resA[0].columns) || [];
       const colsB = (resB && resB[0] && resB[0].columns) || [];
-      // Si número de columnas difiere -> no igual
       if(colsA.length !== colsB.length) return false;
-      if(orderSensitive){
-        // comparar orden exacto
-        if(rowsA.length !== rowsB.length) return false;
-        for(let i=0;i<rowsA.length;i++){
-          if(JSON.stringify(rowsA[i]) !== JSON.stringify(rowsB[i])) return false;
-        }
-        return true;
-      } else {
-        const setA = new Set(rowsA.map(r => JSON.stringify(r)));
-        const setB = new Set(rowsB.map(r => JSON.stringify(r)));
-        if(setA.size !== setB.size) return false;
-        for(const v of setA) if(!setB.has(v)) return false;
-        return true;
-      }
+      const setA = new Set(rowsA.map(r => JSON.stringify(r)));
+      const setB = new Set(rowsB.map(r => JSON.stringify(r)));
+      if(setA.size !== setB.size) return false;
+      for(const v of setA) if(!setB.has(v)) return false;
+      return true;
     }
 
-    // Handler de ejecución
+    // --- Manejo de botones ---
     runBtn.addEventListener("click", () => {
       const userQ = editor.value.trim();
       if(!userQ){
-        resultContent.innerHTML = `<div class="muted">Escribe una consulta primero.</div>`;
+        document.getElementById("resultContent").innerHTML = `<div class="muted">Escribe una consulta primero.</div>`;
         return;
       }
       const userExec = execQuery(userQ);
       showResult(userExec);
 
-      // Verificar con expected
-      const expectedExec = execQuery(challenges[selected].expected);
-      const ok = userExec.ok && expectedExec && compareResults(userExec.res, expectedExec.res, false);
-      if(ok){
-        progress[selected] = true;
-        saveProgress();
-        // mensaje de éxito
+      // feedback extra
+      if(!userExec.ok){
+        // error de sintaxis u otro
         const msg = document.createElement("div");
-        msg.style.marginTop = "8px";
-        msg.style.padding = "8px";
-        msg.style.borderRadius = "8px";
-        msg.style.background = "#ecfdf5";
-        msg.style.border = "1px solid #bbf7d0";
-        msg.innerHTML = "<strong>¡Correcto!</strong> Reto completado ✅";
-        resultContent.appendChild(msg);
+        msg.style.marginTop="8px";
+        msg.style.padding="8px";
+        msg.style.borderRadius="8px";
+        msg.style.background="#fff7ed";
+        msg.style.border="1px solid #ffedd5";
+        msg.innerHTML = "<strong>Consejo:</strong> Revisa la sintaxis; usa `¿Qué tablas hay?` si dudas del esquema.";
+        document.getElementById("resultContent").appendChild(msg);
+        return;
+      }
+
+      // verificar con expected
+      const expectedExec = execQuery(challenges[selected].expected);
+      const ok = userExec.ok && expectedExec && compareResults(userExec.res, expectedExec.res);
+      if(ok){
+        if(!progress[selected]){
+          progress[selected] = true;
+          xpTotal += challenges[selected].xp || 10;
+          saveProgress();
+          // confetti y mensaje
+          confetti({ particleCount: 80, spread: 60, origin: { y: 0.2 } });
+          const msg = document.createElement("div");
+          msg.style.marginTop="8px";
+          msg.style.padding="10px";
+          msg.style.borderRadius="8px";
+          msg.style.background="#ecfdf5";
+          msg.style.border="1px solid #bbf7d0";
+          msg.innerHTML = `<strong>¡Correcto!</strong> Has ganado <strong>${challenges[selected].xp} XP</strong>. Reto completado ✅`;
+          document.getElementById("resultContent").appendChild(msg);
+        } else {
+          const msg = document.createElement("div");
+          msg.style.marginTop="8px";
+          msg.style.padding="8px";
+          msg.style.borderRadius="8px";
+          msg.style.background="#eff6ff";
+          msg.innerHTML = `<strong>¡Bien!</strong> Ya tenías este reto completado.`;
+          document.getElementById("resultContent").appendChild(msg);
+        }
+        renderChallenges();
       } else {
-        // no correcto: dar pista ligera
         const hint = document.createElement("div");
-        hint.style.marginTop = "8px";
-        hint.style.padding = "8px";
-        hint.style.borderRadius = "8px";
-        hint.style.background = "#fff7ed";
-        hint.style.border = "1px solid #ffedd5";
-        hint.innerHTML = "<strong>Pista:</strong> Revisa SELECT y FROM, y si aplicaste WHERE/ORDER BY según el reto.";
-        resultContent.appendChild(hint);
+        hint.style.marginTop="8px";
+        hint.style.padding="8px";
+        hint.style.borderRadius="8px";
+        hint.style.background="#fff7ed";
+        hint.style.border="1px solid #ffedd5";
+        hint.innerHTML = `<strong>Pista:</strong> ${challenges[selected].hints[0] || 'Revisa SELECT y FROM.'}`;
+        document.getElementById("resultContent").appendChild(hint);
       }
     });
 
-    // Cargar solucion esperada en editor
     loadBtn.addEventListener("click", () => {
       editor.value = challenges[selected].expected;
       editor.focus();
@@ -366,28 +605,92 @@ COMMIT;`;
 
     clearBtn.addEventListener("click", () => {
       editor.value = "";
-      resultContent.innerHTML = `<div class="muted">Editor limpio. Escribe una consulta y presiona Ejecutar.</div>`;
+      document.getElementById("resultContent").innerHTML = `<div class="muted">Editor limpio. Escribe una consulta y presiona Ejecutar.</div>`;
     });
 
-    showSolutionBtn.addEventListener("click", () => {
-      // Mostrar solución en un modal simple (alert) para mantenerlo simple
-      alert("Solución esperada:\n\n" + challenges[selected].expected);
+    // mostrar esquema (modal)
+    showSchemaBtn.addEventListener("click", async () => {
+      if(!db) return alert("La base de datos aún no está lista.");
+      // obtener tablas
+      const res = db.exec("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';");
+      const tables = (res && res[0] && res[0].values.map(r => r[0])) || [];
+      schemaContent.innerHTML = "";
+      for(const t of tables){
+        const h = document.createElement("div");
+        h.style.marginBottom = "8px";
+        const title = document.createElement("div");
+        title.innerHTML = `<strong>${t}</strong> <span class="tiny" style="margin-left:8px">(ejemplos: usa <code>${t}</code> en FROM)</span>`;
+        h.appendChild(title);
+        // obtener columnas
+        const info = db.exec(`PRAGMA table_info(${t});`);
+        const cols = (info && info[0] && info[0].values) || [];
+        const ul = document.createElement("ul");
+        ul.className = "tiny";
+        for(const c of cols){
+          // PRAGMA returns rows: cid,name,type,notnull,dflt_value,pk
+          ul.innerHTML += `<li><code>${c[1]}</code> — ${c[2] || 'TEXT'}</li>`;
+        }
+        h.appendChild(ul);
+        schemaContent.appendChild(h);
+      }
+      modalSchema.style.display = "flex";
+    });
+    closeSchema.addEventListener("click", () => modalSchema.style.display = "none");
+
+    // hints
+    hintBtn.addEventListener("click", () => {
+      const c = challenges[selected];
+      const nextHint = c.hints && c.hints[0] ? c.hints[0] : "No hay más pistas.";
+      alert("Pista: " + nextHint + "\n\n(Próxima: " + (c.hints[1] || "—") + ")");
     });
 
-    toggleHints.addEventListener("click", () => {
-      hintBox.style.display = (hintBox.style.display === "none") ? "block" : "none";
+    // templates modal
+    templateBtn.addEventListener("click", () => {
+      modalTemplates.style.display = "flex";
+    });
+    closeTemplates.addEventListener("click", () => modalTemplates.style.display = "none");
+    document.querySelectorAll(".template").forEach(btn => {
+      btn.addEventListener("click", e => {
+        editor.value = btn.dataset.q;
+        modalTemplates.style.display = "none";
+      });
     });
 
-    // Inicialización
+    // tutorial modal
+    openTutorialBtn.addEventListener("click", () => modalTutorial.style.display = "flex");
+    closeTutorial.addEventListener("click", () => modalTutorial.style.display = "none");
+    document.getElementById("closeTutorial2").addEventListener("click", () => modalTutorial.style.display = "none");
+    loadTutorialQuery.addEventListener("click", () => {
+      editor.value = "SELECT title, author FROM books;";
+      modalTutorial.style.display = "none";
+    });
+
+    // --- Inicialización ---
     (async function(){
       loadProgress();
       renderChallenges();
       renderSelected();
       await initDb();
+      // actualiza esquema (por si quieres verla en HTML)
+      // dejamos la base lista
     })();
 
+    // cerrar modales si se hace click afuera
+    window.addEventListener("click", (e) => {
+      if(e.target === modalSchema) modalSchema.style.display = "none";
+      if(e.target === modalTemplates) modalTemplates.style.display = "none";
+      if(e.target === modalTutorial) modalTutorial.style.display = "none";
+    });
+
+    // Guardar progreso automático al salir
+    window.addEventListener("beforeunload", () => { saveProgress(); });
+
+    // Pequeña mejora: navegar entre retos con teclas (opcional)
+    window.addEventListener("keydown", (e) => {
+      if(e.key === "ArrowRight"){ selected = Math.min(Object.keys(challenges).length, selected+1); renderSelected(); }
+      if(e.key === "ArrowLeft"){ selected = Math.max(1, selected-1); renderSelected(); }
+    });
+
   </script>
-  <!-- deploy trigger 2025-11-03 -->
 </body>
 </html>
-
