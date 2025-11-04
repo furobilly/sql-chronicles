@@ -1,778 +1,39 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scriptum SQL: El Manuscrito Perdido</title>
-  <style>
-    :root {
-      --bg: #f4f6fb;
-      --card: #fff;
-      --primary: #264653;
-      --secondary: #2a9d8f;
-      --accent: #e9c46a;
-      --warning: #f4a261;
-      --danger: #e76f51;
-      --text: #1a1a1a;
-      --muted: #6b7280;
-      --radius: 12px;
-      --shadow: 0 8px 24px rgba(38, 70, 83, 0.1);
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    
-    body {
-      font-family: 'Georgia', 'Palatino', serif;
-      background: linear-gradient(135deg, #264653 0%, #2a9d8f 100%);
-      color: var(--text);
-      min-height: 100vh;
-      position: relative;
-      overflow-x: hidden;
-    }
-
-    .particles {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 1;
-    }
-
-    .particle {
-      position: absolute;
-      width: 4px;
-      height: 4px;
-      background: var(--accent);
-      border-radius: 50%;
-      opacity: 0.3;
-      animation: float 15s infinite ease-in-out;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0) translateX(0); }
-      25% { transform: translateY(-30px) translateX(10px); }
-      50% { transform: translateY(-60px) translateX(-10px); }
-      75% { transform: translateY(-30px) translateX(5px); }
-    }
-
-    .onboarding {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.95);
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    .onboarding-content {
-      background: linear-gradient(180deg, #fff 0%, #f9fafb 100%);
-      border-radius: 20px;
-      padding: 40px;
-      max-width: 600px;
-      width: 100%;
-      text-align: center;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      animation: slideIn 0.5s ease-out;
-    }
-
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .logo-animation {
-      width: 200px;
-      height: 200px;
-      margin: 0 auto 30px;
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
-
-    .btn {
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 14px 28px;
-      border-radius: var(--radius);
-      font-size: 16px;
-      cursor: pointer;
-      transition: all 0.3s;
-      font-family: inherit;
-      box-shadow: 0 4px 12px rgba(38, 70, 83, 0.3);
-    }
-
-    .btn:hover {
-      background: var(--secondary);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(42, 157, 143, 0.4);
-    }
-
-    .btn-secondary {
-      background: var(--warning);
-    }
-
-    .btn-ghost {
-      background: transparent;
-      border: 2px solid var(--primary);
-      color: var(--primary);
-    }
-
-    .avatar-selector {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      margin: 30px 0;
-    }
-
-    .avatar-card {
-      width: 120px;
-      height: 140px;
-      background: linear-gradient(180deg, #fff 0%, #f3f4f6 100%);
-      border-radius: 12px;
-      padding: 15px;
-      cursor: pointer;
-      transition: all 0.3s;
-      border: 3px solid transparent;
-    }
-
-    .avatar-card.active {
-      border-color: var(--secondary);
-      box-shadow: 0 0 20px rgba(42, 157, 143, 0.5);
-      transform: scale(1.1);
-    }
-
-    .avatar-icon {
-      font-size: 48px;
-      margin-bottom: 10px;
-    }
-
-    .input-name {
-      width: 100%;
-      padding: 12px;
-      border: 2px solid var(--muted);
-      border-radius: var(--radius);
-      font-size: 16px;
-      font-family: inherit;
-      margin: 20px 0;
-    }
-
-    .app-container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 20px;
-      position: relative;
-      z-index: 2;
-    }
-
-    .header {
-      background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
-      color: white;
-      padding: 20px;
-      border-radius: var(--radius);
-      margin-bottom: 20px;
-      box-shadow: var(--shadow);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .header-title {
-      font-size: 24px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .stats-bar {
-      display: flex;
-      gap: 15px;
-      align-items: center;
-    }
-
-    .stat-badge {
-      background: rgba(255, 255, 255, 0.2);
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-weight: bold;
-    }
-
-    .content-grid {
-      display: grid;
-      grid-template-columns: 300px 1fr 300px;
-      gap: 20px;
-    }
-
-    .panel {
-      background: white;
-      border-radius: var(--radius);
-      padding: 20px;
-      box-shadow: var(--shadow);
-      max-height: calc(100vh - 180px);
-      overflow-y: auto;
-    }
-
-    .panel h3 {
-      color: var(--primary);
-      margin-bottom: 15px;
-      font-size: 18px;
-      border-bottom: 2px solid var(--accent);
-      padding-bottom: 10px;
-    }
-
-    .challenge-item {
-      padding: 12px;
-      margin: 8px 0;
-      border-radius: 8px;
-      border: 2px solid #e5e7eb;
-      cursor: pointer;
-      transition: all 0.3s;
-      position: relative;
-    }
-
-    .challenge-item:hover {
-      border-color: var(--secondary);
-      transform: translateX(5px);
-    }
-
-    .challenge-item.active {
-      background: var(--secondary);
-      color: white;
-      border-color: var(--secondary);
-    }
-
-    .challenge-item.completed::after {
-      content: '✓';
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--secondary);
-      font-weight: bold;
-      font-size: 20px;
-    }
-
-    .challenge-item.active.completed::after {
-      color: white;
-    }
-
-    .editor-container {
-      margin: 20px 0;
-    }
-
-    .sql-editor {
-      width: 100%;
-      min-height: 200px;
-      padding: 15px;
-      border: 2px solid var(--muted);
-      border-radius: var(--radius);
-      font-family: 'Courier New', monospace;
-      font-size: 14px;
-      resize: vertical;
-      background: #1e1e1e;
-      color: #d4d4d4;
-    }
-
-    .editor-controls {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
-      flex-wrap: wrap;
-    }
-
-    .results {
-      margin-top: 20px;
-      padding: 15px;
-      background: #f9fafb;
-      border-radius: var(--radius);
-      border: 2px solid var(--accent);
-    }
-
-    .results table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-
-    .results th, .results td {
-      padding: 10px;
-      text-align: left;
-      border: 1px solid #e5e7eb;
-    }
-
-    .results th {
-      background: var(--primary);
-      color: white;
-    }
-
-    .results tr:nth-child(even) {
-      background: #f3f4f6;
-    }
-
-    .progress-world {
-      background: linear-gradient(180deg, #fff 0%, #f9fafb 100%);
-      border: 2px solid var(--accent);
-      border-radius: var(--radius);
-      padding: 15px;
-      margin-bottom: 20px;
-    }
-
-    .progress-bar-container {
-      background: #e5e7eb;
-      border-radius: 20px;
-      height: 24px;
-      overflow: hidden;
-      margin: 10px 0;
-    }
-
-    .progress-bar-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--secondary) 0%, var(--accent) 100%);
-      transition: width 0.5s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: bold;
-      font-size: 12px;
-    }
-
-    .reputation-stars {
-      display: flex;
-      gap: 5px;
-      margin-top: 10px;
-    }
-
-    .star {
-      color: var(--accent);
-      font-size: 20px;
-    }
-
-    .star.empty {
-      color: #d1d5db;
-    }
-
-    .hint-box {
-      background: #fffbeb;
-      border-left: 4px solid var(--warning);
-      padding: 12px;
-      border-radius: 8px;
-      margin: 10px 0;
-    }
-
-    .modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.8);
-      z-index: 999;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    .modal.active {
-      display: flex;
-    }
-
-    .modal-content {
-      background: white;
-      border-radius: var(--radius);
-      padding: 30px;
-      max-width: 700px;
-      width: 100%;
-      max-height: 90vh;
-      overflow-y: auto;
-      position: relative;
-      animation: slideIn 0.3s ease-out;
-    }
-
-    .modal-close {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      background: var(--danger);
-      color: white;
-      border: none;
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 18px;
-    }
-
-    .badge-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-      gap: 15px;
-      margin-top: 15px;
-    }
-
-    .badge-item {
-      text-align: center;
-      padding: 15px;
-      background: linear-gradient(180deg, #fff 0%, #f3f4f6 100%);
-      border-radius: 12px;
-      border: 2px solid #e5e7eb;
-      transition: all 0.3s;
-    }
-
-    .badge-item.unlocked {
-      border-color: var(--accent);
-      box-shadow: 0 0 20px rgba(233, 196, 106, 0.3);
-    }
-
-    .badge-item.locked {
-      opacity: 0.5;
-      filter: grayscale(100%);
-    }
-
-    .badge-icon {
-      font-size: 48px;
-      margin-bottom: 10px;
-    }
-
-    @media (max-width: 1024px) {
-      .content-grid {
-        grid-template-columns: 1fr;
-      }
-      
-      .panel {
-        max-height: none;
-      }
-    }
-
-    .loading-screen {
-      position: fixed;
-      inset: 0;
-      background: var(--primary);
-      z-index: 2000;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: white;
-    }
-
-    .loading-bar {
-      width: 300px;
-      height: 6px;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 10px;
-      overflow: hidden;
-      margin-top: 20px;
-    }
-
-    .loading-fill {
-      height: 100%;
-      background: var(--accent);
-      animation: loadingProgress 3s ease-in-out forwards;
-    }
-
-    @keyframes loadingProgress {
-      from { width: 0; }
-      to { width: 100%; }
-    }
-
-    .hidden { display: none !important; }
-  </style>
-</head>
-<body>
-  <div class="particles" id="particles"></div>
-
-  <div class="loading-screen" id="loadingScreen">
-    <h1 style="font-size: 48px; margin-bottom: 20px;">📜 Scriptum SQL</h1>
-    <p id="loadingText" style="font-size: 18px;">Descifrando manuscritos antiguos...</p>
-    <div class="loading-bar">
-      <div class="loading-fill"></div>
-    </div>
-  </div>
-
-  <div class="onboarding hidden" id="onboarding">
-    <div class="onboarding-content" id="onboardingContent"></div>
-  </div>
-
-  <div class="app-container hidden" id="mainApp">
-    <div class="header">
-      <div class="header-title">
-        <span style="font-size: 36px;">📜</span>
-        <div>
-          <div>Scriptum SQL</div>
-          <div style="font-size: 14px; opacity: 0.9;">El Manuscrito Perdido</div>
-        </div>
-      </div>
-      <div class="stats-bar">
-        <div class="stat-badge">
-          👤 <span id="playerName">Aprendiz</span>
-        </div>
-        <div class="stat-badge">
-          ⭐ <span id="playerXP">0</span> XP
-        </div>
-        <div class="stat-badge">
-          🪙 <span id="playerCoins">0</span>
-        </div>
-        <div class="stat-badge">
-          🔥 <span id="playerStreak">0</span> días
-        </div>
-      </div>
-    </div>
-
-    <div class="content-grid">
-      <div class="panel">
-        <h3>🗺️ Mundo 1: Fundamentos</h3>
-        
-        <div class="progress-world">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <strong>Progreso</strong>
-            <span id="worldProgress">0/10</span>
-          </div>
-          <div class="progress-bar-container">
-            <div class="progress-bar-fill" id="worldProgressBar" style="width: 0%">0%</div>
-          </div>
-          
-          <div style="margin-top: 15px;">
-            <strong>Reputación con Lorenzo</strong>
-            <div class="reputation-stars" id="lorenzoRep">
-              <span class="star empty">★</span>
-              <span class="star empty">★</span>
-              <span class="star empty">★</span>
-            </div>
-          </div>
-        </div>
-
-        <div id="challengeList"></div>
-
-        <div style="margin-top: 20px;">
-          <button class="btn btn-ghost" style="width: 100%; margin-bottom: 10px;" onclick="showSchema()">📋 Ver Esquema</button>
-          <button class="btn btn-ghost" style="width: 100%; margin-bottom: 10px;" onclick="showBadges()">🏆 Mis Insignias</button>
-          <button class="btn btn-ghost" style="width: 100%; margin-bottom: 10px;" onclick="showShop()">🛍️ Tienda</button>
-          <button class="btn btn-ghost" style="width: 100%;" onclick="showDiary()">📖 Mi Diario</button>
-        </div>
-      </div>
-
-      <div class="panel">
-        <h3 id="challengeTitle">Cargando...</h3>
-        <p id="challengeDesc" style="color: var(--muted); margin-top: 10px;"></p>
-
-        <div id="conceptBox" class="hint-box" style="background: #f0f9ff; border-left-color: var(--secondary); margin-top: 20px;"></div>
-
-        <div class="editor-container">
-          <label style="font-weight: bold; display: block; margin-bottom: 10px;">💻 Editor SQL</label>
-          <textarea id="sqlEditor" class="sql-editor" spellcheck="false">-- Escribe tu consulta aquí
-SELECT * FROM books;</textarea>
-          
-          <div class="editor-controls">
-            <button class="btn" onclick="executeQuery()">▶️ Ejecutar</button>
-            <button class="btn btn-secondary" onclick="loadSolution()">💡 Ver Solución</button>
-            <button class="btn btn-ghost" onclick="showHints()">🔍 Pistas</button>
-            <button class="btn btn-ghost" onclick="clearEditor()">🗑️ Limpiar</button>
-            <button class="btn btn-ghost" id="previewBtn" style="display: none;" onclick="previewQuery()">👁️ Vista Previa</button>
-          </div>
-        </div>
-
-        <div class="results" id="results">
-          <strong>📊 Resultados</strong>
-          <p style="color: var(--muted); margin-top: 10px;">Ejecuta tu consulta para ver resultados...</p>
-        </div>
-      </div>
-
-      <div class="panel">
-        <h3>💡 Ayuda</h3>
-        
-        <div id="lorenzoTips" class="hint-box">
-          <strong>Consejo de Lorenzo:</strong>
-          <p style="margin-top: 8px; font-size: 14px;">Comienza escribiendo SELECT para elegir qué columnas mostrar.</p>
-        </div>
-
-        <div id="currentHints" style="margin-top: 20px;">
-          <strong>Pistas disponibles:</strong>
-          <p style="color: var(--muted); font-size: 14px; margin-top: 8px;">Usa el botón "Pistas" para desbloquear ayuda.</p>
-        </div>
-
-        <div style="margin-top: 20px;">
-          <strong>📝 Consultas Favoritas</strong>
-          <div id="favoritesList" style="margin-top: 10px; font-size: 14px; color: var(--muted);">
-            Ninguna guardada aún
-          </div>
-          <button class="btn btn-ghost" style="width: 100%; margin-top: 10px;" onclick="saveFavorite()">⭐ Guardar Consulta</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal" id="modalGeneric">
-    <div class="modal-content">
-      <button class="modal-close" onclick="closeModal('modalGeneric')">×</button>
-      <div id="modalGenericContent"></div>
-    </div>
-  </div>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/confetti.browser.min.js"></script>
-  <script>
-    window.gameState = {
-      playerName: '',
-      avatar: 0,
-      xp: 0,
-      coins: 0,
-      streak: 0,
-      lastVisit: null,
-      currentChallenge: 1,
-      completedChallenges: [],
-      unlockedBadges: [],
-      reputation: { lorenzo: 0, sofia: 0 },
-      favorites: [],
-      diary: [],
-      usedContinuitySpell: false,
-      db: null
-    };
-
-    const challenges = {
-      1: {
-        title: 'El Despertar del Aprendiz',
-        desc: 'Lorenzo te enseña los fundamentos: SELECT y FROM',
-        concept: `<strong>📜 SELECT y FROM</strong><br><br>SELECT elige QUÉ columnas mostrar<br>FROM indica de QUÉ tabla obtenerlas<br><br><code>SELECT title, author FROM books;</code><br><br>Esto muestra títulos y autores de todos los libros.`,
-        expected: 'SELECT title, author FROM books',
-        hints: [
-          'Usa SELECT para elegir las columnas title y author',
-          'La tabla se llama books',
-          'Termina con punto y coma ;',
-          'Estructura: SELECT title, author FROM books;',
-          'Copia: SELECT title, author FROM books;'
+<p style="line-height: 1.8; margin-bottom: 12px;">⚔️ <strong>La consulta definitiva:</strong> Encuentra libros de <strong>Historia</strong>, publicados <strong>después de 1490</strong>, ordénalos por <strong>año</strong>, y muestra solo los <strong>primeros 3</strong>.</p>
+          <p style="line-height: 1.8;">Si lo logras, descubriremos quién está detrás de la maldición..."</p>`,
+        story: `<div class="story-section">
+          <p style="margin-bottom: 12px;"><span class="story-icon">⚔️</span><strong>¡EL ENFRENTAMIENTO FINAL!</strong></p>
+          <p style="line-height: 1.8; margin-bottom: 12px;">La clave está en esos tres manuscritos históricos. Son los que contienen la verdad sobre el origen de la maldición.</p>
+          <p style="line-height: 1.8;">¡Demuestra todo lo que has aprendido y salva el Archivo de Valoria!</p>
+        </div>`,
+        exercises: [
+          {
+            id: 1,
+            desc: '🏆 Libros de Historia después de 1490, ordenados por año, solo 3',
+            expected: "SELECT title, author, year FROM books WHERE genre = 'Historia' AND year > 1490 ORDER BY year ASC LIMIT 3",
+            hint: "WHERE genre = 'Historia' AND year > 1490 ORDER BY year ASC LIMIT 3"
+          },
+          {
+            id: 2,
+            desc: '⚔️ Los 5 libros más extensos de Filosofía',
+            expected: "SELECT title, pages FROM books WHERE genre = 'Filosofía' ORDER BY pages DESC LIMIT 5",
+            hint: "Combina WHERE, ORDER BY DESC y LIMIT"
+          },
+          {
+            id: 3,
+            desc: '🔮 Libros de Alquimia con menos de 100 páginas, ordenados',
+            expected: "SELECT title, author, pages FROM books WHERE genre = 'Alquimia' AND pages < 100 ORDER BY pages ASC",
+            hint: "WHERE con AND, luego ORDER BY"
+          },
+          {
+            id: 4,
+            desc: '👑 Los 3 libros más antiguos (cualquier género)',
+            expected: "SELECT title, author, year FROM books ORDER BY year ASC LIMIT 3",
+            hint: "Solo ORDER BY year ASC LIMIT 3"
+          }
         ],
-        xp: 15, coins: 10, difficulty: 1, npc: 'lorenzo'
-      },
-      2: {
-        title: 'La Selección Precisa',
-        desc: 'Aprende a seleccionar columnas específicas',
-        concept: `<strong>📜 Columnas Específicas</strong><br><br>No siempre necesitas todas las columnas.<br>Puedes elegir solo las que necesitas:<br><br><code>SELECT title, year FROM books;</code><br><br>Ventajas: más rápido, más claro, solo lo necesario.`,
-        expected: 'SELECT title, year FROM books',
-        hints: [
-          'Necesitas las columnas title y year de books',
-          'Separa columnas con coma: title, year',
-          'No olvides FROM books',
-          'Prueba: SELECT title, year FROM books;',
-          'Solución: SELECT title, year FROM books;'
-        ],
-        xp: 15, coins: 15, difficulty: 2, npc: 'lorenzo'
-      },
-      3: {
-        title: 'El Filtro del Guardián',
-        desc: 'Domina WHERE para filtrar datos',
-        concept: `<strong>📜 Filtrar con WHERE</strong><br><br>WHERE filtra FILAS que cumplen una condición.<br><br><code>SELECT title, author FROM books<br>WHERE author = 'Lorenzo de Médicis';</code><br><br>⚠️ Los textos van entre comillas simples 'así'`,
-        expected: "SELECT title, author FROM books WHERE author = 'Lorenzo de Médicis'",
-        hints: [
-          "Usa WHERE author = 'nombre'",
-          'Recuerda las comillas simples en textos',
-          "Busca libros de 'Lorenzo de Médicis'",
-          "SELECT title, author FROM books WHERE author = '...';",
-          "SELECT title, author FROM books WHERE author = 'Lorenzo de Médicis';"
-        ],
-        xp: 18, coins: 20, difficulty: 2, badge: 'domador', npc: 'lorenzo'
-      },
-      4: {
-        title: 'Los Manuscritos Antiguos',
-        desc: 'Usa comparaciones numéricas (>, <, >=, <=)',
-        concept: `<strong>📜 Comparaciones Numéricas</strong><br><br>WHERE puede usar operadores:<br>> Mayor que<br>< Menor que<br>>= Mayor o igual<br><= Menor o igual<br><br><code>WHERE year < 1500</code><br><br>⚠️ No uses comillas en números`,
-        expected: 'SELECT title, author, year FROM books WHERE year < 1500',
-        hints: [
-          'Filtra por year (año) menor a 1500',
-          'Operador menor que es <',
-          'No pongas comillas en números',
-          'SELECT ... FROM books WHERE year < 1500;',
-          'SELECT title, author, year FROM books WHERE year < 1500;'
-        ],
-        xp: 20, coins: 20, difficulty: 3, npc: 'lorenzo'
-      },
-      5: {
-        title: 'La Orden de la Bibliotecaria',
-        desc: 'Sofía te enseña ORDER BY',
-        concept: `<strong>📜 Ordenar con ORDER BY</strong><br><br>ORDER BY ordena los resultados:<br>ASC = Ascendente (menor a mayor)<br>DESC = Descendente (mayor a menor)<br><br><code>SELECT title, year FROM books<br>ORDER BY year ASC;</code><br><br>💡 ASC es por defecto`,
-        expected: 'SELECT title, year FROM books ORDER BY year ASC',
-        hints: [
-          'Usa ORDER BY year para ordenar por año',
-          'ASC = ascendente (menor a mayor)',
-          'Agrega ORDER BY al final',
-          'SELECT ... FROM books ORDER BY year ASC;',
-          'SELECT title, year FROM books ORDER BY year ASC;'
-        ],
-        xp: 20, coins: 25, difficulty: 3, badge: 'ordenador', npc: 'sofia'
-      },
-      6: {
-        title: 'El Límite Preciso',
-        desc: 'Aprende LIMIT para controlar resultados',
-        concept: `<strong>📜 Limitar con LIMIT</strong><br><br>LIMIT controla cuántas filas mostrar:<br><br><code>SELECT title FROM books<br>LIMIT 5;</code><br><br>Muestra solo las primeras 5 filas.<br>Útil para grandes consultas.`,
-        expected: 'SELECT title, author FROM books LIMIT 5',
-        hints: [
-          'Usa LIMIT al final de la consulta',
-          'LIMIT 5 muestra solo 5 resultados',
-          'SELECT title, author FROM books LIMIT 5;',
-          'Agrega LIMIT después de FROM',
-          'SELECT title, author FROM books LIMIT 5;'
-        ],
-        xp: 20, coins: 25, difficulty: 3, npc: 'sofia'
-      },
-      7: {
-        title: 'Los Valores Únicos',
-        desc: 'DISTINCT elimina duplicados',
-        concept: `<strong>📜 Valores únicos con DISTINCT</strong><br><br>DISTINCT elimina valores repetidos:<br><br><code>SELECT DISTINCT genre FROM books;</code><br><br>Muestra cada género solo una vez.<br>Útil para ver qué valores existen.`,
-        expected: 'SELECT DISTINCT genre FROM books',
-        hints: [
-          'DISTINCT va después de SELECT',
-          'Usa SELECT DISTINCT genre',
-          'FROM books para obtener géneros',
-          'SELECT DISTINCT genre FROM books;',
-          'SELECT DISTINCT genre FROM books;'
-        ],
-        xp: 22, coins: 30, difficulty: 3, badge: 'cazador', npc: 'sofia'
-      },
-      8: {
-        title: 'Las Condiciones Múltiples',
-        desc: 'Combina filtros con AND y OR',
-        concept: `<strong>📜 Combinar condiciones</strong><br><br>AND = Ambas condiciones deben cumplirse<br>OR = Al menos una debe cumplirse<br><br><code>WHERE year > 1500 AND pages < 200</code><br><br>Libros después de 1500 Y con menos de 200 páginas.`,
-        expected: "SELECT title, year, pages FROM books WHERE year > 1500 AND pages < 200",
-        hints: [
-          'Usa AND para combinar dos condiciones',
-          'year > 1500 AND pages < 200',
-          'Necesitas title, year, pages',
-          'SELECT title, year, pages FROM books WHERE year > 1500 AND pages < 200;',
-          'SELECT title, year, pages FROM books WHERE year > 1500 AND pages < 200;'
-        ],
-        xp: 25, coins: 35, difficulty: 3, npc: 'lorenzo'
-      },
-      9: {
-        title: 'El Patrón Oculto',
-        desc: 'Busca patrones con LIKE',
-        concept: `<strong>📜 Búsqueda con LIKE</strong><br><br>LIKE busca patrones en textos:<br>% = cualquier cantidad de caracteres<br><br><code>WHERE title LIKE '%Crónicas%'</code><br><br>Encuentra títulos que contengan "Crónicas".<br>Primera pista del misterio...`,
-        expected: "SELECT title, author FROM books WHERE title LIKE '%Crónicas%'",
-        hints: [
-          'Usa LIKE con % para buscar patrones',
-          "WHERE title LIKE '%texto%'",
-          "Busca títulos que contengan 'Crónicas'",
-          "SELECT title, author FROM books WHERE title LIKE '%Crónicas%';",
-          "SELECT title, author FROM books WHERE title LIKE '%Crónicas%';"
-        ],
-        xp: 30, coins: 40, difficulty: 4, npc: 'lorenzo'
-      },
-      10: {
-        title: 'El Manuscrito Crítico',
-        desc: 'MINI-JEFE: Combina todo lo aprendido',
-        concept: `<strong>⚔️ DESAFÍO FINAL</strong><br><br>Combina SELECT, WHERE, AND, ORDER BY y LIMIT.<br><br>Encuentra libros de Historia escritos después<br>de 1490, ordénalos por año y muestra solo 3.<br><br>¡La clave para descubrir la maldición!`,
-        expected: "SELECT title, author, year FROM books WHERE genre = 'Historia' AND year > 1490 ORDER BY year ASC LIMIT 3",
-        hints: [
-          "WHERE genre = 'Historia' AND year > 1490",
-          'Ordena por year con ORDER BY',
-          'Limita a 3 resultados con LIMIT',
-          "SELECT title, author, year FROM books WHERE genre = 'Historia' AND year > 1490 ORDER BY year ASC LIMIT 3;",
-          "SELECT title, author, year FROM books WHERE genre = 'Historia' AND year > 1490 ORDER BY year ASC LIMIT 3;"
-        ],
-        xp: 50, coins: 100, difficulty: 4, badge: 'conquistador', npc: 'lorenzo'
+        xp: 50,
+        coins: 100,
+        badge: 'conquistador'
       }
     };
 
@@ -1010,19 +271,20 @@ SELECT * FROM books;</textarea>
 
     function createParticles() {
       const container = document.getElementById('particles');
-      for (let i = 0; i < 20; i++) {
+      for (let i = 0; i < 30; i++) {
         const particle = document.createElement('div');
         particle.className = 'particle';
         particle.style.left = Math.random() * 100 + '%';
         particle.style.top = Math.random() * 100 + '%';
-        particle.style.animationDelay = Math.random() * 15 + 's';
-        particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+        particle.style.animationDelay = Math.random() * 12 + 's';
+        particle.style.animationDuration = (12 + Math.random() * 8) + 's';
         container.appendChild(particle);
       }
     }
 
     function renderGame() {
       updateStats();
+      updateAvatarDisplay();
       renderChallenges();
       loadChallenge(window.gameState.currentChallenge);
       updateProgressBar();
@@ -1031,9 +293,16 @@ SELECT * FROM books;</textarea>
 
     function updateStats() {
       document.getElementById('playerName').textContent = window.gameState.playerName || 'Aprendiz';
+      document.getElementById('playerNameLarge').textContent = window.gameState.playerName || 'Aprendiz';
       document.getElementById('playerXP').textContent = window.gameState.xp;
       document.getElementById('playerCoins').textContent = window.gameState.coins;
       document.getElementById('playerStreak').textContent = window.gameState.streak;
+    }
+
+    function updateAvatarDisplay() {
+      const avatarIcon = AVATAR_ICONS[window.gameState.avatar];
+      document.getElementById('headerAvatar').textContent = avatarIcon;
+      document.getElementById('playerAvatarLarge').textContent = avatarIcon;
     }
 
     function renderChallenges() {
@@ -1042,50 +311,107 @@ SELECT * FROM books;</textarea>
       
       for (let i = 1; i <= 10; i++) {
         const challenge = challenges[i];
-        const isCompleted = window.gameState.completedChallenges.includes(i);
+        const challengeCompleted = window.gameState.completedChallenges[i];
         const isCurrent = window.gameState.currentChallenge === i;
         
         const div = document.createElement('div');
-        div.className = `challenge-item ${isCurrent ? 'active' : ''} ${isCompleted ? 'completed' : ''}`;
+        div.className = `challenge-item ${isCurrent ? 'active' : ''} ${challengeCompleted ? 'completed' : ''}`;
         div.innerHTML = `
           <div style="font-weight: bold;">${i}. ${challenge.title}</div>
           <div style="font-size: 12px; margin-top: 4px; opacity: 0.8;">
-            ${'⭐'.repeat(challenge.difficulty)}
+            ${challenge.exercises.length} ejercicios
           </div>
         `;
         div.onclick = () => {
+          if (challengeCompleted) {
+            window.gameState.repeatMode = true;
+          }
           window.gameState.currentChallenge = i;
+          window.gameState.currentSubExercise = 1;
+          window.gameState.attemptCount = 0;
           renderChallenges();
           loadChallenge(i);
         };
         list.appendChild(div);
+
+        if (isCurrent && challenge.exercises.length > 1) {
+          challenge.exercises.forEach((ex, idx) => {
+            const subDiv = document.createElement('div');
+            const exNum = idx + 1;
+            const isCurrentSub = window.gameState.currentSubExercise === exNum;
+            const subCompleted = challengeCompleted && challengeCompleted[exNum];
+            
+            subDiv.className = `sub-exercise ${isCurrentSub ? 'active' : ''} ${subCompleted ? 'completed' : ''}`;
+            subDiv.innerHTML = `${exNum}. ${ex.desc}`;
+            subDiv.onclick = (e) => {
+              e.stopPropagation();
+              window.gameState.currentSubExercise = exNum;
+              window.gameState.attemptCount = 0;
+              loadChallenge(i);
+            };
+            list.appendChild(subDiv);
+          });
+        }
       }
     }
 
     function loadChallenge(id) {
       const challenge = challenges[id];
-      document.getElementById('challengeTitle').textContent = `${id}. ${challenge.title}`;
-      document.getElementById('challengeDesc').textContent = challenge.desc;
-      document.getElementById('conceptBox').innerHTML = challenge.concept;
+      const subEx = challenge.exercises[window.gameState.currentSubExercise - 1];
+      
+      document.getElementById('challengeTitle').innerHTML = `${id}. ${challenge.title} ${window.gameState.repeatMode ? '<span class="repeat-mode-badge">Modo Práctica</span>' : ''}`;
+      document.getElementById('challengeDesc').textContent = `Ejercicio ${window.gameState.currentSubExercise}/${challenge.exercises.length}: ${subEx.desc}`;
+      
+      const npcDiv = document.getElementById('npcDialogue');
+      if (window.gameState.currentSubExercise === 1) {
+        npcDiv.innerHTML = `<div class="npc-dialogue">
+          <div class="npc-avatar">${challenge.npcIcon}</div>
+          <div class="npc-content">${challenge.dialogue}</div>
+        </div>`;
+      } else {
+        npcDiv.innerHTML = '';
+      }
+      
+      const storyDiv = document.getElementById('storyContent');
+      if (window.gameState.currentSubExercise === 1) {
+        storyDiv.innerHTML = challenge.story;
+      } else {
+        storyDiv.innerHTML = '';
+      }
+      
       document.getElementById('sqlEditor').value = '-- Escribe tu consulta aquí\n';
       document.getElementById('results').innerHTML = '<strong>📊 Resultados</strong><p style="color: var(--muted); margin-top: 10px;">Ejecuta tu consulta para ver resultados...</p>';
       
-      const previewBtn = document.getElementById('previewBtn');
-      if (challenge.difficulty === 4) {
-        previewBtn.style.display = 'inline-block';
-      } else {
-        previewBtn.style.display = 'none';
-      }
-      
+      updateAttemptCounter();
       updateLorenzoTips();
     }
 
-    function updateProgressBar() {
-      const completed = window.gameState.completedChallenges.length;
-      const total = Object.keys(challenges).length;
-      const percentage = Math.round((completed / total) * 100);
+    function updateAttemptCounter() {
+      const counter = document.getElementById('attemptCounter');
+      counter.textContent = `Intentos: ${window.gameState.attemptCount}/3`;
       
-      document.getElementById('worldProgress').textContent = `${completed}/${total}`;
+      const btn = document.getElementById('solutionBtn');
+      if (window.gameState.attemptCount >= 3) {
+        btn.textContent = '💡 Ver Ejemplo Similar';
+        btn.disabled = false;
+      } else {
+        btn.textContent = `🔒 Ver Ejemplo (${3 - window.gameState.attemptCount} intentos más)`;
+        btn.disabled = true;
+      }
+    }
+
+    function updateProgressBar() {
+      let totalCompleted = 0;
+      for (let i = 1; i <= 10; i++) {
+        if (window.gameState.completedChallenges[i]) {
+          totalCompleted++;
+        }
+      }
+      
+      const total = Object.keys(challenges).length;
+      const percentage = Math.round((totalCompleted / total) * 100);
+      
+      document.getElementById('worldProgress').textContent = `${totalCompleted}/${total}`;
       document.getElementById('worldProgressBar').style.width = percentage + '%';
       document.getElementById('worldProgressBar').textContent = percentage + '%';
       
@@ -1101,15 +427,15 @@ SELECT * FROM books;</textarea>
       const id = window.gameState.currentChallenge;
       const tips = {
         1: 'SELECT elige columnas, FROM indica la tabla',
-        2: 'Puedes elegir solo las columnas que necesitas',
-        3: 'WHERE filtra filas con condiciones específicas',
-        4: 'Usa operadores como > < >= <= para comparar números',
-        5: 'ORDER BY organiza los resultados ASC o DESC',
+        2: 'Elige solo las columnas que necesitas',
+        3: 'WHERE filtra filas con condiciones',
+        4: 'Usa > < >= <= para comparar números',
+        5: 'ORDER BY organiza ASC o DESC',
         6: 'LIMIT controla cuántas filas mostrar',
         7: 'DISTINCT elimina valores duplicados',
-        8: 'AND combina condiciones que deben cumplirse ambas',
-        9: 'LIKE busca patrones, usa % como comodín',
-        10: 'Combina todo: SELECT, WHERE, AND, ORDER BY, LIMIT'
+        8: 'AND = ambas condiciones, OR = al menos una',
+        9: 'LIKE busca patrones, % es comodín',
+        10: 'Combina SELECT, WHERE, AND, ORDER BY, LIMIT'
       };
       
       document.getElementById('lorenzoTips').innerHTML = `
@@ -1124,6 +450,9 @@ SELECT * FROM books;</textarea>
         alert('Escribe una consulta primero');
         return;
       }
+      
+      window.gameState.attemptCount++;
+      updateAttemptCounter();
       
       try {
         const results = window.gameState.db.exec(query);
@@ -1183,104 +512,110 @@ SELECT * FROM books;</textarea>
 
     function checkSolution(userQuery) {
       const challenge = challenges[window.gameState.currentChallenge];
+      const subEx = challenge.exercises[window.gameState.currentSubExercise - 1];
       const normalize = q => q.toLowerCase().replace(/\s+/g, ' ').replace(/;/g, '').trim();
       
       const userNorm = normalize(userQuery);
-      const expectedNorm = normalize(challenge.expected);
+      const expectedNorm = normalize(subEx.expected);
       
       if (userNorm === expectedNorm || userNorm.includes(expectedNorm)) {
-        if (!window.gameState.completedChallenges.includes(window.gameState.currentChallenge)) {
-          completeChallenge();
-        } else {
-          showAlreadyCompleted();
-        }
+        completeSubExercise();
       }
     }
 
-    function completeChallenge() {
+    function completeSubExercise() {
       const id = window.gameState.currentChallenge;
+      const subId = window.gameState.currentSubExercise;
       const challenge = challenges[id];
       
-      window.gameState.completedChallenges.push(id);
-      window.gameState.xp += challenge.xp;
-      window.gameState.coins += challenge.coins;
-      
-      if (challenge.npc === 'lorenzo') {
-        window.gameState.reputation.lorenzo = Math.min(3, window.gameState.reputation.lorenzo + 1);
-      } else if (challenge.npc === 'sofia') {
-        window.gameState.reputation.sofia = Math.min(3, window.gameState.reputation.sofia + 1);
+      if (!window.gameState.completedChallenges[id]) {
+        window.gameState.completedChallenges[id] = {};
       }
       
-      if (challenge.badge === 'domador') {
-        window.gameState.unlockedBadges.push('domador');
-      } else if (challenge.badge === 'ordenador') {
-        window.gameState.unlockedBadges.push('ordenador');
-      } else if (challenge.badge === 'cazador') {
-        window.gameState.unlockedBadges.push('cazador');
-      } else if (challenge.badge === 'conquistador') {
-        window.gameState.unlockedBadges.push('conquistador');
-      }
-      
-      const entries = {
-        1: 'Día 1: Lorenzo me enseñó SELECT y FROM. El viaje ha comenzado.',
-        2: 'Día 2: Aprendí a seleccionar columnas específicas. Cada vez más preciso.',
-        3: 'Día 3: Dominé WHERE. Lorenzo confía en mí. ¡Desbloqueé mi primera insignia!',
-        4: 'Día 4: Descubrí comparaciones numéricas. Los manuscritos antiguos revelan secretos.',
-        5: 'Día 5: Conocí a Sofía Castellana. Me enseñó ORDER BY. El orden es poder.',
-        6: 'Día 6: LIMIT me permite controlar mis consultas. Cada vez más eficiente.',
-        7: 'Día 7: DISTINCT elimina duplicados. Sofía está impresionada. ¡Otra insignia!',
-        8: 'Día 8: Combiné condiciones con AND. Lorenzo regresó con nuevos retos.',
-        9: 'Día 9: LIKE revela patrones ocultos. Encontré la primera pista del misterio.',
-        10: 'Día 10: ¡Vencí el MINI-JEFE! Combiné todo. El Mundo 1 está completo.'
-      };
-      
-      if (entries[id]) {
-        window.gameState.diary.push({ day: id, entry: entries[id] });
-      }
-      
-      saveGameState();
+      const isNewCompletion = !window.gameState.completedChallenges[id][subId];
+      window.gameState.completedChallenges[id][subId] = true;
       
       if (typeof confetti !== 'undefined') {
-        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+        confetti({ particleCount: 60, spread: 50, origin: { y: 0.6 } });
       }
       
       const resultsDiv = document.getElementById('results');
       const successMsg = document.createElement('div');
-      successMsg.style.cssText = 'margin-top: 20px; padding: 20px; background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-radius: 12px; border: 2px solid #34d399;';
       successMsg.innerHTML = `
         <div style="text-align: center;">
           <div style="font-size: 48px; margin-bottom: 10px;">🎉</div>
-          <h3 style="color: var(--secondary); margin-bottom: 10px;">¡Reto Completado!</h3>
-          <p style="margin-bottom: 15px;">Has ganado <strong>${challenge.xp} XP</strong> y <strong>${challenge.coins} monedas</strong></p>
-          ${challenge.badge ? '<p style="color: var(--warning);">🏆 ¡Nueva insignia desbloqueada!</p>' : ''}
+          <h3 style="color: var(--secondary); margin-bottom: 10px;">¡Ejercicio ${subId} Completado!</h3>
+          <p style="margin-bottom: 15px;">${subId < challenge.exercises.length ? 'Pasando al siguiente ejercicio...' : '¡Reto completo!'}</p>
         </div>
       `;
       resultsDiv.appendChild(successMsg);
       
-      renderGame();
+      const avatarLarge = document.getElementById('playerAvatarLarge');
+      avatarLarge.classList.add('celebration-avatar');
+      setTimeout(() => avatarLarge.classList.remove('celebration-avatar'), 1000);
       
-      if (id < 10) {
-        setTimeout(() => {
-          window.gameState.currentChallenge = id + 1;
-          renderGame();
-        }, 3000);
+      if (subId >= challenge.exercises.length) {
+        const allCompleted = Object.keys(window.gameState.completedChallenges[id] || {}).length >= challenge.exercises.length;
+        
+        if (allCompleted && isNewCompletion && !window.gameState.repeatMode) {
+          window.gameState.xp += challenge.xp;
+          window.gameState.coins += challenge.coins;
+          
+          if (challenge.npc === 'lorenzo') {
+            window.gameState.reputation.lorenzo = Math.min(3, window.gameState.reputation.lorenzo + 1);
+          } else if (challenge.npc === 'sofia') {
+            window.gameState.reputation.sofia = Math.min(3, window.gameState.reputation.sofia + 1);
+          }
+          
+          if (challenge.badge) {
+            window.gameState.unlockedBadges.push(challenge.badge);
+          }
+          
+          const diaryEntries = {
+            1: 'Día 1: Dominé SELECT y FROM. El viaje ha comenzado.',
+            3: 'Día 3: WHERE es mi aliado. ¡Primera insignia desbloqueada!',
+            5: 'Día 5: Conocí a Sofía. ORDER BY trae orden al caos.',
+            7: 'Día 7: DISTINCT revela lo único. Sofía confía en mí.',
+            10: 'Día 10: ¡Vencí el MINI-JEFE! El Mundo 1 está completo.'
+          };
+          
+          if (diaryEntries[id]) {
+            window.gameState.diary.push({ day: id, entry: diaryEntries[id] });
+          }
+          
+          saveGameState();
+          
+          setTimeout(() => {
+            if (id >= 10) {
+              showWorldCompleted();
+            } else {
+              window.gameState.currentChallenge = id + 1;
+              window.gameState.currentSubExercise = 1;
+              window.gameState.attemptCount = 0;
+              window.gameState.repeatMode = false;
+              renderGame();
+            }
+          }, 2000);
+        } else if (window.gameState.repeatMode) {
+          setTimeout(() => {
+            alert('¡Bien hecho! Modo práctica: sin XP adicional.');
+          }, 1000);
+        }
       } else {
         setTimeout(() => {
-          showWorldCompleted();
+          window.gameState.currentSubExercise = subId + 1;
+          window.gameState.attemptCount = 0;
+          renderGame();
         }, 2000);
       }
-    }
-
-    function showAlreadyCompleted() {
-      const resultsDiv = document.getElementById('results');
-      const msg = document.createElement('div');
-      msg.style.cssText = 'margin-top: 20px; padding: 15px; background: #eff6ff; border-radius: 12px; border: 2px solid #3b82f6;';
-      msg.innerHTML = '<strong>✅ ¡Correcto!</strong> Ya habías completado este reto anteriormente.';
-      resultsDiv.appendChild(msg);
+      
+      renderChallenges();
+      updateProgressBar();
     }
 
     function showWorldCompleted() {
       window.gameState.coins += 200;
+      window.gameState.xp += 50;
       window.gameState.unlockedBadges.push('mundo1');
       saveGameState();
       
@@ -1308,7 +643,7 @@ SELECT * FROM books;</textarea>
           </div>
           <p style="color: var(--muted); margin-bottom: 20px;">
             El Mundo 2 se desbloqueará pronto...<br>
-            Por ahora, explora y practica lo aprendido.
+            Por ahora, puedes repetir retos en Modo Práctica.
           </p>
           <button class="btn" onclick="closeModal('modalGeneric')" style="font-size: 18px;">
             ¡Continuar mi aventura!
@@ -1318,79 +653,48 @@ SELECT * FROM books;</textarea>
       modal.classList.add('active');
     }
 
-    window.loadSolution = function() {
+    window.showSimilarExample = function() {
       const challenge = challenges[window.gameState.currentChallenge];
-      document.getElementById('sqlEditor').value = challenge.expected + ';';
+      const subEx = challenge.exercises[window.gameState.currentSubExercise - 1];
+      
+      const examples = {
+        1: "SELECT title FROM books;",
+        2: "SELECT genre FROM books;",
+        3: "SELECT author, pages FROM books;",
+        4: "SELECT year, pages FROM books;"
+      };
+      
+      const example = examples[window.gameState.currentSubExercise] || subEx.hint;
+      
+      alert(`Ejemplo similar (NO la solución exacta):\n\n${example}\n\nAhora intenta resolver el ejercicio actual con una consulta parecida.`);
     };
 
     window.showHints = function() {
       const challenge = challenges[window.gameState.currentChallenge];
+      const subEx = challenge.exercises[window.gameState.currentSubExercise - 1];
       const content = document.getElementById('modalGenericContent');
       
       content.innerHTML = `
-        <h2 style="color: var(--primary); margin-bottom: 20px;">💡 Pistas</h2>
+        <h2 style="color: var(--primary); margin-bottom: 20px;">💡 Pista</h2>
         <div style="margin-bottom: 20px;">
-          <strong>Reto:</strong> ${challenge.title}
+          <strong>Ejercicio ${window.gameState.currentSubExercise}:</strong> ${subEx.desc}
         </div>
+        <div style="padding: 20px; background: #fffbeb; border-radius: 12px; border: 2px solid var(--accent);">
+          <strong>💡 Pista:</strong><br>
+          <div style="margin-top: 10px; font-family: 'Courier New', monospace;">
+            ${subEx.hint}
+          </div>
+        </div>
+        <button class="btn" onclick="closeModal('modalGeneric')" style="margin-top: 20px; width: 100%;">
+          Cerrar
+        </button>
       `;
-      
-      challenge.hints.forEach((hint, i) => {
-        const isFree = i < 3;
-        const cost = i === 3 ? 30 : 50;
-        
-        const div = document.createElement('div');
-        div.style.cssText = 'padding: 15px; margin-bottom: 10px; background: #f9fafb; border-radius: 8px; border: 2px solid #e5e7eb;';
-        
-        if (isFree) {
-          div.innerHTML = `<strong>Pista ${i + 1} (Gratis):</strong><br><div style="margin-top: 8px;">${hint}</div>`;
-        } else {
-          div.innerHTML = `
-            <strong>Pista ${i + 1}:</strong> <span style="color: var(--warning);">🪙 ${cost} monedas</span><br>
-            <button class="btn btn-secondary" style="margin-top: 10px;" onclick="unlockHint(${i}, ${cost})">
-              Desbloquear
-            </button>
-          `;
-        }
-        
-        content.appendChild(div);
-      });
       
       document.getElementById('modalGeneric').classList.add('active');
     };
 
-    window.unlockHint = function(index, cost) {
-      if (window.gameState.coins < cost) {
-        alert('No tienes suficientes monedas');
-        return;
-      }
-      
-      window.gameState.coins -= cost;
-      saveGameState();
-      updateStats();
-      
-      const challenge = challenges[window.gameState.currentChallenge];
-      alert('Pista desbloqueada:\n\n' + challenge.hints[index]);
-      closeModal('modalGeneric');
-    };
-
     window.clearEditor = function() {
       document.getElementById('sqlEditor').value = '-- Escribe tu consulta aquí\n';
-    };
-
-    window.previewQuery = function() {
-      const query = document.getElementById('sqlEditor').value.trim() + ' LIMIT 3';
-      try {
-        const results = window.gameState.db.exec(query);
-        displayResults(results);
-        
-        const resultsDiv = document.getElementById('results');
-        const hint = document.createElement('div');
-        hint.style.cssText = 'margin-top: 10px; padding: 10px; background: #fffbeb; border-radius: 8px;';
-        hint.innerHTML = '<strong>Vista Previa:</strong> Mostrando solo las primeras 3 filas para verificar.';
-        resultsDiv.appendChild(hint);
-      } catch (e) {
-        displayError(e.message);
-      }
     };
 
     window.showSchema = function() {
@@ -1400,8 +704,8 @@ SELECT * FROM books;</textarea>
         
         <div style="margin-bottom: 20px;">
           <h3 style="color: var(--secondary);">Tabla: books</h3>
-          <ul style="margin-left: 20px; margin-top: 10px;">
-            <li><code>id</code> - INTEGER</li>
+          <ul style="margin-left: 20px; margin-top: 10px; line-height: 2;">
+            <li><code>id</code> - INTEGER (identificador único)</li>
             <li><code>title</code> - TEXT (título del libro)</li>
             <li><code>author</code> - TEXT (autor)</li>
             <li><code>year</code> - INTEGER (año de publicación)</li>
@@ -1411,7 +715,7 @@ SELECT * FROM books;</textarea>
         </div>
         
         <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin-top: 20px;">
-          <strong>Ejemplo de uso:</strong><br>
+          <strong>📖 Ejemplo de uso:</strong><br>
           <code style="display: block; margin-top: 10px;">SELECT title, author FROM books WHERE year > 1500;</code>
         </div>
         
@@ -1431,7 +735,7 @@ SELECT * FROM books;</textarea>
         { id: 'cazador', name: 'Cazador de Datos', icon: '🔍', desc: 'Completar reto 7' },
         { id: 'conquistador', name: 'Conquistador del Mundo 1', icon: '👑', desc: 'Completar todos los retos' },
         { id: 'racha', name: 'Racha de Fuego', icon: '🔥', desc: '7 días consecutivos' },
-        { id: 'perfecto', name: 'Perfeccionista', icon: '💎', desc: '5 retos sin pistas' }
+        { id: 'perfecto', name: 'Perfeccionista', icon: '💎', desc: '5 retos sin usar pistas premium' }
       ];
       
       content.innerHTML = '<h2 style="color: var(--primary); margin-bottom: 20px;">🏆 Mis Insignias</h2>';
@@ -1441,7 +745,7 @@ SELECT * FROM books;</textarea>
       
       badges.forEach(badge => {
         const unlocked = window.gameState.unlockedBadges.includes(badge.id) || 
-                        (badge.id === 'primera' && window.gameState.completedChallenges.length > 0);
+                        (badge.id === 'primera' && Object.keys(window.gameState.completedChallenges).length > 0);
         
         const div = document.createElement('div');
         div.className = `badge-item ${unlocked ? 'unlocked' : 'locked'}`;
@@ -1474,14 +778,14 @@ SELECT * FROM books;</textarea>
         </p>
         
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px;">
-          <div style="padding: 20px; background: #f9fafb; border-radius: 12px; text-align: center; opacity: 0.5;">
+          <div style="padding: 20px; background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: 12px; text-align: center; opacity: 0.7;">
             <div style="font-size: 48px;">🟢</div>
             <strong>Túnica del Erudito</strong><br>
             <span style="color: var(--warning);">300 🪙</span><br>
             <small>Disponible en Mundo 2</small>
           </div>
           
-          <div style="padding: 20px; background: #f9fafb; border-radius: 12px; text-align: center; opacity: 0.5;">
+          <div style="padding: 20px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 12px; text-align: center; opacity: 0.7;">
             <div style="font-size: 48px;">🟤</div>
             <strong>Capa del Cartógrafo</strong><br>
             <span style="color: var(--warning);">300 🪙</span><br>
@@ -1505,10 +809,10 @@ SELECT * FROM books;</textarea>
       } else {
         window.gameState.diary.forEach(entry => {
           const div = document.createElement('div');
-          div.style.cssText = 'padding: 15px; margin-bottom: 15px; background: #fffbeb; border-left: 4px solid var(--accent); border-radius: 8px;';
+          div.style.cssText = 'padding: 15px; margin-bottom: 15px; background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-left: 4px solid var(--accent); border-radius: 8px;';
           div.innerHTML = `
             <strong>Día ${entry.day}:</strong><br>
-            <div style="margin-top: 8px; font-size: 14px;">${entry.entry}</div>
+            <div style="margin-top: 8px; font-size: 14px; line-height: 1.6;">${entry.entry}</div>
           `;
           content.appendChild(div);
         });
@@ -1552,8 +856,10 @@ SELECT * FROM books;</textarea>
       list.innerHTML = '';
       window.gameState.favorites.forEach((fav, i) => {
         const div = document.createElement('div');
-        div.style.cssText = 'padding: 8px; margin-bottom: 8px; background: #f3f4f6; border-radius: 6px; font-size: 12px; cursor: pointer;';
+        div.style.cssText = 'padding: 8px; margin-bottom: 8px; background: #f3f4f6; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.3s;';
         div.innerHTML = `<code>${fav.substring(0, 30)}...</code>`;
+        div.onmouseover = () => div.style.background = '#e5e7eb';
+        div.onmouseout = () => div.style.background = '#f3f4f6';
         div.onclick = () => {
           document.getElementById('sqlEditor').value = fav;
         };
@@ -1611,7 +917,7 @@ SELECT * FROM books;</textarea>
     }
 
     function saveGameState() {
-      localStorage.setItem('scriptumSQL_v1', JSON.stringify({
+      localStorage.setItem('scriptumSQL_v11', JSON.stringify({
         playerName: window.gameState.playerName,
         avatar: window.gameState.avatar,
         xp: window.gameState.xp,
@@ -1619,17 +925,19 @@ SELECT * FROM books;</textarea>
         streak: window.gameState.streak,
         lastVisit: window.gameState.lastVisit,
         currentChallenge: window.gameState.currentChallenge,
+        currentSubExercise: window.gameState.currentSubExercise,
         completedChallenges: window.gameState.completedChallenges,
         unlockedBadges: window.gameState.unlockedBadges,
         reputation: window.gameState.reputation,
         favorites: window.gameState.favorites,
         diary: window.gameState.diary,
-        usedContinuitySpell: window.gameState.usedContinuitySpell
+        usedContinuitySpell: window.gameState.usedContinuitySpell,
+        attemptCount: window.gameState.attemptCount
       }));
     }
 
     function loadGameState() {
-      const saved = localStorage.getItem('scriptumSQL_v1');
+      const saved = localStorage.getItem('scriptumSQL_v11');
       if (saved) {
         try {
           const data = JSON.parse(saved);
@@ -1643,4 +951,1343 @@ SELECT * FROM books;</textarea>
     init();
   </script>
 </body>
-</html>
+</html>style.cssText = 'margin-top: 20px; padding: 20px; background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-radius: 12px; border: 2px solid #34d399;';
+      successMsg.<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scriptum SQL: El Manuscrito Perdido v1.1</title>
+  <style>
+    :root {
+      --bg: #f4f6fb;
+      --card: #fff;
+      --primary: #264653;
+      --secondary: #2a9d8f;
+      --accent: #e9c46a;
+      --warning: #f4a261;
+      --danger: #e76f51;
+      --text: #1a1a1a;
+      --muted: #6b7280;
+      --radius: 12px;
+      --shadow: 0 8px 24px rgba(38, 70, 83, 0.1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Georgia', 'Palatino', serif;
+      background: linear-gradient(135deg, #264653 0%, #2a9d8f 100%);
+      color: var(--text);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    .particles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .particle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      opacity: 0.5;
+      animation: float 12s infinite ease-in-out;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) translateX(0) rotate(0deg); }
+      25% { transform: translateY(-40px) translateX(15px) rotate(90deg); }
+      50% { transform: translateY(-80px) translateX(-15px) rotate(180deg); }
+      75% { transform: translateY(-40px) translateX(8px) rotate(270deg); }
+    }
+
+    .onboarding {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .onboarding-content {
+      background: linear-gradient(180deg, #fff 0%, #f9fafb 100%);
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      animation: slideIn 0.5s ease-out;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo-animation {
+      width: 200px;
+      height: 200px;
+      margin: 0 auto 30px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      border-radius: var(--radius);
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: inherit;
+      box-shadow: 0 4px 12px rgba(38, 70, 83, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .btn:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    .btn:hover {
+      background: var(--secondary);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(42, 157, 143, 0.4);
+    }
+
+    .btn-secondary {
+      background: var(--warning);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .avatar-selector {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      margin: 30px 0;
+    }
+
+    .avatar-card {
+      width: 120px;
+      height: 140px;
+      background: linear-gradient(180deg, #fff 0%, #f3f4f6 100%);
+      border-radius: 12px;
+      padding: 15px;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: 3px solid transparent;
+    }
+
+    .avatar-card.active {
+      border-color: var(--secondary);
+      box-shadow: 0 0 20px rgba(42, 157, 143, 0.5);
+      transform: scale(1.1);
+    }
+
+    .avatar-icon {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+
+    .input-name {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid var(--muted);
+      border-radius: var(--radius);
+      font-size: 16px;
+      font-family: inherit;
+      margin: 20px 0;
+    }
+
+    .app-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+      z-index: 2;
+      opacity: 0;
+      animation: fadeIn 0.8s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .header {
+      background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white;
+      padding: 20px 30px;
+      border-radius: var(--radius);
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .header-title {
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-avatar {
+      font-size: 48px;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    .stats-bar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .stat-badge {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 10px 18px;
+      border-radius: 25px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+
+    .stat-badge:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.05);
+    }
+
+    .stat-icon {
+      font-size: 40px;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 320px 1fr 320px;
+      gap: 20px;
+    }
+
+    .panel {
+      background: white;
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      max-height: calc(100vh - 180px);
+      overflow-y: auto;
+    }
+
+    .panel h3 {
+      color: var(--primary);
+      margin-bottom: 15px;
+      font-size: 18px;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 10px;
+    }
+
+    .player-avatar-panel {
+      text-align: center;
+      padding: 20px;
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      border-radius: var(--radius);
+      margin-bottom: 20px;
+    }
+
+    .player-avatar-large {
+      font-size: 72px;
+      margin-bottom: 10px;
+      animation: spin 20s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .challenge-item {
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border: 2px solid #e5e7eb;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    .challenge-item:hover {
+      border-color: var(--secondary);
+      transform: translateX(5px);
+      box-shadow: 0 4px 12px rgba(42, 157, 143, 0.2);
+    }
+
+    .challenge-item.active {
+      background: var(--secondary);
+      color: white;
+      border-color: var(--secondary);
+    }
+
+    .challenge-item.completed::after {
+      content: '✓';
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--secondary);
+      font-weight: bold;
+      font-size: 20px;
+    }
+
+    .challenge-item.active.completed::after {
+      color: white;
+    }
+
+    .sub-exercise {
+      padding: 8px 12px;
+      margin: 6px 0;
+      background: #f9fafb;
+      border-left: 3px solid var(--accent);
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .sub-exercise:hover {
+      background: #f0f9ff;
+      border-left-color: var(--secondary);
+      transform: translateX(3px);
+    }
+
+    .sub-exercise.completed {
+      background: #ecfdf5;
+      border-left-color: var(--secondary);
+    }
+
+    .sub-exercise.active {
+      background: var(--secondary);
+      color: white;
+      border-left-color: var(--accent);
+    }
+
+    .npc-dialogue {
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      border: 2px solid var(--secondary);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin: 20px 0;
+      position: relative;
+      animation: slideInLeft 0.5s ease-out;
+    }
+
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .npc-avatar {
+      font-size: 64px;
+      position: absolute;
+      top: -30px;
+      left: 20px;
+      animation: floatNPC 3s ease-in-out infinite;
+    }
+
+    @keyframes floatNPC {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .npc-content {
+      margin-left: 80px;
+    }
+
+    .npc-name {
+      font-weight: bold;
+      color: var(--primary);
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .editor-container {
+      margin: 20px 0;
+    }
+
+    .sql-editor {
+      width: 100%;
+      min-height: 200px;
+      padding: 15px;
+      border: 2px solid var(--muted);
+      border-radius: var(--radius);
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      resize: vertical;
+      background: #1e1e1e;
+      color: #d4d4d4;
+      transition: border-color 0.3s;
+    }
+
+    .sql-editor:focus {
+      outline: none;
+      border-color: var(--secondary);
+      box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.1);
+    }
+
+    .editor-controls {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .attempt-counter {
+      background: #fffbeb;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      border: 1px solid var(--accent);
+    }
+
+    .results {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f9fafb;
+      border-radius: var(--radius);
+      border: 2px solid var(--accent);
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    .results table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    .results th, .results td {
+      padding: 10px;
+      text-align: left;
+      border: 1px solid #e5e7eb;
+    }
+
+    .results th {
+      background: var(--primary);
+      color: white;
+    }
+
+    .results tr:nth-child(even) {
+      background: #f3f4f6;
+    }
+
+    .progress-world {
+      background: linear-gradient(180deg, #fff 0%, #f9fafb 100%);
+      border: 2px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+
+    .progress-bar-container {
+      background: #e5e7eb;
+      border-radius: 20px;
+      height: 28px;
+      overflow: hidden;
+      margin: 10px 0;
+      position: relative;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--secondary) 0%, var(--accent) 100%);
+      transition: width 0.8s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      to { left: 100%; }
+    }
+
+    .reputation-stars {
+      display: flex;
+      gap: 5px;
+      margin-top: 10px;
+    }
+
+    .star {
+      color: var(--accent);
+      font-size: 24px;
+      transition: all 0.3s;
+    }
+
+    .star.empty {
+      color: #d1d5db;
+    }
+
+    .star:hover {
+      transform: scale(1.2) rotate(15deg);
+    }
+
+    .hint-box {
+      background: #fffbeb;
+      border-left: 4px solid var(--warning);
+      padding: 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+
+    .story-section {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border: 2px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin: 15px 0;
+      line-height: 1.8;
+    }
+
+    .story-icon {
+      font-size: 32px;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal.active {
+      display: flex;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: var(--radius);
+      padding: 30px;
+      max-width: 700px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: var(--danger);
+      color: white;
+      border: none;
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 20px;
+      transition: all 0.3s;
+    }
+
+    .modal-close:hover {
+      transform: rotate(90deg);
+      background: #dc2626;
+    }
+
+    .badge-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .badge-item {
+      text-align: center;
+      padding: 18px;
+      background: linear-gradient(180deg, #fff 0%, #f3f4f6 100%);
+      border-radius: 12px;
+      border: 2px solid #e5e7eb;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .badge-item.unlocked {
+      border-color: var(--accent);
+      box-shadow: 0 0 20px rgba(233, 196, 106, 0.4);
+      animation: glow 2s ease-in-out infinite;
+    }
+
+    @keyframes glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(233, 196, 106, 0.4); }
+      50% { box-shadow: 0 0 30px rgba(233, 196, 106, 0.6); }
+    }
+
+    .badge-item.locked {
+      opacity: 0.5;
+      filter: grayscale(100%);
+    }
+
+    .badge-icon {
+      font-size: 56px;
+      margin-bottom: 10px;
+    }
+
+    .celebration-avatar {
+      animation: celebrate 1s ease-out;
+    }
+
+    @keyframes celebrate {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      25% { transform: scale(1.2) rotate(-10deg); }
+      50% { transform: scale(1.3) rotate(10deg); }
+      75% { transform: scale(1.2) rotate(-5deg); }
+    }
+
+    @media (max-width: 1024px) {
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .panel {
+        max-height: none;
+      }
+
+      .stat-badge {
+        font-size: 14px;
+        padding: 8px 14px;
+      }
+
+      .stat-icon {
+        font-size: 32px;
+      }
+    }
+
+    .loading-screen {
+      position: fixed;
+      inset: 0;
+      background: var(--primary);
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+
+    .loading-bar {
+      width: 300px;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 20px;
+    }
+
+    .loading-fill {
+      height: 100%;
+      background: var(--accent);
+      animation: loadingProgress 3s ease-in-out forwards;
+    }
+
+    @keyframes loadingProgress {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+
+    .hidden { display: none !important; }
+
+    .repeat-mode-badge {
+      background: #eff6ff;
+      color: var(--primary);
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      margin-left: 10px;
+      border: 1px solid var(--primary);
+    }
+  </style>
+</head>
+<body>
+  <div class="particles" id="particles"></div>
+
+  <div class="loading-screen" id="loadingScreen">
+    <h1 style="font-size: 48px; margin-bottom: 20px;">📜 Scriptum SQL</h1>
+    <p id="loadingText" style="font-size: 18px;">Descifrando manuscritos antiguos...</p>
+    <div class="loading-bar">
+      <div class="loading-fill"></div>
+    </div>
+  </div>
+
+  <div class="onboarding hidden" id="onboarding">
+    <div class="onboarding-content" id="onboardingContent"></div>
+  </div>
+
+  <div class="app-container hidden" id="mainApp">
+    <div class="header">
+      <div class="header-title">
+        <span class="header-avatar" id="headerAvatar">📚</span>
+        <div>
+          <div>Scriptum SQL</div>
+          <div style="font-size: 14px; opacity: 0.9;">El Manuscrito Perdido</div>
+        </div>
+      </div>
+      <div class="stats-bar">
+        <div class="stat-badge">
+          <span class="stat-icon">👤</span>
+          <span id="playerName">Aprendiz</span>
+        </div>
+        <div class="stat-badge">
+          <span class="stat-icon">⭐</span>
+          <span id="playerXP">0</span> XP
+        </div>
+        <div class="stat-badge">
+          <span class="stat-icon">🪙</span>
+          <span id="playerCoins">0</span>
+        </div>
+        <div class="stat-badge">
+          <span class="stat-icon">🔥</span>
+          <span id="playerStreak">0</span> días
+        </div>
+        <button class="btn" onclick="showShop()" style="padding: 10px 20px;">
+          🛍️ Tienda
+        </button>
+      </div>
+    </div>
+
+    <div class="content-grid">
+      <div class="panel">
+        <div class="player-avatar-panel">
+          <div class="player-avatar-large" id="playerAvatarLarge">📚</div>
+          <strong id="playerNameLarge">Aprendiz</strong>
+        </div>
+
+        <h3>🗺️ Mundo 1: Fundamentos</h3>
+        
+        <div class="progress-world">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <strong>Progreso</strong>
+            <span id="worldProgress">0/10</span>
+          </div>
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill" id="worldProgressBar" style="width: 0%">0%</div>
+          </div>
+          
+          <div style="margin-top: 15px;">
+            <strong>Reputación con Lorenzo</strong>
+            <div class="reputation-stars" id="lorenzoRep">
+              <span class="star empty">★</span>
+              <span class="star empty">★</span>
+              <span class="star empty">★</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="challengeList"></div>
+
+        <div style="margin-top: 20px;">
+          <button class="btn btn-ghost" style="width: 100%; margin-bottom: 10px;" onclick="showSchema()">📋 Ver Esquema</button>
+          <button class="btn btn-ghost" style="width: 100%; margin-bottom: 10px;" onclick="showBadges()">🏆 Mis Insignias</button>
+          <button class="btn btn-ghost" style="width: 100%;" onclick="showDiary()">📖 Mi Diario</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3 id="challengeTitle">Cargando...</h3>
+        <p id="challengeDesc" style="color: var(--muted); margin-top: 10px;"></p>
+
+        <div id="npcDialogue"></div>
+        <div id="storyContent"></div>
+
+        <div class="editor-container">
+          <label style="font-weight: bold; display: block; margin-bottom: 10px;">💻 Editor SQL</label>
+          <textarea id="sqlEditor" class="sql-editor" spellcheck="false">-- Escribe tu consulta aquí</textarea>
+          
+          <div class="editor-controls">
+            <button class="btn" onclick="executeQuery()">▶️ Ejecutar</button>
+            <button class="btn btn-secondary" id="solutionBtn" onclick="showSimilarExample()">💡 Ver Ejemplo Similar</button>
+            <button class="btn btn-ghost" onclick="showHints()">🔍 Pistas</button>
+            <button class="btn btn-ghost" onclick="clearEditor()">🗑️ Limpiar</button>
+            <div class="attempt-counter" id="attemptCounter">Intentos: 0/3</div>
+          </div>
+        </div>
+
+        <div class="results" id="results">
+          <strong>📊 Resultados</strong>
+          <p style="color: var(--muted); margin-top: 10px;">Ejecuta tu consulta para ver resultados...</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>💡 Ayuda</h3>
+        
+        <div id="lorenzoTips" class="hint-box">
+          <strong>Consejo de Lorenzo:</strong>
+          <p style="margin-top: 8px; font-size: 14px;">Comienza escribiendo SELECT para elegir qué columnas mostrar.</p>
+        </div>
+
+        <div id="currentHints" style="margin-top: 20px;">
+          <strong>Pistas disponibles:</strong>
+          <p style="color: var(--muted); font-size: 14px; margin-top: 8px;">Usa el botón "Pistas" para desbloquear ayuda.</p>
+        </div>
+
+        <div style="margin-top: 20px;">
+          <strong>📝 Consultas Favoritas</strong>
+          <div id="favoritesList" style="margin-top: 10px; font-size: 14px; color: var(--muted);">
+            Ninguna guardada aún
+          </div>
+          <button class="btn btn-ghost" style="width: 100%; margin-top: 10px;" onclick="saveFavorite()">⭐ Guardar Consulta</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modalGeneric">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal('modalGeneric')">×</button>
+      <div id="modalGenericContent"></div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/confetti.browser.min.js"></script>
+  <script>
+    const AVATAR_ICONS = ['📚', '🧙‍♂️', '🔥'];
+    
+    window.gameState = {
+      playerName: '',
+      avatar: 0,
+      xp: 0,
+      coins: 0,
+      streak: 0,
+      lastVisit: null,
+      currentChallenge: 1,
+      currentSubExercise: 1,
+      completedChallenges: {},
+      unlockedBadges: [],
+      reputation: { lorenzo: 0, sofia: 0 },
+      favorites: [],
+      diary: [],
+      usedContinuitySpell: false,
+      attemptCount: 0,
+      repeatMode: false,
+      db: null
+    };
+
+    const challenges = {
+      1: {
+        title: 'El Despertar del Aprendiz',
+        desc: 'Lorenzo te enseña SELECT y FROM',
+        npc: 'lorenzo',
+        npcIcon: '👨‍🏫',
+        dialogue: `<div class="npc-name">👨‍🏫 Lorenzo de Médicis - Guardián del Archivo</div>
+          <p style="line-height: 1.8; margin-bottom: 12px;">"Bienvenido al corazón del conocimiento, joven aprendiz. Observa estas estanterías milenarias: cada una contiene nuestra colección de libros antiguos.</p>
+          <p style="line-height: 1.8; margin-bottom: 12px;">📚 Cada libro tiene información valiosa: un <strong>título</strong> que lo identifica, un <strong>autor</strong> que lo escribió, un <strong>año</strong> de publicación, <strong>páginas</strong> que lo componen, y un <strong>género</strong> que lo clasifica.</p>
+          <p style="line-height: 1.8; margin-bottom: 12px;">🗂️ En el lenguaje SQL, esta información se organiza en algo que llamamos <strong>TABLA</strong>. Piensa en ella como un gran pergamino dividido en columnas y filas.</p>
+          <p style="line-height: 1.8; margin-bottom: 12px;">Nuestra tabla se llama <code style="background: #f3f4f6; padding: 2px 6px; border-radius: 4px;">books</code> y tiene estas columnas:</p>
+          <ul style="margin-left: 20px; line-height: 2;">
+            <li><code>title</code> → Título del libro</li>
+            <li><code>author</code> → Autor</li>
+            <li><code>year</code> → Año de publicación</li>
+            <li><code>pages</code> → Número de páginas</li>
+            <li><code>genre</code> → Género (Historia, Filosofía, etc.)</li>
+          </ul>`,
+        story: `<div class="story-section">
+          <p style="margin-bottom: 12px;"><span class="story-icon">⚔️</span><strong>Tu primera misión:</strong></p>
+          <p style="line-height: 1.8; margin-bottom: 12px;">Aprende a usar <strong>SELECT</strong> y <strong>FROM</strong>, los comandos más importantes de SQL.</p>
+          <p style="line-height: 1.8; margin-bottom: 12px;">🔹 <strong>SELECT</strong> = ELIGE qué columnas quieres ver<br>🔹 <strong>FROM</strong> = INDICA de qué tabla las obtienes</p>
+          <p style="line-height: 1.8;"><strong>¿Para qué sirve?</strong> Imagina que quieres saber qué libros tenemos, pero solo necesitas nombres y autores. SELECT te permite elegir exactamente esa información, sin mostrar páginas ni años innecesarios. ¡Es como pedir solo lo que necesitas!"</p>
+        </div>`,
+        exercises: [
+          {
+            id: 1,
+            desc: '📖 Muestra solo los títulos (columna: title)',
+            expected: 'SELECT title FROM books',
+            hint: 'Usa SELECT title FROM books;'
+          },
+          {
+            id: 2,
+            desc: '✍️ Muestra solo los autores (columna: author)',
+            expected: 'SELECT author FROM books',
+            hint: 'Cambia title por author'
+          },
+          {
+            id: 3,
+            desc: '📚 Muestra títulos Y autores juntos',
+            expected: 'SELECT title, author FROM books',
+            hint: 'Separa con coma: SELECT title, author FROM books;'
+          },
+          {
+            id: 4,
+            desc: '🌟 Usa * para mostrar TODAS las columnas',
+            expected: 'SELECT * FROM books',
+            hint: 'SELECT * FROM books;'
+          }
+        ],
+        xp: 20,
+        coins: 15
+      },
+      2: {
+        title: 'La Selección Precisa',
+        desc: 'Domina la selección de columnas específicas',
+        npc: 'lorenzo',
+        npcIcon: '👨‍🏫',
+        dialogue: `<div class="npc-name">👨‍🏫 Lorenzo de Médicis</div>
+          <p style="line-height: 1.8; margin-bottom: 12px;">"¡Excelente trabajo! Ya entiendes lo básico. Ahora profundicemos...</p>
+          <p style="line-height: 1.8; margin-bottom: 12px;">🎯 En el mundo real, las tablas pueden tener docenas de columnas. Imagina una tabla con 50 columnas: título, autor, año, editorial, ISBN, idioma, traductor, edición, precio...</p>
+          <p style="line-height: 1.8; margin-bottom: 12px;">Si usas <code>SELECT *</code>, verás TODO. Pero muchas veces solo necesitas 2 o 3 datos específicos. ¡Ahí es donde brilla SELECT!</p>
+          <p style="line-height: 1.8;">📝 <strong>¿Para qué sirve elegir columnas?</strong></p>
+          <ul style="margin-left: 20px; line-height: 2;">
+            <li>✅ Más rápido (menos datos que procesar)</li>
+            <li>✅ Más claro (solo ves lo importante)</li>
+            <li>✅ Más profesional (consultas precisas)</li>
+          </ul>`,
+        story: `<div class="story-section">
+          <p style="margin-bottom: 12px;"><span class="story-icon">🔍</span><strong>Nueva misión:</strong></p>
+          <p style="line-height: 1.8;">Practica eligiendo diferentes combinaciones de columnas. Recuerda: separa las columnas con comas y elige solo lo que necesitas."</p>
+        </div>`,
+        exercises: [
+          {
+            id: 1,
+            desc: '📅 Muestra título y año de publicación',
+            expected: 'SELECT title, year FROM books',
+            hint: 'SELECT title, year FROM books;'
+          },
+          {
+            id: 2,
+            desc: '📊 Muestra autor y número de páginas',
+            expected: 'SELECT author, pages FROM books',
+            hint: 'SELECT author, pages FROM books;'
+          },
+          {
+            id: 3,
+            desc: '🎭 Muestra título, autor y género',
+            expected: 'SELECT title, author, genre FROM books',
+            hint: 'Tres columnas separadas por comas'
+          },
+          {
+            id: 4,
+            desc: '📖 Muestra todas las columnas EXCEPTO usando nombres específicos',
+            expected: 'SELECT title, author, year, pages, genre FROM books',
+            hint: 'Lista todas las columnas manualmente'
+          }
+        ],
+        xp: 20,
+        coins: 20
+      },
+      3: {
+        title: 'El Filtro del Guardián',
+        desc: 'WHERE: El poder de filtrar información',
+        npc: 'lorenzo',
+        npcIcon: '👨‍🏫',
+        dialogue: `<div class="npc-name">👨‍🏫 Lorenzo de Médicis</div>
+          <p style="line-height: 1.8; margin-bottom: 12px;">"Ahora viene algo crucial, aprendiz. Tenemos 50 libros en nuestra colección, pero ¿qué pasa si solo quiero ver los de UN autor específico?</p>
+          <p style="line-height: 1.8; margin-bottom: 12px;">🔍 Aquí entra <strong>WHERE</strong>, la cláusula de filtrado. Piensa en ella como un guardia que solo deja pasar las filas que cumplen cierta condición.</p>
+          <p style="line-height: 1.8; margin-bottom: 12px;">📜 <strong>Sintaxis:</strong><br><code>SELECT columnas FROM tabla WHERE condición;</code></p>
+          <p style="line-height: 1.8; margin-bottom: 12px;">⚠️ <strong>MUY IMPORTANTE:</strong> Los textos van entre comillas simples 'así'</p>
+          <p style="line-height: 1.8;">🎯 <strong>¿Para qué sirve WHERE?</strong> En vez de ver 50 libros, puedes ver solo los que te interesan. ¡Es como buscar con un filtro mágico!"</p>`,
+        story: `<div class="story-section">
+          <p style="margin-bottom: 12px;"><span class="story-icon">🗝️</span><strong>Misión crítica:</strong></p>
+          <p style="line-height: 1.8;">He notado que algunos manuscritos están desorganizados. Necesito que filtres información específica para encontrar patrones. ¡Domina WHERE y serás un verdadero archivero!"</p>
+        </div>`,
+        exercises: [
+          {
+            id: 1,
+            desc: "📚 Busca libros del autor 'Lorenzo de Médicis'",
+            expected: "SELECT title, author FROM books WHERE author = 'Lorenzo de Médicis'",
+            hint: "WHERE author = 'Lorenzo de Médicis'"
+          },
+          {
+            id: 2,
+            desc: "🔮 Busca libros del autor 'Paracelso di Firenze'",
+            expected: "SELECT title, author FROM books WHERE author = 'Paracelso di Firenze'",
+            hint: "Usa el mismo patrón pero cambia el nombre"
+          },
+          {
+            id: 3,
+            desc: "🎭 Busca libros del género 'Historia'",
+            expected: "SELECT title, genre FROM books WHERE genre = 'Historia'",
+            hint: "WHERE genre = 'Historia'"
+          },
+          {
+            id: 4,
+            desc: "⚗️ Busca todos los datos de libros de 'Alquimia'",
+            expected: "SELECT * FROM books WHERE genre = 'Alquimia'",
+            hint: "Combina SELECT * con WHERE genre"
+          }
+        ],
+        xp: 25,
+        coins: 25,
+        badge: 'domador'
+      },
+      4: {
+        title: 'Los Manuscritos Antiguos',
+        desc: 'Comparaciones numéricas: >, <, >=, <=',
+        npc: 'lorenzo',
+        npcIcon: '👨‍🏫',
+        dialogue: `<div class="npc-name">👨‍🏫 Lorenzo de Médicis</div>
+          <p style="line-height: 1.8; margin-bottom: 12px;">"¡Impresionante progreso! WHERE no solo funciona con textos exactos. También puedes comparar números.</p>
+          <p style="line-height: 1.8; margin-bottom: 12px;">📊 <strong>Operadores de comparación:</strong></p>
+          <ul style="margin-left: 20px; line-height: 2;">
+            <li><code>&gt;</code> Mayor que</li>
+            <li><code>&lt;</code> Menor que</li>
+            <li><code>&gt;=</code> Mayor o igual</li>
+            <li><code>&lt;=</code> Menor o igual</li>
+            <li><code>=</code> Igual (exacto)</li>
+            <li><code>&lt;&gt;</code> Diferente</li>
+          </ul>
+          <p style="line-height: 1.8; margin-bottom: 12px;">⚠️ <strong>Con números NO uses comillas</strong></p>
+          <p style="line-height: 1.8;">🎯 Ejemplo: <code>WHERE year > 1500</code> (libros después del año 1500)</p>`,
+        story: `<div class="story-section">
+          <p style="margin-bottom: 12px;"><span class="story-icon">🕰️</span><strong>Descubrimiento inquietante:</strong></p>
+          <p style="line-height: 1.8;">He notado algo extraño: los manuscritos más antiguos contienen pistas sobre la maldición. Necesito que los identifiques por fecha. ¡El tiempo corre!"</p>
+        </div>`,
+        exercises: [
+          {
+            id: 1,
+            desc: '📜 Libros publicados ANTES de 1500',
+            expected: 'SELECT title, year FROM books WHERE year < 1500',
+            hint: 'year < 1500'
+          },
+          {
+            id: 2,
+            desc: '📚 Libros publicados DESPUÉS de 1510',
+            expected: 'SELECT title, author, year FROM books WHERE year > 1510',
+            hint: 'year > 1510'
+          },
+          {
+            id: 3,
+            desc: '📖 Libros con MÁS de 200 páginas',
+            expected: 'SELECT title, pages FROM books WHERE pages > 200',
+            hint: 'pages > 200'
+          },
+          {
+            id: 4,
+            desc: '🔍 Libros con MENOS de 100 páginas',
+            expected: 'SELECT title, author, pages FROM books WHERE pages < 100',
+            hint: 'pages < 100'
+          }
+        ],
+        xp: 25,
+        coins: 30
+      },
+      5: {
+        title: 'La Orden de la Bibliotecaria',
+        desc: 'Sofía te enseña ORDER BY',
+        npc: 'sofia',
+        npcIcon: '👩‍🏫',
+        dialogue: `<div class="npc-name">👩‍🏫 Sofía Castellana - Maestra de los Catálogos</div>
+          <p style="line-height: 1.8; margin-bottom: 12px;">"Saludos, aprendiz. Lorenzo me ha hablado muy bien de ti. Soy Sofía, encargada de mantener el orden en este archivo.</p>
+          <p style="line-height: 1.8; margin-bottom: 12px;">📋 Mi especialidad es <strong>ORDER BY</strong>, el comando que ORDENA los resultados.</p>
+          <p style="line-height: 1.8; margin-bottom: 12px;">🔢 <strong>Dos tipos de orden:</strong></p>
+          <ul style="margin-left: 20px; line-height: 2;">
+            <li><code>ASC</code> → Ascendente (A-Z, 1-9, menor a mayor)</li>
+            <li><code>DESC</code> → Descendente (Z-A, 9-1, mayor a menor)</li>
+          </ul>
+          <p style="line-height: 1.8; margin-bottom: 12px;">💡 Si no especificas, por defecto es ASC</p>
+          <p style="line-height: 1.8;">🎯 <strong>¿Para qué sirve?</strong> El orden es la base de toda sabiduría. Un archivo ordenado es un archivo útil."</p>`,
+        story: `<div class="story-section">
+          <p style="margin-bottom: 12px;"><span class="story-icon">📚</span><strong>El caos se intensifica:</strong></p>
+          <p style="line-height: 1.8;">La maldición ha desordenado todos los catálogos. Los libros están revueltos sin ningún criterio. Ayúdame a restaurar el orden. ¡Es urgente!"</p>
+        </div>`,
+        exercises: [
+          {
+            id: 1,
+            desc: '📖 Ordena libros por título (A-Z)',
+            expected: 'SELECT title FROM books ORDER BY title ASC',
+            hint: 'ORDER BY title ASC'
+          },
+          {
+            id: 2,
+            desc: '📅 Ordena libros por año (más antiguo primero)',
+            expected: 'SELECT title, year FROM books ORDER BY year ASC',
+            hint: 'ORDER BY year ASC'
+          },
+          {
+            id: 3,
+            desc: '📚 Ordena por páginas (más extenso primero)',
+            expected: 'SELECT title, pages FROM books ORDER BY pages DESC',
+            hint: 'ORDER BY pages DESC (descendente)'
+          },
+          {
+            id: 4,
+            desc: '✍️ Ordena autores alfabéticamente (Z-A)',
+            expected: 'SELECT author FROM books ORDER BY author DESC',
+            hint: 'ORDER BY author DESC'
+          }
+        ],
+        xp: 25,
+        coins: 30,
+        badge: 'ordenador'
+      },
+      6: {
+        title: 'El Límite Preciso',
+        desc: 'LIMIT: Controla la cantidad de resultados',
+        npc: 'sofia',
+        npcIcon: '👩‍🏫',
+        dialogue: `<div class="npc-name">👩‍🏫 Sofía Castellana</div>
+          <p style="line-height: 1.8; margin-bottom: 12px;">"Excelente trabajo con ORDER BY. Ahora aprenderás algo muy práctico: <strong>LIMIT</strong></p>
+          <p style="line-height: 1.8; margin-bottom: 12px;">🔢 LIMIT controla cuántas filas mostrar. Va al FINAL de la consulta.</p>
+          <p style="line-height: 1.8; margin-bottom: 12px;">📝 <strong>Sintaxis:</strong> <code>SELECT columnas FROM tabla LIMIT número;</code></p>
+          <p style="line-height: 1.8;">🎯 <strong>¿Para qué sirve?</strong> Imagina una tabla con 10,000 libros. No quieres verlos todos, solo los primeros 10. ¡LIMIT es perfecto para eso!"</p>`,
+        story: `<div class="story-section">
+          <p style="margin-bottom: 12px;"><span class="story-icon">⚡</span><strong>Eficiencia ante todo:</strong></p>
+          <p style="line-height: 1.8;">Un buen archivero sabe cuándo detenerse. No necesitas ver 1000 resultados cuando con 5 basta. ¡Practica el control!"</p>
+        </div>`,
+        exercises: [
+          {
+            id: 1,
+            desc: '🔝 Muestra solo los primeros 5 libros',
+            expected: 'SELECT title FROM books LIMIT 5',
+            hint: 'LIMIT 5 al final'
+          },
+          {
+            id: 2,
+            desc: '📚 Muestra los 3 libros más antiguos',
+            expected: 'SELECT title, year FROM books ORDER BY year ASC LIMIT 3',
+            hint: 'Combina ORDER BY year ASC con LIMIT 3'
+          },
+          {
+            id: 3,
+            desc: '📖 Muestra los 5 libros más extensos',
+            expected: 'SELECT title, pages FROM books ORDER BY pages DESC LIMIT 5',
+            hint: 'ORDER BY pages DESC LIMIT 5'
+          },
+          {
+            id: 4,
+            desc: '✍️ Muestra solo 10 autores',
+            expected: 'SELECT author FROM books LIMIT 10',
+            hint: 'SELECT author FROM books LIMIT 10;'
+          }
+        ],
+        xp: 25,
+        coins: 35
+      },
+      7: {
+        title: 'Los Valores Únicos',
+        desc: 'DISTINCT elimina duplicados',
+        npc: 'sofia',
+        npcIcon: '👩‍🏫',
+        dialogue: `<div class="npc-name">👩‍🏫 Sofía Castellana</div>
+          <p style="line-height: 1.8; margin-bottom: 12px;">"Has progresado mucho. Ahora un comando poderoso: <strong>DISTINCT</strong></p>
+          <p style="line-height: 1.8; margin-bottom: 12px;">🎯 DISTINCT elimina valores DUPLICADOS, mostrando solo valores ÚNICOS.</p>
+          <p style="line-height: 1.8; margin-bottom: 12px;">📝 <strong>Sintaxis:</strong> <code>SELECT DISTINCT columna FROM tabla;</code></p>
+          <p style="line-height: 1.8; margin-bottom: 12px;">🔍 <strong>Ejemplo:</strong> Si hay 20 libros de 5 autores diferentes, <code>SELECT DISTINCT author</code> mostrará solo los 5 nombres (sin repetir).</p>
+          <p style="line-height: 1.8;">💡 <strong>¿Para qué sirve?</strong> Para saber QUÉ valores existen sin ver repeticiones."</p>`,
+        story: `<div class="story-section">
+          <p style="margin-bottom: 12px;"><span class="story-icon">🔍</span><strong>Una pista crucial:</strong></p>
+          <p style="line-height: 1.8;">Necesito saber CUÁNTOS autores diferentes hay, CUÁNTOS géneros existen... pero sin repeticiones. ¡DISTINCT es la clave!"</p>
+        </div>`,
+        exercises: [
+          {
+            id: 1,
+            desc: '👥 Muestra todos los autores únicos',
+            expected: 'SELECT DISTINCT author FROM books',
+            hint: 'SELECT DISTINCT author FROM books;'
+          },
+          {
+            id: 2,
+            desc: '🎭 Muestra todos los géneros únicos',
+            expected: 'SELECT DISTINCT genre FROM books',
+            hint: 'SELECT DISTINCT genre FROM books;'
+          },
+          {
+            id: 3,
+            desc: '📅 Muestra todos los años únicos de publicación',
+            expected: 'SELECT DISTINCT year FROM books',
+            hint: 'SELECT DISTINCT year FROM books;'
+          },
+          {
+            id: 4,
+            desc: '📊 Muestra géneros únicos ordenados (A-Z)',
+            expected: 'SELECT DISTINCT genre FROM books ORDER BY genre ASC',
+            hint: 'Combina DISTINCT con ORDER BY'
+          }
+        ],
+        xp: 30,
+        coins: 40,
+        badge: 'cazador'
+      },
+      8: {
+        title: 'Las Condiciones Múltiples',
+        desc: 'AND y OR: Combina filtros',
+        npc: 'lorenzo',
+        npcIcon: '👨‍🏫',
+        dialogue: `<div class="npc-name">👨‍🏫 Lorenzo de Médicis</div>
+          <p style="line-height: 1.8; margin-bottom: 12px;">"Regreso con noticias inquietantes, aprendiz. La maldición es más compleja de lo que pensábamos.</p>
+          <p style="line-height: 1.8; margin-bottom: 12px;">🔗 Necesitas combinar MÚLTIPLES condiciones. Aquí entran <strong>AND</strong> y <strong>OR</strong>:</p>
+          <ul style="margin-left: 20px; line-height: 2;">
+            <li><code>AND</code> → AMBAS condiciones deben cumplirse</li>
+            <li><code>OR</code> → Al menos UNA debe cumplirse</li>
+          </ul>
+          <p style="line-height: 1.8; margin-bottom: 12px;">📝 <strong>Ejemplo:</strong> <code>WHERE year > 1500 AND pages < 200</code></p>
+          <p style="line-height: 1.8;">Esto busca libros que cumplan AMBAS cosas: después de 1500 Y con menos de 200 páginas."</p>`,
+        story: `<div class="story-section">
+          <p style="margin-bottom: 12px;"><span class="story-icon">🕵️</span><strong>Se revela el patrón:</strong></p>
+          <p style="line-height: 1.8;">Los manuscritos afectados por la maldición tienen características específicas. Debo filtrar con MÚLTIPLES condiciones para identificarlos. ¡Tu ayuda es crucial!"</p>
+        </div>`,
+        exercises: [
+          {
+            id: 1,
+            desc: '🔍 Libros de Historia con más de 250 páginas',
+            expected: "SELECT title, genre, pages FROM books WHERE genre = 'Historia' AND pages > 250",
+            hint: "WHERE genre = 'Historia' AND pages > 250"
+          },
+          {
+            id: 2,
+            desc: '📚 Libros antes de 1500 con menos de 200 páginas',
+            expected: 'SELECT title, year, pages FROM books WHERE year < 1500 AND pages < 200',
+            hint: 'WHERE year < 1500 AND pages < 200'
+          },
+          {
+            id: 3,
+            desc: '🎭 Libros de Filosofía O Poesía',
+            expected: "SELECT title, genre FROM books WHERE genre = 'Filosofía' OR genre = 'Poesía'",
+            hint: "Usa OR entre las dos condiciones"
+          },
+          {
+            id: 4,
+            desc: '⚗️ Libros de Alquimia después de 1515',
+            expected: "SELECT title, author, year FROM books WHERE genre = 'Alquimia' AND year > 1515",
+            hint: "Combina genre con year usando AND"
+          }
+        ],
+        xp: 30,
+        coins: 45
+      },
+      9: {
+        title: 'El Patrón Oculto',
+        desc: 'LIKE: Búsqueda de patrones',
+        npc: 'lorenzo',
+        npcIcon: '👨‍🏫',
+        dialogue: `<div class="npc-name">👨‍🏫 Lorenzo de Médicis</div>
+          <p style="line-height: 1.8; margin-bottom: 12px;">"¡Estamos cerca de descubrir la verdad! Pero necesito una herramienta más: <strong>LIKE</strong></p>
+          <p style="line-height: 1.8; margin-bottom: 12px;">🔍 LIKE busca PATRONES en textos, no coincidencias exactas.</p>
+          <p style="line-height: 1.8; margin-bottom: 12px;">🎯 <strong>Usa el comodín %:</strong></p>
+          <ul style="margin-left: 20px; line-height: 2;">
+            <li><code>'%Crónicas%'</code> → Contiene "Crónicas" en cualquier parte</li>
+            <li><code>'Crónicas%'</code> → Empieza con "Crónicas"</li>
+            <li><code>'%Crónicas'</code> → Termina con "Crónicas"</li>
+          </ul>
+          <p style="line-height: 1.8;">📝 <strong>Ejemplo:</strong> <code>WHERE title LIKE '%guerra%'</code> encuentra todos los títulos que contengan "guerra"</p>`,
+        story: `<div class="story-section">
+          <p style="margin-bottom: 12px;"><span class="story-icon">🗝️</span><strong>¡La primera pista del villano!</strong></p>
+          <p style="line-height: 1.8;">Hay un patrón en los títulos de los manuscritos malditos. Busca los que contengan ciertas palabras clave. ¡Esto nos llevará al origen de la maldición!"</p>
+        </div>`,
+        exercises: [
+          {
+            id: 1,
+            desc: "📜 Títulos que contienen 'Crónicas'",
+            expected: "SELECT title FROM books WHERE title LIKE '%Crónicas%'",
+            hint: "WHERE title LIKE '%Crónicas%'"
+          },
+          {
+            id: 2,
+            desc: "🔮 Títulos que contienen 'de'",
+            expected: "SELECT title, author FROM books WHERE title LIKE '%de%'",
+            hint: "WHERE title LIKE '%de%'"
+          },
+          {
+            id: 3,
+            desc: "⚗️ Autores cuyo nombre empieza con 'Para'",
+            expected: "SELECT author FROM books WHERE author LIKE 'Para%'",
+            hint: "LIKE 'Para%' (sin % al inicio)"
+          },
+          {
+            id: 4,
+            desc: "📖 Títulos que terminan con 'a'",
+            expected: "SELECT title FROM books WHERE title LIKE '%a'",
+            hint: "LIKE '%a' (% solo al inicio)"
+          }
+        ],
+        xp: 35,
+        coins: 50
+      },
+      10: {
+        title: 'El Manuscrito Crítico',
+        desc: 'MINI-JEFE: ¡Combina todo lo aprendido!',
+        npc: 'lorenzo',
+        npcIcon: '👨‍🏫',
+        dialogue: `<div class="npc-name">👨‍🏫 Lorenzo de Médicis</div>
+          <p style="line-height: 1.8; margin-bottom: 12px;">"¡Este es el momento, aprendiz! Hemos llegado al manuscrito crítico.</p>
+          <p style="line-height: 1.8; margin-bottom: 12px;">🏆 Para desbloquear sus secretos, debes demostrar que dominas TODO lo aprendido:</p>
+          <ul style="margin-left: 20px; line-height: 2;">
+            <li>✓ SELECT (elegir columnas)</li>
+            <li>✓ WHERE (filtrar con condiciones)</li>
+            <li>✓ AND (múltiples condiciones)</li>
+            <li>✓ ORDER BY (ordenar resultados)</li>
+            <li>✓ LIMIT (controlar cantidad)</li>
+          </ul>
+          <p style="line-height: 1.8; margin-bottom: 12px;">⚔️ <strong>La consulta definitiva:</strong> Encuentra libros de <strong>Historia</strong>, publicados <strong>después de 1490</strong>, ordénalos por <strong>año</strong>, y muestra solo los
