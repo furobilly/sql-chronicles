@@ -313,7 +313,6 @@ body {
 .panel-avatar-icon {
   font-size: 60px;
   display: inline-block;
-  animation: rotate 4s linear infinite;
 }
 
 @keyframes rotate {
