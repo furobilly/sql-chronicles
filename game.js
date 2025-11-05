@@ -842,7 +842,21 @@ window.showShop = function() {
   document.getElementById('modalGeneric').classList.add('active');
 };
 
-window.closeModal = function(id) {
-  sounds.click();
-  document.getElementById(id).classList.remove('active');
-};
+845  window.closeModal = function(id) {
+846    sounds.click();
+847    document.getElementById(id).classList.remove('active');
+848  };
+849
+850  window.toggleTables = function() {
+851    sounds.click();
+852    const panel = document.getElementById('tablesPanel');
+853    const toggle = document.getElementById('tablesToggle');
+854    
+855    if (panel.style.display === 'none' || panel.style.display === '') {
+856      panel.style.display = 'block';
+857      toggle.textContent = '▲';
+858    } else {
+859      panel.style.display = 'none';
+860      toggle.textContent = '▼';
+861    }
+862  };
