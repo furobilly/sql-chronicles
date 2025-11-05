@@ -1,5 +1,5 @@
 // ============================================
-// SCRIPTUM SQL v1.2 - GAME LOGIC
+// SCRIPTUM SQL v1.1 - GAME LOGIC
 // ============================================
 
 window.gameState = {
@@ -16,7 +16,6 @@ window.gameState = {
   unlockedBadges: [],
   reputation: { lorenzo: 0, sofia: 0 },
   favorites: [],
-  diary: [],
   usedContinuitySpell: false,
   attempts: 0,
   exampleUnlocked: false,
@@ -24,7 +23,8 @@ window.gameState = {
   soundEnabled: true,
   theme: 'light',
   db: null,
-  skills: { SELECT: 0, WHERE: 0, ORDER: 0, ADVANCED: 0 }
+  skills: { SELECT: 0, WHERE: 0, ORDER: 0, ADVANCED: 0 },
+  expandedChallenges: []
 };
 
 const allBadges = [
@@ -34,7 +34,6 @@ const allBadges = [
   { id: 'cazador', name: 'Cazador de Datos', icon: '🔍', desc: 'Completar reto 7' },
   { id: 'conquistador', name: 'Conquistador', icon: '👑', desc: 'Completar reto 10' },
   { id: 'racha', name: 'Racha de Fuego', icon: '🔥', desc: '7 días consecutivos' },
-  { id: 'perfecto', name: 'Perfeccionista', icon: '💎', desc: '5 retos sin pistas' },
   { id: 'mundo1', name: 'Maestro del Mundo 1', icon: '🏆', desc: '100% Mundo 1' }
 ];
 
@@ -186,11 +185,13 @@ if (document.readyState === 'loading') {
 }
 
 function saveGameState() {
-  localStorage.setItem('scriptumSQL_v1_2', JSON.stringify(window.gameState));
+  const state = Object.assign({}, window.gameState);
+  delete state.db;
+  localStorage.setItem('scriptumSQL_v1_1', JSON.stringify(state));
 }
 
 function loadGameState() {
-  const saved = localStorage.getItem('scriptumSQL_v1_2');
+  const saved = localStorage.getItem('scriptumSQL_v1_1');
   if (saved) {
     try {
       const data = JSON.parse(saved);
@@ -199,11 +200,8 @@ function loadGameState() {
       if (!window.gameState.completedSubExercises) {
         window.gameState.completedSubExercises = {};
       }
-      if (!window.gameState.currentSubExercise) {
-        window.gameState.currentSubExercise = 1;
-      }
-      if (!window.gameState.skills) {
-        window.gameState.skills = { SELECT: 0, WHERE: 0, ORDER: 0, ADVANCED: 0 };
+      if (!window.gameState.expandedChallenges) {
+        window.gameState.expandedChallenges = [];
       }
     } catch (e) {
       console.error('Error loading save:', e);
@@ -214,19 +212,19 @@ function loadGameState() {
 const challenges = {
   1: {
     title: 'El Despertar del Aprendiz',
-    dialogue: '<div class="npc-dialogue"><span class="npc-avatar">👨‍🏫</span><div style="display: inline-block; width: calc(100% - 80px); vertical-align: top;"><div class="npc-name">Lorenzo de Médicis</div><div class="npc-text"><p>Bienvenido. Aprende SELECT y FROM, los comandos fundamentales.</p></div></div></div>',
-    concept: '<strong>📜 SELECT y FROM</strong><br><br>SELECT elige columnas, FROM indica la tabla.<br><code>SELECT title FROM books;</code>',
+    dialogue: '<div class="npc-dialogue"><span class="npc-avatar">👨‍🏫</span><div style="display: inline-block; width: calc(100% - 80px); vertical-align: top;"><div class="npc-name">Lorenzo de Médicis</div><div class="npc-text"><p>Bienvenido. Aprende SELECT y FROM.</p></div></div></div>',
+    concept: '<strong>📜 SELECT y FROM</strong><br><br>SELECT elige columnas, FROM indica tabla.<br><code>SELECT title FROM books;</code>',
     subExercises: [
       { id: 1, desc: '📖 Solo títulos', expected: 'SELECT title FROM books', hint: 'SELECT title FROM books;', example: 'SELECT author FROM books;' },
       { id: 2, desc: '✍️ Solo autores', expected: 'SELECT author FROM books', hint: 'SELECT author FROM books;', example: 'SELECT year FROM books;' },
       { id: 3, desc: '📚 Títulos Y autores', expected: 'SELECT title, author FROM books', hint: 'SELECT title, author FROM books;', example: 'SELECT title, year FROM books;' },
-      { id: 4, desc: '🌟 Todo con *', expected: 'SELECT * FROM books', hint: 'SELECT * FROM books;', example: 'SELECT title, author, year FROM books;' }
+      { id: 4, desc: '🌟 Todo con *', expected: 'SELECT * FROM books', hint: 'SELECT * FROM books;', example: 'SELECT title, author FROM books;' }
     ],
     xp: 20, coins: 15, difficulty: 1, skill: 'SELECT'
   },
   2: {
     title: 'La Selección Precisa',
-    dialogue: '<div class="npc-dialogue"><span class="npc-avatar">👨‍🏫</span><div style="display: inline-block; width: calc(100% - 80px); vertical-align: top;"><div class="npc-name">Lorenzo</div><div class="npc-text"><p>Elige solo las columnas que necesitas.</p></div></div></div>',
+    dialogue: '<div class="npc-dialogue"><span class="npc-avatar">👨‍🏫</span><div style="display: inline-block; width: calc(100% - 80px); vertical-align: top;"><div class="npc-name">Lorenzo</div><div class="npc-text"><p>Elige solo lo que necesitas.</p></div></div></div>',
     concept: '<strong>📜 Precisión</strong><br>SELECT title, year FROM books;',
     subExercises: [
       { id: 1, desc: '📅 Título y año', expected: 'SELECT title, year FROM books', hint: 'SELECT title, year FROM books;', example: 'SELECT author, pages FROM books;' },
@@ -238,7 +236,7 @@ const challenges = {
   },
   3: {
     title: 'El Filtro WHERE',
-    dialogue: '<div class="npc-dialogue"><span class="npc-avatar">👨‍🏫</span><div style="display: inline-block; width: calc(100% - 80px); vertical-align: top;"><div class="npc-name">Lorenzo</div><div class="npc-text"><p>WHERE filtra datos. Textos entre comillas.</p></div></div></div>',
+    dialogue: '<div class="npc-dialogue"><span class="npc-avatar">👨‍🏫</span><div style="display: inline-block; width: calc(100% - 80px); vertical-align: top;"><div class="npc-name">Lorenzo</div><div class="npc-text"><p>WHERE filtra. Textos entre comillas.</p></div></div></div>',
     concept: '<strong>📜 WHERE</strong><br>WHERE author = \'Lorenzo de Médicis\'',
     subExercises: [
       { id: 1, desc: "📚 De 'Lorenzo de Médicis'", expected: "SELECT title, author FROM books WHERE author = 'Lorenzo de Médicis'", hint: "WHERE author = 'Lorenzo de Médicis'", example: "SELECT title FROM books WHERE author = 'Platón (trad.)';" },
@@ -262,7 +260,7 @@ const challenges = {
   },
   5: {
     title: 'ORDER BY',
-    dialogue: '<div class="npc-dialogue"><span class="npc-avatar">👩‍🏫</span><div style="display: inline-block; width: calc(100% - 80px); vertical-align: top;"><div class="npc-name">Sofía Castellana</div><div class="npc-text"><p>Hola. Te enseño ORDER BY. ASC = menor a mayor, DESC = mayor a menor.</p></div></div></div>',
+    dialogue: '<div class="npc-dialogue"><span class="npc-avatar">👩‍🏫</span><div style="display: inline-block; width: calc(100% - 80px); vertical-align: top;"><div class="npc-name">Sofía Castellana</div><div class="npc-text"><p>Te enseño ORDER BY. ASC/DESC.</p></div></div></div>',
     concept: '<strong>📜 ORDER BY</strong><br>ORDER BY year ASC',
     subExercises: [
       { id: 1, desc: '📅 Por año ASC', expected: 'SELECT title, year FROM books ORDER BY year ASC', hint: 'ORDER BY year ASC', example: 'SELECT title FROM books ORDER BY pages ASC;' },
@@ -301,7 +299,7 @@ const challenges = {
     dialogue: '<div class="npc-dialogue"><span class="npc-avatar">👨‍🏫</span><div style="display: inline-block; width: calc(100% - 80px); vertical-align: top;"><div class="npc-name">Lorenzo</div><div class="npc-text"><p>AND combina condiciones.</p></div></div></div>',
     concept: '<strong>📜 AND</strong><br>WHERE year > 1500 AND pages < 200',
     subExercises: [
-      { id: 1, desc: '📅 >1500 Y <200pág', expected: "SELECT title, year, pages FROM books WHERE year > 1500 AND pages < 200", hint: 'WHERE ... AND ...', example: "SELECT title FROM books WHERE year > 1510 AND pages < 150;" },
+      { id: 1, desc: '📅 >1500 Y <200pág', expected: "SELECT title, year, pages FROM books WHERE year > 1500 AND pages < 200", hint: 'WHERE ... AND ...', example: "SELECT title FROM books WHERE year > 1510;" },
       { id: 2, desc: "📚 Historia O Filosofía", expected: "SELECT title, genre FROM books WHERE genre = 'Historia' OR genre = 'Filosofía'", hint: "genre = ... OR genre = ...", example: "SELECT title FROM books WHERE genre = 'Poesía';" },
       { id: 3, desc: '🎯 <1500 Y Historia', expected: "SELECT title, year, genre FROM books WHERE year < 1500 AND genre = 'Historia'", hint: "year < ... AND genre = ...", example: "SELECT title FROM books WHERE year < 1490;" },
       { id: 4, desc: '📖 >300pág Y <1510', expected: "SELECT title, pages, year FROM books WHERE pages > 300 AND year < 1510", hint: 'pages > ... AND year < ...', example: "SELECT title FROM books WHERE pages > 250;" }
@@ -328,7 +326,7 @@ const challenges = {
       { id: 1, desc: "📚 Historia >1490", expected: "SELECT title, author, year FROM books WHERE genre = 'Historia' AND year > 1490", hint: "WHERE ... AND ...", example: "SELECT title FROM books WHERE genre = 'Filosofía';" },
       { id: 2, desc: '📊 + ordenado', expected: "SELECT title, author, year FROM books WHERE genre = 'Historia' AND year > 1490 ORDER BY year ASC", hint: '+ ORDER BY', example: "SELECT title, year FROM books WHERE genre = 'Historia' ORDER BY year;" },
       { id: 3, desc: '🎯 + solo 3', expected: "SELECT title, author, year FROM books WHERE genre = 'Historia' AND year > 1490 ORDER BY year ASC LIMIT 3", hint: '+ LIMIT 3', example: "SELECT title FROM books WHERE genre = 'Historia' LIMIT 5;" },
-      { id: 4, desc: '👑 ¡CONSULTA MAESTRA!', expected: "SELECT title, author, year FROM books WHERE genre = 'Historia' AND year > 1490 ORDER BY year ASC LIMIT 3", hint: 'Todo junto', example: "SELECT title, year FROM books WHERE genre = 'Filosofía' ORDER BY year;" }
+      { id: 4, desc: '👑 ¡CONSULTA MAESTRA!', expected: "SELECT title, author, year FROM books WHERE genre = 'Historia' AND year > 1490 ORDER BY year ASC LIMIT 3", hint: 'Todo junto', example: "SELECT title FROM books WHERE genre = 'Filosofía';" }
     ],
     xp: 100, coins: 150, difficulty: 4, badge: 'conquistador', skill: 'ADVANCED'
   }
@@ -352,7 +350,7 @@ function showOnboardingStep(step) {
         </svg>
       </div>
       <h1 style="font-size: 32px; color: var(--primary); margin-bottom: 20px;">El Manuscrito Perdido</h1>
-      <p style="font-size: 18px; color: var(--muted); margin-bottom: 30px;">v1.2 Mejorado</p>
+      <p style="font-size: 18px; color: var(--muted); margin-bottom: 30px;">v1.1 Mejorado</p>
       <button class="btn" onclick="showOnboardingStep(2)" style="font-size: 18px; padding: 16px 32px;">⚔️ Comenzar</button>
     `;
   } else if (step === 2) {
@@ -465,29 +463,64 @@ function renderChallenges() {
     const totalSubs = 4;
     const isFullyCompleted = completedSubs.length === totalSubs;
     const isCurrent = window.gameState.currentChallenge === i;
+    const isExpanded = window.gameState.expandedChallenges.includes(i);
     
     const div = document.createElement('div');
-    div.className = `challenge-item ${isCurrent ? 'active' : ''} ${isFullyCompleted ? 'completed' : ''}`;
+    div.className = `challenge-item ${isCurrent ? 'active' : ''} ${isFullyCompleted ? 'completed' : ''} ${isExpanded ? 'expanded' : ''}`;
+    
+    let subExercisesHTML = '';
+    if (isExpanded) {
+      subExercisesHTML = '<div class="sub-exercises">';
+      challenge.subExercises.forEach((sub, idx) => {
+        const subCompleted = completedSubs.includes(sub.id);
+        const subCurrent = isCurrent && window.gameState.currentSubExercise === sub.id;
+        subExercisesHTML += `<div class="sub-exercise ${subCompleted ? 'completed' : ''} ${subCurrent ? 'active' : ''}" onclick="loadSubExercise(${i}, ${sub.id}); event.stopPropagation();">${i}.${sub.id} ${sub.desc} ${subCompleted ? '✓' : ''}</div>`;
+      });
+      subExercisesHTML += '</div>';
+    }
+    
     div.innerHTML = `
-      <div style="display: flex; justify-content: space-between;">
-        <div style="font-weight: bold;">${i}. ${challenge.title}</div>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-weight: bold;">${isExpanded ? '▼' : '▶'} ${i}. ${challenge.title}</div>
         <div style="font-size: 11px;">[${completedSubs.length}/4]</div>
       </div>
       <div style="font-size: 12px; margin-top: 4px;">${'⭐'.repeat(challenge.difficulty)}</div>
+      ${subExercisesHTML}
     `;
     
-    div.onclick = () => {
+    div.onclick = (e) => {
+      if (e.target.classList.contains('sub-exercise')) return;
       sounds.click();
-      window.gameState.currentChallenge = i;
-      window.gameState.currentSubExercise = 1;
-      window.gameState.practiceMode = isFullyCompleted;
-      renderChallenges();
-      loadChallenge(i, 1);
+      toggleChallengeExpansion(i);
     };
     
     list.appendChild(div);
   }
 }
+
+function toggleChallengeExpansion(challengeId) {
+  const index = window.gameState.expandedChallenges.indexOf(challengeId);
+  if (index > -1) {
+    window.gameState.expandedChallenges.splice(index, 1);
+  } else {
+    window.gameState.expandedChallenges.push(challengeId);
+  }
+  saveGameState();
+  renderChallenges();
+}
+
+window.loadSubExercise = function(challengeId, subExerciseId) {
+  sounds.click();
+  window.gameState.currentChallenge = challengeId;
+  window.gameState.currentSubExercise = subExerciseId;
+  
+  const completedSubs = window.gameState.completedSubExercises[challengeId] || [];
+  window.gameState.practiceMode = completedSubs.includes(subExerciseId);
+  
+  saveGameState();
+  renderChallenges();
+  loadChallenge(challengeId, subExerciseId);
+};
 
 function loadChallenge(challengeId, subExerciseId) {
   const challenge = challenges[challengeId];
@@ -758,20 +791,20 @@ window.showHints = function() {
   document.getElementById('modalGeneric').classList.add('active');
 };
 
-window.showSchema = function() {
+window.showTables = function() {
   sounds.click();
   const content = document.getElementById('modalGenericContent');
   content.innerHTML = `
-    <h2>📋 Esquema</h2>
+    <h2>📊 Mis Tablas</h2>
     <div style="margin: 20px 0;">
       <h3 style="color: var(--secondary);">Tabla: books</h3>
       <ul style="margin-left: 20px; margin-top: 10px;">
         <li><code>id</code> - INTEGER</li>
-        <li><code>title</code> - TEXT</li>
-        <li><code>author</code> - TEXT</li>
-        <li><code>year</code> - INTEGER</li>
-        <li><code>pages</code> - INTEGER</li>
-        <li><code>genre</code> - TEXT</li>
+        <li><code>title</code> - TEXT (título)</li>
+        <li><code>author</code> - TEXT (autor)</li>
+        <li><code>year</code> - INTEGER (año)</li>
+        <li><code>pages</code> - INTEGER (páginas)</li>
+        <li><code>genre</code> - TEXT (género)</li>
       </ul>
     </div>
     <button class="btn" onclick="closeModal('modalGeneric')" style="width: 100%;">Cerrar</button>
@@ -807,18 +840,6 @@ window.showShop = function() {
   const content = document.getElementById('modalGenericContent');
   content.innerHTML = `<h2>🛍️ Tienda</h2><p style="color: var(--muted);">Próximamente...</p><button class="btn" onclick="closeModal('modalGeneric')" style="margin-top: 20px; width: 100%;">Cerrar</button>`;
   document.getElementById('modalGeneric').classList.add('active');
-};
-
-window.showDiary = function() {
-  sounds.click();
-  const content = document.getElementById('modalGenericContent');
-  content.innerHTML = '<h2>📖 Diario</h2><p style="color: var(--muted); margin-top: 20px;">Tu aventura está comenzando...</p><button class="btn" onclick="closeModal(\'modalGeneric\')" style="margin-top: 20px; width: 100%;">Cerrar</button>';
-  document.getElementById('modalGeneric').classList.add('active');
-};
-
-window.saveFavorite = function() {
-  sounds.click();
-  alert('Funcionalidad próximamente');
 };
 
 window.closeModal = function(id) {
