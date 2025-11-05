@@ -3,41 +3,49 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scriptum SQL v1.2: El Manuscrito Perdido</title>
+  <title>Scriptum SQL - El Manuscrito Perdido</title>
   <link rel="stylesheet" href="styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
-  <div class="particles" id="particles"></div>
 
-  <div class="loading-screen" id="loadingScreen">
-    <h1 style="font-size: 48px; margin-bottom: 20px;">📜 Scriptum SQL</h1>
-    <p id="loadingText" style="font-size: 18px;">Descifrando manuscritos antiguos...</p>
-    <div class="loading-bar">
-      <div class="loading-fill"></div>
+  <!-- Pantalla de carga -->
+  <div id="loadingScreen" class="loading-screen">
+    <div style="text-align: center;">
+      <div style="font-size: 72px; margin-bottom: 20px;">📜</div>
+      <h1 style="color: white; margin-bottom: 20px;">Scriptum SQL</h1>
+      <p id="loadingText" style="color: white; margin-bottom: 20px;">Preparando base de datos...</p>
+      <div class="loading-bar">
+        <div class="loading-fill"></div>
+      </div>
     </div>
   </div>
 
-  <div class="onboarding hidden" id="onboarding">
-    <div class="onboarding-content" id="onboardingContent"></div>
+  <!-- Partículas flotantes -->
+  <div id="particles" class="particles"></div>
+
+  <!-- Onboarding -->
+  <div id="onboarding" class="onboarding hidden">
+    <div id="onboardingContent" class="onboarding-content"></div>
   </div>
 
-  <div class="app-container hidden" id="mainApp">
-    <div class="header">
+  <!-- App principal -->
+  <div id="mainApp" class="app-container hidden">
+    
+    <!-- Header -->
+    <header class="header">
       <div class="header-title">
-        <span style="font-size: 36px;">📜</span>
+        <span style="font-size: 40px;">📜</span>
         <div>
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <span class="header-avatar" id="headerAvatar">📚</span>
-            <span>Scriptum SQL</span>
-          </div>
-          <div style="font-size: 14px; opacity: 0.9;">El Manuscrito Perdido v1.2</div>
+          <div style="font-size: 24px; font-weight: bold;">Scriptum SQL</div>
+          <div style="font-size: 12px; opacity: 0.9;">El Manuscrito Perdido v1.2</div>
         </div>
       </div>
+      
       <div class="stats-bar">
-        <div class="stat-badge">
-          <span class="stat-icon">👤</span>
-          <span id="playerName">Aprendiz</span>
-        </div>
+        <span id="headerAvatar" class="header-avatar">📚</span>
+        <span id="playerName" style="font-weight: bold;">Aprendiz</span>
         <div class="stat-badge">
           <span class="stat-icon">⭐</span>
           <span id="playerXP">0</span> XP
@@ -50,151 +58,126 @@
           <span class="stat-icon">🔥</span>
           <span id="playerStreak">0</span> días
         </div>
-        <button class="btn" onclick="showShop()" style="padding: 8px 16px;">
-          🛍️ Tienda
-        </button>
-        <button class="toggle-btn" id="soundToggle" onclick="toggleSound()" title="Sonidos">
-          🔊
-        </button>
-        <button class="toggle-btn" id="themeToggle" onclick="toggleTheme()" title="Cambiar tema">
-          ☀️
-        </button>
+        <button class="toggle-btn" onclick="showShop()">🛍️</button>
+        <button class="toggle-btn" id="themeToggle" onclick="toggleTheme()">☀️</button>
+        <button class="toggle-btn" id="soundToggle" onclick="toggleSound()">🔊</button>
       </div>
-    </div>
+    </header>
 
-    <div class="content-grid" id="contentGrid">
-      <div class="panel">
+    <!-- Grid principal -->
+    <div id="contentGrid" class="content-grid">
+      
+      <!-- Panel izquierdo: Retos -->
+      <aside class="panel">
         <div class="panel-avatar">
-          <div class="panel-avatar-icon" id="panelAvatar">📚</div>
-          <div style="font-weight: bold; color: var(--primary); margin-top: 10px;" id="playerNamePanel">Aprendiz</div>
+          <span id="panelAvatar" class="panel-avatar-icon">📚</span>
+          <div style="font-weight: bold; margin-top: 10px;" id="playerNamePanel">Aprendiz</div>
         </div>
 
-        <h3>🗺️ Mundo 1: Fundamentos</h3>
-        
         <div class="progress-world">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <strong>Progreso</strong>
-            <span id="worldProgress">0/40</span>
-          </div>
+          <h4 style="color: var(--primary); margin-bottom: 10px;">Progreso</h4>
+          <div style="font-size: 18px; font-weight: bold; margin-bottom: 8px;" id="worldProgress">0/40</div>
           <div class="progress-bar-container">
-            <div class="progress-bar-fill" id="worldProgressBar" style="width: 0%">0%</div>
-          </div>
-          
-          <div style="margin-top: 15px;">
-            <strong>Reputación con Lorenzo</strong>
-            <div class="reputation-stars" id="lorenzoRep">
-              <span class="star empty">★</span>
-              <span class="star empty">★</span>
-              <span class="star empty">★</span>
-            </div>
+            <div id="worldProgressBar" class="progress-bar-fill" style="width: 0%">0%</div>
           </div>
         </div>
 
+        <div style="margin: 20px 0;">
+          <h4 style="color: var(--primary); margin-bottom: 10px;">Reputación con Lorenzo</h4>
+          <div id="lorenzoRep" class="reputation-stars">
+            <span class="star empty">★</span>
+            <span class="star empty">★</span>
+            <span class="star empty">★</span>
+          </div>
+        </div>
+
+        <h3>🗺️ Retos del Mundo 1</h3>
         <div id="challengeList"></div>
+      </aside>
 
-        <div class="progress-chart">
-          <h4>📊 Tu Progreso SQL</h4>
-          <div class="skill-bar">
-            <div class="skill-name">SELECT</div>
-            <div class="skill-bar-bg">
-              <div class="skill-bar-fill" id="skillSELECT" style="width: 0%">0%</div>
-            </div>
-          </div>
-          <div class="skill-bar">
-            <div class="skill-name">WHERE</div>
-            <div class="skill-bar-bg">
-              <div class="skill-bar-fill" id="skillWHERE" style="width: 0%">0%</div>
-            </div>
-          </div>
-          <div class="skill-bar">
-            <div class="skill-name">ORDER BY</div>
-            <div class="skill-bar-bg">
-              <div class="skill-bar-fill" id="skillORDER" style="width: 0%">0%</div>
-            </div>
-          </div>
-          <div class="skill-bar">
-            <div class="skill-name">AVANZADO</div>
-            <div class="skill-bar-bg">
-              <div class="skill-bar-fill" id="skillADVANCED" style="width: 0%">0%</div>
-            </div>
-          </div>
-        </div>
-
-        <div style="margin-top: 20px;">
-          <button class="btn btn-ghost" style="width: 100%; margin-bottom: 10px;" onclick="showSchema()">📋 Ver Esquema</button>
-          <button class="btn btn-ghost" style="width: 100%; margin-bottom: 10px;" onclick="showBadges()">🏆 Mis Insignias</button>
-          <button class="btn btn-ghost" style="width: 100%;" onclick="showDiary()">📖 Mi Diario</button>
-        </div>
-      </div>
-
-      <div class="panel">
+      <!-- Panel central: Editor y desafíos -->
+      <main class="panel">
         <div id="practiceBanner"></div>
         
-        <h3 id="challengeTitle">Cargando...</h3>
-        <p id="challengeDesc" style="color: var(--muted); margin-top: 10px;"></p>
-
+        <h2 id="challengeTitle" style="color: var(--primary); margin-bottom: 10px;">Bienvenido</h2>
+        <p id="challengeDesc" style="color: var(--muted); margin-bottom: 20px;">Selecciona un reto para comenzar</p>
+        
         <div id="npcDialogue"></div>
-
-        <div id="conceptBox" class="hint-box" style="background: #f0f9ff; border-left-color: var(--secondary); margin-top: 20px;"></div>
+        <div id="conceptBox" class="hint-box"></div>
 
         <div class="editor-container">
-          <label style="font-weight: bold; display: block; margin-bottom: 10px;">💻 Editor SQL</label>
-          <textarea id="sqlEditor" class="sql-editor" spellcheck="false">-- Escribe tu consulta aquí
-SELECT * FROM books;</textarea>
-          
+          <textarea id="sqlEditor" class="sql-editor" placeholder="-- Escribe tu consulta SQL aquí"></textarea>
           <div class="editor-controls">
             <button class="btn" onclick="executeQuery()">▶️ Ejecutar</button>
-            <button class="btn btn-secondary" id="exampleBtn" onclick="showExample()" disabled>
-              🔒 Ver Ejemplo Similar
-            </button>
-            <button class="btn btn-ghost" onclick="showHints()">🔍 Pistas</button>
             <button class="btn btn-ghost" onclick="clearEditor()">🗑️ Limpiar</button>
-            <div class="attempt-counter" id="attemptCounter" style="display: none;">
-              <span>❌</span>
+            <button class="btn btn-secondary" onclick="showHints()">💡 Pista</button>
+            <button class="btn btn-ghost" id="exampleBtn" onclick="showExample()" disabled>🔒 Ver Ejemplo</button>
+            <div id="attemptCounter" class="attempt-counter" style="display: none;">
+              <span>⚠️</span>
               <span id="attemptText">Intento 0/3</span>
             </div>
           </div>
         </div>
 
-        <div class="results" id="results">
+        <div id="results" class="results">
           <strong>📊 Resultados</strong>
           <p style="color: var(--muted); margin-top: 10px;">Ejecuta tu consulta para ver resultados...</p>
         </div>
-      </div>
+      </main>
 
-      <div class="panel">
-        <h3>💡 Ayuda</h3>
-        
-        <div id="lorenzoTips" class="hint-box">
-          <strong>Consejo de Lorenzo:</strong>
-          <p style="margin-top: 8px; font-size: 14px;">Comienza escribiendo SELECT para elegir qué columnas mostrar.</p>
-        </div>
-
-        <div id="currentHints" style="margin-top: 20px;">
-          <strong>Pistas disponibles:</strong>
-          <p style="color: var(--muted); font-size: 14px; margin-top: 8px;">Usa el botón "Pistas" para desbloquear ayuda.</p>
-        </div>
-
-        <div style="margin-top: 20px;">
-          <strong>📝 Consultas Favoritas</strong>
-          <div id="favoritesList" style="margin-top: 10px; font-size: 14px; color: var(--muted);">
-            Ninguna guardada aún
+      <!-- Panel derecho: Stats y botones -->
+      <aside class="panel">
+        <h3>📊 Tu Progreso SQL</h3>
+        <div class="progress-chart">
+          <h4>Habilidades Dominadas</h4>
+          <div class="skill-bar">
+            <div class="skill-name">SELECT</div>
+            <div class="skill-bar-bg">
+              <div id="skillSELECT" class="skill-bar-fill" style="width: 0%">0%</div>
+            </div>
           </div>
-          <button class="btn btn-ghost" style="width: 100%; margin-top: 10px;" onclick="saveFavorite()">⭐ Guardar Consulta</button>
+          <div class="skill-bar">
+            <div class="skill-name">WHERE</div>
+            <div class="skill-bar-bg">
+              <div id="skillWHERE" class="skill-bar-fill" style="width: 0%">0%</div>
+            </div>
+          </div>
+          <div class="skill-bar">
+            <div class="skill-name">ORDER BY</div>
+            <div class="skill-bar-bg">
+              <div id="skillORDER" class="skill-bar-fill" style="width: 0%">0%</div>
+            </div>
+          </div>
+          <div class="skill-bar">
+            <div class="skill-name">ADVANCED</div>
+            <div class="skill-bar-bg">
+              <div id="skillADVANCED" class="skill-bar-fill" style="width: 0%">0%</div>
+            </div>
+          </div>
         </div>
-      </div>
+
+        <div style="margin-top: 30px;">
+          <button class="btn" onclick="showTables()" style="width: 100%; margin-bottom: 10px;">📊 Mis Tablas</button>
+          <button class="btn btn-secondary" onclick="showBadges()" style="width: 100%; margin-bottom: 10px;">🏆 Mis Insignias</button>
+        </div>
+
+        <div id="lorenzoTips" class="hint-box" style="margin-top: 20px;">
+          <strong>Consejo de Lorenzo:</strong>
+          <p style="margin-top: 8px; font-size: 14px;">Selecciona un reto para comenzar tu aventura.</p>
+        </div>
+      </aside>
+
     </div>
   </div>
 
-  <div class="modal" id="modalGeneric">
+  <!-- Modal genérico -->
+  <div id="modalGeneric" class="modal">
     <div class="modal-content">
       <button class="modal-close" onclick="closeModal('modalGeneric')">×</button>
       <div id="modalGenericContent"></div>
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/confetti.browser.min.js"></script>
   <script src="game.js"></script>
 </body>
 </html>
