@@ -157,9 +157,22 @@
         </div>
 
         <div style="margin-top: 30px;">
-          <button class="btn" onclick="showTables()" style="width: 100%; margin-bottom: 10px;">📊 Mis Tablas</button>
-          <button class="btn btn-secondary" onclick="showBadges()" style="width: 100%; margin-bottom: 10px;">🏆 Mis Insignias</button>
-        </div>
+  <h3 style="cursor: pointer; padding: 12px; background: var(--card); border-radius: 8px; border: 2px solid var(--accent); margin-bottom: 0;" onclick="toggleTables()">
+    📊 Mis Tablas <span id="tablesToggle" style="float: right;">▼</span>
+  </h3>
+  <div id="tablesPanel" style="display: none; margin-top: 10px; padding: 15px; background: #f9fafb; border-radius: 8px; border: 2px solid #e5e7eb;">
+    <h4 style="color: var(--secondary); margin-bottom: 10px;">Tabla: books</h4>
+    <ul style="margin-left: 20px; font-size: 14px; line-height: 2;">
+      <li><code>id</code> - INTEGER</li>
+      <li><code>title</code> - TEXT (título)</li>
+      <li><code>author</code> - TEXT (autor)</li>
+      <li><code>year</code> - INTEGER (año)</li>
+      <li><code>pages</code> - INTEGER (páginas)</li>
+      <li><code>genre</code> - TEXT (género)</li>
+    </ul>
+  </div>
+  <button class="btn btn-secondary" onclick="showBadges()" style="width: 100%; margin-top: 10px;">🏆 Mis Insignias</button>
+</div>
 
         <div id="lorenzoTips" class="hint-box" style="margin-top: 20px;">
           <strong>Consejo de Lorenzo:</strong>
