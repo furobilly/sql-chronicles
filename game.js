@@ -314,7 +314,7 @@ const challenges = {
       { id: 1, desc: "🔍 Contiene 'Crónicas'", expected: "SELECT title, author FROM books WHERE title LIKE '%Crónicas%'", hint: "LIKE '%Crónicas%'", example: "SELECT title FROM books WHERE title LIKE '%Historia%';" },
       { id: 2, desc: "📖 Empieza 'El'", expected: "SELECT title FROM books WHERE title LIKE 'El%'", hint: "LIKE 'El%'", example: "SELECT title FROM books WHERE title LIKE 'La%';" },
       { id: 3, desc: "✍️ Contiene 'Platón'", expected: "SELECT author, title FROM books WHERE author LIKE '%Platón%'", hint: "LIKE '%Platón%'", example: "SELECT title FROM books WHERE author LIKE '%Leonardo%';" },
-      { id: 4, desc: "🎯 Termina 'Mundo'", expected: "SELECT title, genre FROM books WHERE title LIKE '%Mundo'", hint: "LIKE '%Mundo'", example: "SELECT title FROM books WHERE title LIKE '%Valoria';" }
+      { id: 4, desc: "🎯 Termina 'Florencia'", expected: "SELECT title, genre FROM books WHERE title LIKE '%Florencia'", hint: "LIKE '%Florencia'", example: "SELECT title FROM books WHERE title LIKE '%Valoria';" }
     ],
     xp: 45, coins: 60, difficulty: 3, skill: 'ADVANCED'
   },
@@ -488,7 +488,7 @@ function renderChallenges() {
       ${subExercisesHTML}
     `;
     
-    div.onclick = (e) => {
+    div.onclick = function(e) {
       if (e.target.classList.contains('sub-exercise')) return;
       sounds.click();
       toggleChallengeExpansion(i);
@@ -812,6 +812,22 @@ window.showTables = function() {
   document.getElementById('modalGeneric').classList.add('active');
 };
 
+window.toggleTables = function() {
+  sounds.click();
+  const panel = document.getElementById('tablesPanel');
+  const toggle = document.getElementById('tablesToggle');
+  
+  if (panel && toggle) {
+    if (panel.style.display === 'none' || panel.style.display === '') {
+      panel.style.display = 'block';
+      toggle.textContent = '▲';
+    } else {
+      panel.style.display = 'none';
+      toggle.textContent = '▼';
+    }
+  }
+};
+
 window.showBadges = function() {
   sounds.click();
   const content = document.getElementById('modalGenericContent');
@@ -842,21 +858,7 @@ window.showShop = function() {
   document.getElementById('modalGeneric').classList.add('active');
 };
 
-845  window.closeModal = function(id) {
-846    sounds.click();
-847    document.getElementById(id).classList.remove('active');
-848  };
-849
-850  window.toggleTables = function() {
-851    sounds.click();
-852    const panel = document.getElementById('tablesPanel');
-853    const toggle = document.getElementById('tablesToggle');
-854    
-855    if (panel.style.display === 'none' || panel.style.display === '') {
-856      panel.style.display = 'block';
-857      toggle.textContent = '▲';
-858    } else {
-859      panel.style.display = 'none';
-860      toggle.textContent = '▼';
-861    }
-862  };
+window.closeModal = function(id) {
+  sounds.click();
+  document.getElementById(id).classList.remove('active');
+};
