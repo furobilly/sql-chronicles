@@ -1,5 +1,5 @@
 // ============================================
-// SCRIPTUM SQL v1.2 - NARRATIVA ÉPICA
+// SCRIPTUM SQL v1.3 - SISTEMA PEDAGÓGICO
 // ============================================
 
 window.gameState = {
@@ -26,7 +26,8 @@ window.gameState = {
   theme: 'light',
   db: null,
   skills: { SELECT: 0, WHERE: 0, ORDER: 0, ADVANCED: 0 },
-  expandedChallenges: []
+  expandedChallenges: [],
+  tutorialsSeen: []
 };
 
 const allBadges = [
@@ -61,6 +62,204 @@ const dbSeed = `
   (9, 'Poemas del Alba', 'Isabella Cortés', 1522, 96, 'Poesía'),
   (10, 'Historia de Florencia', 'Leonardo Bruni', 1492, 384, 'Historia');
 `;
+
+const sqlTutorials = {
+  1: {
+    title: 'SELECT y FROM',
+    content: `
+<h2>📚 LECCIÓN: SELECT y FROM</h2>
+<div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 15px 0;">
+  <h3>🎯 ¿Qué hacen?</h3>
+  <p><strong>SELECT</strong> elige QUÉ columnas quieres ver<br>
+  <strong>FROM</strong> indica DE QUÉ tabla sacar los datos</p>
+</div>
+
+<div style="background: #fffbeb; padding: 20px; border-radius: 8px; margin: 15px 0;">
+  <h3>📖 ESTRUCTURA BÁSICA:</h3>
+  <pre style="background: #1e1e1e; color: #fff; padding: 15px; border-radius: 8px;">
+SELECT columna1, columna2
+FROM nombre_tabla;</pre>
+</div>
+
+<div style="background: #ecfdf5; padding: 20px; border-radius: 8px; margin: 15px 0;">
+  <h3>🔑 REGLAS IMPORTANTES:</h3>
+  <p>1️⃣ Las columnas se separan con <strong>comas (,)</strong><br>
+  2️⃣ La consulta termina con <strong>punto y coma (;)</strong><br>
+  3️⃣ Usa <strong>*</strong> para seleccionar TODAS las columnas<br>
+  4️⃣ SQL no distingue mayúsculas/minúsculas</p>
+</div>
+
+<div style="background: #fef3c7; padding: 20px; border-radius: 8px; margin: 15px 0;">
+  <h3>✏️ EJEMPLOS:</h3>
+  <p><strong>Ejemplo 1:</strong> Solo una columna</p>
+  <pre style="background: #1e1e1e; color: #fff; padding: 15px; border-radius: 8px;">
+SELECT title
+FROM books;</pre>
+  
+  <p style="margin-top: 15px;"><strong>Ejemplo 2:</strong> Dos columnas (nota la coma)</p>
+  <pre style="background: #1e1e1e; color: #fff; padding: 15px; border-radius: 8px;">
+SELECT title, author
+FROM books;
+           ↑
+      Coma separa columnas</pre>
+  
+  <p style="margin-top: 15px;"><strong>Ejemplo 3:</strong> Todas las columnas</p>
+  <pre style="background: #1e1e1e; color: #fff; padding: 15px; border-radius: 8px;">
+SELECT *
+FROM books;</pre>
+</div>
+`
+  },
+  3: {
+    title: 'WHERE - Filtrar Datos',
+    content: `
+<h2>📚 LECCIÓN: WHERE (Filtrar)</h2>
+<div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 15px 0;">
+  <h3>🎯 ¿Qué hace WHERE?</h3>
+  <p><strong>WHERE</strong> filtra las filas que cumplen una condición.<br>
+  Solo muestra las filas donde la condición es verdadera.</p>
+</div>
+
+<div style="background: #fffbeb; padding: 20px; border-radius: 8px; margin: 15px 0;">
+  <h3>📖 ESTRUCTURA:</h3>
+  <pre style="background: #1e1e1e; color: #fff; padding: 15px; border-radius: 8px;">
+SELECT columnas
+FROM tabla
+WHERE condición;</pre>
+</div>
+
+<div style="background: #ecfdf5; padding: 20px; border-radius: 8px; margin: 15px 0;">
+  <h3>🔑 REGLAS CRÍTICAS:</h3>
+  <p>1️⃣ WHERE va <strong>DESPUÉS de FROM</strong><br>
+  2️⃣ Usa <strong>=</strong> para comparar (no ==)<br>
+  3️⃣ <strong>TEXTO</strong> va entre <strong>'comillas simples'</strong><br>
+  4️⃣ <strong>NÚMEROS</strong> NO llevan comillas</p>
+</div>
+
+<div style="background: #fef3c7; padding: 20px; border-radius: 8px; margin: 15px 0;">
+  <h3>✏️ EJEMPLOS:</h3>
+  
+  <p><strong>Ejemplo 1:</strong> Filtrar por TEXTO</p>
+  <pre style="background: #1e1e1e; color: #fff; padding: 15px; border-radius: 8px;">
+SELECT title, author
+FROM books
+WHERE author = 'Lorenzo de Médicis';
+               ↑                   ↑
+          Comillas simples para TEXTO</pre>
+  
+  <p style="margin-top: 15px;"><strong>Ejemplo 2:</strong> Filtrar por NÚMERO</p>
+  <pre style="background: #1e1e1e; color: #fff; padding: 15px; border-radius: 8px;">
+SELECT title, year
+FROM books
+WHERE year = 1500;
+           ↑
+    Sin comillas (es NÚMERO)</pre>
+  
+  <p style="margin-top: 15px;"><strong>Ejemplo 3:</strong> Otro filtro de texto</p>
+  <pre style="background: #1e1e1e; color: #fff; padding: 15px; border-radius: 8px;">
+SELECT title, genre
+FROM books
+WHERE genre = 'Historia';</pre>
+</div>
+
+<div style="background: #fee; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #f00;">
+  <h3>❌ ERRORES COMUNES:</h3>
+  <p><strong>ERROR:</strong> WHERE author = Lorenzo<br>
+  ❌ Falta comillas (SQL piensa que Lorenzo es una columna)<br><br>
+  <strong>CORRECTO:</strong> WHERE author = 'Lorenzo de Médicis'<br>
+  ✅ Con comillas simples</p>
+</div>
+`
+  },
+  5: {
+    title: 'ORDER BY - Ordenar',
+    content: `
+<h2>📚 LECCIÓN: ORDER BY</h2>
+<div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 15px 0;">
+  <h3>🎯 ¿Qué hace ORDER BY?</h3>
+  <p><strong>ORDER BY</strong> ordena los resultados según una columna.</p>
+</div>
+
+<div style="background: #fffbeb; padding: 20px; border-radius: 8px; margin: 15px 0;">
+  <h3>📖 ESTRUCTURA:</h3>
+  <pre style="background: #1e1e1e; color: #fff; padding: 15px; border-radius: 8px;">
+SELECT columnas
+FROM tabla
+ORDER BY columna ASC;  -- Ascendente (menor a mayor)
+
+SELECT columnas
+FROM tabla
+ORDER BY columna DESC; -- Descendente (mayor a menor)</pre>
+</div>
+
+<div style="background: #ecfdf5; padding: 20px; border-radius: 8px; margin: 15px 0;">
+  <h3>🔑 REGLAS:</h3>
+  <p>1️⃣ <strong>ASC</strong> = Ascendente (A→Z, 0→9) [por defecto]<br>
+  2️⃣ <strong>DESC</strong> = Descendente (Z→A, 9→0)<br>
+  3️⃣ ORDER BY va al FINAL<br>
+  4️⃣ Puedes ordenar por cualquier columna</p>
+</div>
+
+<div style="background: #fef3c7; padding: 20px; border-radius: 8px; margin: 15px 0;">
+  <h3>✏️ EJEMPLOS:</h3>
+  <pre style="background: #1e1e1e; color: #fff; padding: 15px; border-radius: 8px;">
+-- Libros del más antiguo al más nuevo
+SELECT title, year
+FROM books
+ORDER BY year ASC;
+
+-- Libros del más largo al más corto
+SELECT title, pages
+FROM books
+ORDER BY pages DESC;
+
+-- Autores alfabéticamente
+SELECT author, title
+FROM books
+ORDER BY author ASC;</pre>
+</div>
+`
+  },
+  8: {
+    title: 'AND y OR - Condiciones Múltiples',
+    content: `
+<h2>📚 LECCIÓN: AND / OR</h2>
+<div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 15px 0;">
+  <h3>🎯 ¿Qué hacen?</h3>
+  <p><strong>AND</strong> = Ambas condiciones deben ser verdaderas<br>
+  <strong>OR</strong> = Al menos una condición debe ser verdadera</p>
+</div>
+
+<div style="background: #fffbeb; padding: 20px; border-radius: 8px; margin: 15px 0;">
+  <h3>📖 ESTRUCTURA:</h3>
+  <pre style="background: #1e1e1e; color: #fff; padding: 15px; border-radius: 8px;">
+-- AND (ambas condiciones)
+SELECT columnas
+FROM tabla
+WHERE condición1 AND condición2;
+
+-- OR (una u otra)
+SELECT columnas
+FROM tabla
+WHERE condición1 OR condición2;</pre>
+</div>
+
+<div style="background: #fef3c7; padding: 20px; border-radius: 8px; margin: 15px 0;">
+  <h3>✏️ EJEMPLOS:</h3>
+  <pre style="background: #1e1e1e; color: #fff; padding: 15px; border-radius: 8px;">
+-- Libros después de 1500 Y con menos de 200 páginas
+SELECT title, year, pages
+FROM books
+WHERE year > 1500 AND pages < 200;
+
+-- Libros de Historia O Filosofía
+SELECT title, genre
+FROM books
+WHERE genre = 'Historia' OR genre = 'Filosofía';</pre>
+</div>
+`
+  }
+};
 
 const sounds = {
   click: () => {
@@ -189,11 +388,11 @@ if (document.readyState === 'loading') {
 function saveGameState() {
   const state = Object.assign({}, window.gameState);
   delete state.db;
-  localStorage.setItem('scriptumSQL_v1_2', JSON.stringify(state));
+  localStorage.setItem('scriptumSQL_v1_3', JSON.stringify(state));
 }
 
 function loadGameState() {
-  const saved = localStorage.getItem('scriptumSQL_v1_2');
+  const saved = localStorage.getItem('scriptumSQL_v1_3');
   if (saved) {
     try {
       const data = JSON.parse(saved);
@@ -210,6 +409,9 @@ function loadGameState() {
       }
       if (!window.gameState.currentDay) {
         window.gameState.currentDay = 1;
+      }
+      if (!window.gameState.tutorialsSeen) {
+        window.gameState.tutorialsSeen = [];
       }
     } catch (e) {
       console.error('Error loading save:', e);
@@ -261,7 +463,8 @@ const challenges = {
       { id: 4, desc: '🌟 Todo con *', expected: 'SELECT * FROM books', hint: 'SELECT * FROM books;', example: 'SELECT title, author FROM books;' }
     ],
     xp: 20, coins: 15, difficulty: 1, skill: 'SELECT',
-    diaryEntry: 'Día 1: El Eclipse golpeó. Lorenzo me encontró. Soy la última esperanza.'
+    diaryEntry: 'Día 1: El Eclipse golpeó. Lorenzo me encontró. Soy la última esperanza.',
+    hasTutorial: true
   },
   2: {
     title: 'La Selección Precisa',
@@ -286,7 +489,8 @@ const challenges = {
     ],
     xp: 25, coins: 25, difficulty: 2, badge: 'domador', skill: 'WHERE',
     diaryEntry: 'Día 3: Historia se borra primero. Encontré un autor fantasma.',
-    revelation: true
+    revelation: true,
+    hasTutorial: true
   },
   4: {
     title: 'Comparaciones',
@@ -311,7 +515,8 @@ const challenges = {
     ],
     xp: 30, coins: 35, difficulty: 2, badge: 'ordenador', skill: 'ORDER',
     diaryEntry: 'Día 5: ORDER BY reveló: "BUSCA AL AUTOR FANTASMA".',
-    revelation: true
+    revelation: true,
+    hasTutorial: true
   },
   6: {
     title: 'LIMIT',
@@ -349,7 +554,8 @@ const challenges = {
     ],
     xp: 40, coins: 50, difficulty: 3, badge: 'revelacion', skill: 'WHERE',
     diaryEntry: 'Día 8: Sofía confesó su error. Lorenzo perdonó. Unidos.',
-    revelation: true
+    revelation: true,
+    hasTutorial: true
   },
   9: {
     title: 'LIKE',
@@ -378,6 +584,23 @@ const challenges = {
   }
 };
 
+function showTutorial(challengeId) {
+  const tutorial = sqlTutorials[challengeId];
+  if (!tutorial || window.gameState.tutorialsSeen.includes(challengeId)) return;
+  
+  const modal = document.getElementById('modalGeneric');
+  const content = document.getElementById('modalGenericContent');
+  content.innerHTML = tutorial.content + `<button class="btn" onclick="closeTutorial(${challengeId})" style="width: 100%; margin-top: 20px; font-size: 18px;">¡Entendido! Comenzar ejercicios</button>`;
+  modal.classList.add('active');
+  sounds.click();
+}
+
+window.closeTutorial = function(challengeId) {
+  window.gameState.tutorialsSeen.push(challengeId);
+  saveGameState();
+  closeModal('modalGeneric');
+};
+
 function startOnboarding() {
   document.getElementById('onboarding').classList.remove('hidden');
   showOnboardingStep(1);
@@ -397,7 +620,7 @@ function showOnboardingStep(step) {
       </div>
       <h1 style="font-size: 32px; color: var(--primary); margin-bottom: 20px;">El Manuscrito Perdido</h1>
       <p style="font-size: 18px; color: var(--muted); margin-bottom: 10px;">Una aventura épica</p>
-      <p style="font-size: 14px; color: var(--muted); margin-bottom: 30px;">v1.2 - Narrativa Completa</p>
+      <p style="font-size: 14px; color: var(--muted); margin-bottom: 30px;">v1.3 - Sistema Pedagógico</p>
       <button class="btn" onclick="showOnboardingStep(2)" style="font-size: 18px; padding: 16px 32px;">⚔️ Comenzar</button>
     `;
   } else if (step === 2) {
@@ -586,6 +809,11 @@ window.loadSubExercise = function(challengeId, subExerciseId) {
 
 function loadChallenge(challengeId, subExerciseId) {
   const challenge = challenges[challengeId];
+  
+  if (challenge.hasTutorial && subExerciseId === 1 && !window.gameState.tutorialsSeen.includes(challengeId)) {
+    showTutorial(challengeId);
+  }
+  
   const subExercise = challenge.subExercises.find(s => s.id === subExerciseId);
   const narrative = narrativeDialogues[challengeId] ? narrativeDialogues[challengeId][subExerciseId] : null;
   
@@ -609,7 +837,7 @@ function loadChallenge(challengeId, subExerciseId) {
   
   document.getElementById('conceptBox').innerHTML = challenge.concept;
   document.getElementById('sqlEditor').value = '-- Escribe tu consulta aquí\n';
-  document.getElementById('results').innerHTML = '<strong>📊 Resultados</strong><p style="color: var(--muted); margin-top: 10px;">Ejecuta...</p>';
+  document.getElementById('results').innerHTML = '<strong>📊 Resultados</strong><p style="color: var(--muted); margin-top: 10px;">Ejecuta tu consulta...</p>';
   
   window.gameState.attempts = 0;
   window.gameState.exampleUnlocked = false;
@@ -659,22 +887,23 @@ window.executeQuery = function() {
   
   try {
     const results = window.gameState.db.exec(query);
-    displayResults(results);
-    checkSolution(query);
+    displayResults(results, query);
+    checkSolution(query, results);
   } catch (e) {
     sounds.error();
-    displayError(e.message);
+    displayError(e.message, query);
     window.gameState.attempts++;
     updateAttemptCounter();
   }
 };
 
-function displayResults(results) {
+function displayResults(results, query) {
   const container = document.getElementById('results');
-  container.innerHTML = '<strong>📊 Resultados</strong>';
+  container.innerHTML = `<strong>📊 Resultados de tu consulta</strong>
+  <div style="background: #1e1e1e; color: #4ade80; padding: 10px; border-radius: 8px; margin: 10px 0; font-family: monospace; font-size: 13px;">${query}</div>`;
   
   if (!results || results.length === 0) {
-    container.innerHTML += '<p style="color: var(--muted); margin-top: 10px;">Sin resultados.</p>';
+    container.innerHTML += '<p style="color: var(--muted); margin-top: 10px;">✅ Consulta ejecutada. Sin resultados (0 filas).</p>';
     return;
   }
   
@@ -702,15 +931,60 @@ function displayResults(results) {
     tbody.appendChild(tr);
   });
   table.appendChild(tbody);
+  
+  const resultCount = document.createElement('div');
+  resultCount.style.cssText = 'margin-top: 10px; font-size: 14px; color: var(--muted);';
+  resultCount.textContent = `📋 ${result.values.length} fila(s) encontrada(s)`;
+  
   container.appendChild(table);
+  container.appendChild(resultCount);
 }
 
-function displayError(message) {
+function displayError(message, query) {
   const container = document.getElementById('results');
-  container.innerHTML = `<strong style="color: var(--danger);">❌ Error</strong><pre style="color: var(--danger); margin-top: 10px; font-size: 14px;">${message}</pre>`;
+  container.innerHTML = `<strong style="color: var(--danger);">❌ Error en tu consulta</strong>`;
+  
+  const queryDisplay = document.createElement('div');
+  queryDisplay.style.cssText = 'background: #1e1e1e; color: #f87171; padding: 10px; border-radius: 8px; margin: 10px 0; font-family: monospace; font-size: 13px;';
+  queryDisplay.textContent = query;
+  container.appendChild(queryDisplay);
+  
+  const errorBox = document.createElement('div');
+  errorBox.style.cssText = 'background: #fee; padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #f00;';
+  
+  let explanation = '';
+  if (message.includes('no such column')) {
+    const columnName = message.split(':')[1]?.trim() || 'desconocido';
+    explanation = `
+      <h3 style="color: #f00; margin-bottom: 10px;">🔍 Problema detectado:</h3>
+      <p><strong>"${columnName}"</strong> no es una columna válida.</p>
+      <h3 style="color: #f00; margin: 15px 0 10px 0;">💡 Posibles causas:</h3>
+      <p>1️⃣ <strong>Olvidaste comillas:</strong> Si es texto, debe ir entre 'comillas'<br>
+      Ejemplo: <code>WHERE author = 'Lorenzo de Médicis'</code></p>
+      <p>2️⃣ <strong>Nombre incorrecto:</strong> Verifica que la columna exista<br>
+      Columnas disponibles: <code>title, author, year, pages, genre</code></p>
+    `;
+  } else if (message.includes('syntax error')) {
+    explanation = `
+      <h3 style="color: #f00; margin-bottom: 10px;">🔍 Error de sintaxis:</h3>
+      <p>Revisa que tu consulta tenga la estructura correcta:</p>
+      <pre style="background: #fff; padding: 10px; border-radius: 4px; margin-top: 10px;">SELECT columnas
+FROM tabla
+WHERE condición;</pre>
+      <p style="margin-top: 10px;">🔑 Verifica:<br>
+      - ¿Separaste las columnas con comas (,)?<br>
+      - ¿Terminaste con punto y coma (;)?<br>
+      - ¿El texto va entre 'comillas simples'?</p>
+    `;
+  } else {
+    explanation = `<pre style="color: #f00; margin-top: 10px;">${message}</pre>`;
+  }
+  
+  errorBox.innerHTML = explanation;
+  container.appendChild(errorBox);
 }
 
-function checkSolution(userQuery) {
+function checkSolution(userQuery, results) {
   const challengeId = window.gameState.currentChallenge;
   const subExerciseId = window.gameState.currentSubExercise;
   const challenge = challenges[challengeId];
@@ -721,7 +995,7 @@ function checkSolution(userQuery) {
   const expectedNorm = normalize(subExercise.expected);
   
   if (userNorm === expectedNorm || userNorm.includes(expectedNorm)) {
-    completeSubExercise(challengeId, subExerciseId);
+    completeSubExercise(challengeId, subExerciseId, results);
   } else {
     sounds.error();
     window.gameState.attempts++;
@@ -729,7 +1003,7 @@ function checkSolution(userQuery) {
   }
 }
 
-function completeSubExercise(challengeId, subExerciseId) {
+function completeSubExercise(challengeId, subExerciseId, results) {
   const challenge = challenges[challengeId];
   const completedSubs = window.gameState.completedSubExercises[challengeId] || [];
   
@@ -785,10 +1059,16 @@ function completeSubExercise(challengeId, subExerciseId) {
   
   const resultsDiv = document.getElementById('results');
   const successMsg = document.createElement('div');
-  successMsg.style.cssText = 'margin-top: 20px; padding: 20px; background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-radius: 12px;';
+  successMsg.style.cssText = 'margin-top: 20px; padding: 20px; background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-radius: 12px; border: 2px solid #10b981;';
+  
+  let resultSummary = '';
+  if (results && results.length > 0) {
+    resultSummary = `<p style="margin-top: 10px;">📋 Filas obtenidas: <strong>${results[0].values.length}</strong></p>`;
+  }
+  
   successMsg.innerHTML = window.gameState.practiceMode ? 
-    '<div style="text-align: center;"><div style="font-size: 48px;">✅</div><h3>¡Correcto!</h3><p>Modo práctica</p></div>' :
-    '<div style="text-align: center;"><div style="font-size: 48px;">🎉</div><h3>¡Completado!</h3></div>';
+    `<div style="text-align: center;"><div style="font-size: 48px;">✅</div><h3>¡Correcto!</h3><p>Modo práctica</p>${resultSummary}</div>` :
+    `<div style="text-align: center;"><div style="font-size: 48px;">🎉</div><h3>¡Ejercicio Completado!</h3><p>+${Math.ceil(challenge.xp/4)} XP | +${Math.ceil(challenge.coins/4)} monedas</p>${resultSummary}</div>`;
   resultsDiv.appendChild(successMsg);
   
   renderGame();
@@ -900,7 +1180,7 @@ window.showExample = function() {
   sounds.click();
   const challenge = challenges[window.gameState.currentChallenge];
   const subExercise = challenge.subExercises.find(s => s.id === window.gameState.currentSubExercise);
-  alert(`💡 EJEMPLO:\n\n${subExercise.example}\n\nAdáptalo.`);
+  alert(`💡 EJEMPLO:\n\n${subExercise.example}\n\nAdáptalo a lo que se pide.`);
 };
 
 window.clearEditor = function() {
@@ -931,13 +1211,18 @@ window.showTables = function() {
     <div style="margin: 20px 0;">
       <h3 style="color: var(--secondary);">Tabla: books</h3>
       <ul style="margin-left: 20px; margin-top: 10px;">
-        <li><code>id</code> - INTEGER</li>
-        <li><code>title</code> - TEXT</li>
-        <li><code>author</code> - TEXT</li>
-        <li><code>year</code> - INTEGER</li>
-        <li><code>pages</code> - INTEGER</li>
-        <li><code>genre</code> - TEXT</li>
+        <li><code>id</code> - INTEGER (número único)</li>
+        <li><code>title</code> - TEXT (título del libro)</li>
+        <li><code>author</code> - TEXT (autor)</li>
+        <li><code>year</code> - INTEGER (año de publicación)</li>
+        <li><code>pages</code> - INTEGER (número de páginas)</li>
+        <li><code>genre</code> - TEXT (género literario)</li>
       </ul>
+      <div style="background: #fffbeb; padding: 15px; border-radius: 8px; margin-top: 15px;">
+        <strong>💡 Recuerda:</strong><br>
+        - TEXT (texto) va entre 'comillas simples'<br>
+        - INTEGER (números) NO llevan comillas
+      </div>
     </div>
     <button class="btn" onclick="closeModal('modalGeneric')" style="width: 100%;">Cerrar</button>
   `;
